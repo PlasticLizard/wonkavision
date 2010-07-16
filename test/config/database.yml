@@ -1,0 +1,15 @@
+development: &global_settings
+  database: wonkavision_dev
+  host: 127.0.0.1
+  port: 27017
+
+test: 
+  database: wonkavision_test
+  <<: *global_settings
+
+production:
+  database: wonkavision
+  #username: username
+  #password: password
+  <<: *global_settings
+
