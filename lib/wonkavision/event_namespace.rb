@@ -39,7 +39,15 @@ module Wonkavision
           raise "An unexpected child type was encountered in find_matching_events #{child.class}"
         end
       end
+      #If no child was found, and the event matches this namespace, we should add ourselves to the list.
+      #This is not necessary if any child event was located, because in that case event notifications
+      #would bubble up to us anyway. If no event was found, there's nobody to blow the bubble but us.
+      events << self if events.blank? && matches_event(event_path)
       events
+    end
+
+    def matches_event(event_path)
+      Wonkavision.split(path) == Wonkavision.split(event_path).slice(0..-2)
     end
 
     #dsl

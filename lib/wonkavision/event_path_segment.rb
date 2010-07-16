@@ -18,7 +18,7 @@ module Wonkavision
       self
     end   
 
-    def notify_subscribers(event_data, event_path = self.path)
+    def notify_subscribers(event_data, event_path=self.path)
       @subscribers.each do |sub|
         sub.call(event_data,event_path)
       end

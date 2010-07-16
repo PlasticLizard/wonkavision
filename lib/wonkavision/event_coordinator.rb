@@ -39,8 +39,10 @@ module Wonkavision
         return unless event_data = process_incoming_event(event_path,event_data)
 
         event_path = Wonkavision.normalize_event_path(event_path)
-        targets = root_namespace.find_matching_events(event_path)#should be find matching segments, so namespaces can play too
-        targets.each{|target|target.notify_subscribers(event_data)}
+        targets = root_namespace.find_matching_events(event_path)
+        #If the event wasn't matched, maybe someone is subscribing to '/*' ? 
+        targets = [root_namespace] if targets.blank?
+        targets.each{|target|target.notify_subscribers(event_data,event_path)}
       end
     end
 

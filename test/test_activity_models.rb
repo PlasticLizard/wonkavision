@@ -23,7 +23,9 @@ unless defined?(::TestEventHandler)
 
     #handle ALL events in any namespace
     handle "/*" do |data,path|
+      puts "Handling #{path}. Before: #{TestEventHandler.knids.inspect}"
       TestEventHandler.knids << [data,path] if path !~ /^vermicious.*/
+      puts "After: #{TestEventHandler.knids.inspect}"
     end
 
   end

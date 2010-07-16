@@ -12,6 +12,10 @@ module Wonkavision
       event_path == path || @source_events.detect{|evt|evt.matches(event_path)} != nil
     end
 
+    def notify_subscribers(event_data,event_path)
+      super (event_data,self.path)
+    end
+
     def source_events(*args)
       return @source_events if args.blank?
       @source_events = @source_events.concat(args.map do |source|
