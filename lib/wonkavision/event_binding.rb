@@ -8,7 +8,7 @@ module Wonkavision
       @handler = handler
       @name = name
       @events = []
-      args = [@name] if args.blank?
+      args = [@name] if args.blank? || args.flatten.blank?
       @events = args.flatten.map{|evt_name|@handler.event_path(evt_name)}
     end
 

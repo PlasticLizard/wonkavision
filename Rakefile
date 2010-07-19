@@ -10,8 +10,8 @@ begin
   Jeweler::Tasks.new do |s|
     s.name = "wonkavision"
     s.version = Wonkavision::VERSION
-    s.summary = "Simple Business Activity Monitoring (BAM) for Mongo Mapper"
-    s.description = "BAM! BAM! BAM BAM!"
+    s.summary = "Simple Business Activity Monitoring"
+    s.description = "Wonkavision is a small gem that allows you to publish"
     s.email = "hereiam@sonic.net"
     s.homepage = "http://github.com/PlasticLizard/wonkavision"
     s.authors = ["Nathan Stults"]

@@ -41,7 +41,7 @@ module Wonkavision
               case block.arity
                 when 2 then yield event_data,event_path
                 when 1 then yield event_data
-                yield
+                else yield
               end
             end
           end

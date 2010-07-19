@@ -9,7 +9,15 @@ class BusinessActivityTest < ActiveSupport::TestCase
     should "configure correlation identifiers from DSL" do
       assert_equal({:event=>:test_id, :model=>:test_id}, TestBusinessActivity.correlate_by)
     end
-    should "create the appropriate keys" do
+    should "register activity with global registry" do
+      assert_equal 1, Wonkavision::Plugins::BusinessActivity.all.length
+      assert_equal TestBusinessActivity, Wonkavision::Plugins::BusinessActivity.all[0]
+    end
+
+    should "register correlation ids with each activity" do
+      ids =  Wonkavision::Plugins::BusinessActivity.all[0].correlation_ids
+      assert_equal 1, ids.length
+      assert_equal "test_id", ids[0][:event]
     end
     
   end

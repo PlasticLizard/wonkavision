@@ -2,9 +2,18 @@ module Wonkavision
   module Plugins
     module BusinessActivity
 
+      def self.all
+        @@all ||= []
+      end
+
       def self.configure(activity,options={})
         activity.write_inheritable_attribute :business_activity_options, {}
         activity.class_inheritable_reader :business_activity_options
+
+        activity.write_inheritable_attribute :correlation_ids, []
+        activity.class_inheritable_reader :correlation_ids
+
+        BusinessActivity.all << activity
       end
 
       module ClassMethods
@@ -44,6 +53,7 @@ module Wonkavision
           business_activity_options[:event_correlation_id_key] = event_field
 
           define_document_key correlation_id_field, String, :index=>true
+          correlation_ids << {:model=>model_field.to_s, :event=>event_field.to_s}
         end
 
         def find_activity(event_data)

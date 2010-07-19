@@ -13,7 +13,7 @@ module Wonkavision
     end
 
     def notify_subscribers(event_data,event_path)
-      super (event_data,self.path)
+      super(event_data,self.path)
     end
 
     def source_events(*args)

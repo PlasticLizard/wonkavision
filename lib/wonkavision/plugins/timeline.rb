@@ -1,6 +1,9 @@
 module Wonkavision
   module Plugins
     module Timeline
+      def self.all
+        @@all ||= []
+      end
 
       def self.configure(activity,options={})
         activity.ensure_wonkavision_plugin(Wonkavision::Plugins::BusinessActivity,options)
@@ -17,6 +20,8 @@ module Wonkavision
 
         activity.define_document_key(activity.timeline_field,Hash,:default=>{})
         activity.define_document_key(activity.latest_milestone_field, String, :default=>"awaiting_first_event")
+
+        Timeline.all << activity
       end
 
       module ClassMethods

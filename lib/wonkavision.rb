@@ -1,5 +1,5 @@
 require "rubygems"
-require "amqp"
+require "active_support"
 require "active_support/hash_with_indifferent_access" unless defined?(HashWithIndifferentAccess)
 
 dir = File.dirname(__FILE__)
