@@ -22,7 +22,6 @@ module Wonkavision
       @subscribers.each do |sub|
         sub.call(event_data,event_path)
       end
-      namespace.notify_subscribers(event_data,event_path) if namespace
     end
 
     def root_namespace

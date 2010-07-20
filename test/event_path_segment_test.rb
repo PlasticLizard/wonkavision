@@ -37,20 +37,6 @@ class EventPathSegmentTest < ActiveSupport::TestCase
       seg.notify_subscribers(5,2)
 
       assert_equal 9, x
-    end
-    should "bubble the call to notify_subscribers up the hierarchy" do
-      called = []
-      ns1 = Wonkavision::EventPathSegment.new(:ns1)
-      ns1.subscribe {called << ns1}
-      ns2 = Wonkavision::EventPathSegment.new(:ns2,ns1)
-      ns2.subscribe {called << ns2}
-      evt = Wonkavision::EventPathSegment.new(:evt,ns2)
-
-      evt.notify_subscribers(nil)
-
-      assert_equal 2, called.length
-      assert_equal ns2, called[0]
-      assert_equal ns1, called[1]
-    end
+    end    
   end
 end

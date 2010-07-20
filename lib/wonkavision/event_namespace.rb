@@ -28,13 +28,13 @@ module Wonkavision
       end
     end
 
-    def find_matching_events (event_path)
-      events = []
+    def find_matching_segments (event_path)
+      selected = {}
       @children.each_value do |child|
         if (child.is_a?(Wonkavision::Event))
-          events << child if child.matches(event_path)
+          select_segment(child,selected) if child.matches(event_path)
         elsif (child.is_a?(Wonkavision::EventNamespace))
-          events.concat(child.find_matching_events(event_path))
+          selected.merge!(child.find_matching_segments(event_path))
         else
           raise "An unexpected child type was encountered in find_matching_events #{child.class}"
         end
@@ -42,8 +42,8 @@ module Wonkavision
       #If no child was found, and the event matches this namespace, we should add ourselves to the list.
       #This is not necessary if any child event was located, because in that case event notifications
       #would bubble up to us anyway. If no event was found, there's nobody to blow the bubble but us.
-      events << self if events.blank? && matches_event(event_path)
-      events
+      select_segment(self,selected) if selected.blank? && matches_event(event_path)
+      selected
     end
 
     def matches_event(event_path)
@@ -54,7 +54,7 @@ module Wonkavision
     def namespace(*args)
       return super if args.blank?
       name, opts = args.shift, (args.shift || {})
-      ns = Wonkavision::EventNamespace.new(name,self,opts)
+      ns = @children[name] || Wonkavision::EventNamespace.new(name,self,opts)
       yield ns if block_given?
       @children[ns.name] = ns
       ns
@@ -63,10 +63,17 @@ module Wonkavision
     def event(*args)
       name, opts  = args.shift, args.extract_options!
       opts[:source_events] = (opts[:source_events] || []).concat(args) unless args.blank?
-      evt = Wonkavision::Event.new(name,self,opts)
+      evt = @children[name] || Wonkavision::Event.new(name,self,opts)
       yield evt if block_given?
       @children[evt.name] = evt
       evt
     end
+
+    private
+    def select_segment(segment,selected)
+      selected[segment.name] = segment
+      select_segment(segment.namespace,selected) if segment.namespace
+    end
+
   end
 end

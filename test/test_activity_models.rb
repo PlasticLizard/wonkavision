@@ -13,12 +13,16 @@ unless defined?(::TestEventHandler)
     event_namespace :vermicious
 
     handle :knid do |data,path|
+      puts "Handling #{path}. Before: #{TestEventHandler.knids.inspect}"
       TestEventHandler.knids << [data,path]
+      puts "After: #{TestEventHandler.knids.inspect}"
     end
 
     #handle events in the vermicious namespace
     handle "*" do |data,path|
+      puts "Handling #{path}. Before: #{TestEventHandler.knids.inspect}"
       TestEventHandler.knids << [data,path] if path !~ /.*knid/
+      puts "After: #{TestEventHandler.knids.inspect}"
     end
 
     #handle ALL events in any namespace
@@ -52,5 +56,5 @@ unless defined?(::TestEventHandler)
     string 'test_id'
     date 'event_time'
   end
-  
+
 end

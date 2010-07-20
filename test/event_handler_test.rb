@@ -23,8 +23,8 @@ class EventHandlerTest < ActiveSupport::TestCase
     should "handle subscriptions to the configured namespace" do
       TestEventHandler.reset
       Wonkavision.event_coordinator.receive_event("vermicious/hose",1)
-      Wonkavision.event_coordinator.receive_event("vermicious/kid",2)
-      Wonkavision.event_coordinator.receive_event("vermiciouser/kid",3)
+      Wonkavision.event_coordinator.receive_event("vermicious/dog",2)
+      Wonkavision.event_coordinator.receive_event("vermiciouser/knid",3)
       puts TestEventHandler.knids.inspect
       assert_equal 2, TestEventHandler.knids.length
       assert_equal 1, TestEventHandler.knids[0][0]
@@ -41,6 +41,19 @@ class EventHandlerTest < ActiveSupport::TestCase
       assert_equal 2, TestEventHandler.knids[1][0]
       assert_equal 3, TestEventHandler.knids[2][0]
 
+    end
+
+    should "only notify once per namespace, even if multiple events are matched in a given namespace" do
+      TestEventHandler.reset
+
+      Wonkavision.event_coordinator.map do |events|
+        events.namespace :vermicious do |v|
+          v.event :composite, 'oompa','loompa'
+        end
+      end
+
+      Wonkavision.event_coordinator.receive_event("vermicious/oompa",1);
+      assert_equal 1, TestEventHandler.knids.length
     end
   end
 

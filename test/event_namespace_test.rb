@@ -103,7 +103,7 @@ class EventNamespaceTest < ActiveSupport::TestCase
       ns4.event :e3, "/ns2/my_event"
       ns4.event "my_event"
 
-      assert_equal 4, ns1.find_matching_events("ns1/ns2/my_event").length
+      assert_equal 8, ns1.find_matching_segments("ns1/ns2/my_event").length
     end
   end
 end
