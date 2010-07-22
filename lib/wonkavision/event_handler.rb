@@ -6,6 +6,7 @@ module Wonkavision
       handler.class_eval do
         extend Plugins
         use Plugins::EventHandling
+        use Plugins::Callbacks
       end
 
       super

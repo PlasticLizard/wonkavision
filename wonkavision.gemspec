@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{wonkavision}
-  s.version = "0.5.1"
+  s.version = "0.5.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Nathan Stults"]
-  s.date = %q{2010-07-20}
+  s.date = %q{2010-07-22}
   s.description = %q{Wonkavision is a small gem that allows you to publish}
   s.email = %q{hereiam@sonic.net}
   s.extra_rdoc_files = [
@@ -25,6 +25,7 @@ Gem::Specification.new do |s|
      "lib/wonkavision/acts_as_oompa_loompa.rb",
      "lib/wonkavision/event.rb",
      "lib/wonkavision/event_binding.rb",
+     "lib/wonkavision/event_context.rb",
      "lib/wonkavision/event_coordinator.rb",
      "lib/wonkavision/event_handler.rb",
      "lib/wonkavision/event_namespace.rb",
@@ -35,6 +36,7 @@ Gem::Specification.new do |s|
      "lib/wonkavision/persistence/mongo_mapper_adapter.rb",
      "lib/wonkavision/plugins.rb",
      "lib/wonkavision/plugins/business_activity.rb",
+     "lib/wonkavision/plugins/callbacks.rb",
      "lib/wonkavision/plugins/event_handling.rb",
      "lib/wonkavision/plugins/timeline.rb",
      "lib/wonkavision/support.rb",

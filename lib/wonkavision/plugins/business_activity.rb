@@ -17,22 +17,26 @@ module Wonkavision
       end
 
       module ClassMethods
+        def instantiate_handler(event_context)
+          correlation_id = event_context.data[event_correlation_id_key.to_s]
+          find_activity_instance(correlation_id_field,correlation_id)
+        end
 
         def event(name,*args,&block)
-          handle(name,args) do |data,path|
-            activity = find_activity(data)
+          handle(name,args) do
+            ctx = @wonkavision_event_context
             result = :ok
             if (block_given?)
               result = case block.arity
-                         when 3 then yield activity,data,path
-                         when 2 then yield activity,data
-                         when 1 then yield activity
-                         else yield
+                         when 3 then yield ctx.data,ctx.path,self
+                         when 2 then yield ctx.data, ctx.path
+                         when 1 then yield ctx.data
+                         else instance_eval &block
                        end
             end
             unless result == :handled
-              result = update_activity(activity,data) unless result == :updated
-              activity.save!
+              result = self.class.update_activity(self,ctx.data) unless result == :updated
+              save!
             end
             result
           end
@@ -56,10 +60,7 @@ module Wonkavision
           correlation_ids << {:model=>model_field.to_s, :event=>event_field.to_s}
         end
 
-        def find_activity(event_data)
-          correlation_id = event_data[event_correlation_id_key.to_s]
-          find_activity_instance(correlation_id_field,correlation_id)
-        end
+
 
       end
 

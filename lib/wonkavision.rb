@@ -7,6 +7,7 @@ dir = File.dirname(__FILE__)
  "plugins",
  "event_path_segment",
  "event",
+ "event_context",
  "event_namespace",
  "event_coordinator",
  "event_binding",
@@ -14,6 +15,7 @@ dir = File.dirname(__FILE__)
  "message_mapper/indifferent_access",
  "message_mapper/map",
  "message_mapper",
+ "plugins/callbacks",
  "plugins/event_handling",
  "plugins/business_activity",
  "plugins/timeline",
@@ -43,7 +45,7 @@ module Wonkavision
 
     def namespace_wildcard_character
       @namespace_wildcard_character = "*"
-    end   
+    end
 
     def is_absolute_path(path)
       path.to_s[0..0] == event_path_separator
@@ -61,6 +63,9 @@ module Wonkavision
     def split(event_path)
       event_path.split(event_path_separator)
     end
+  end
+
+  class WonkavisionError < StandardError #:nodoc:
   end
 
 

@@ -21,7 +21,7 @@ module Wonkavision
       include mod::InstanceMethods if mod.const_defined?(:InstanceMethods)
       extend mod::Fields           if mod.const_defined?(:Fields)
       include mod::Fields          if mod.const_defined?(:Fields)
-      mod.configure(self,options)          if mod.respond_to?(:configure)
+      mod.configure(self,options)  if mod.respond_to?(:configure)
       wonkavision_plugins << mod
     end
     alias use plug

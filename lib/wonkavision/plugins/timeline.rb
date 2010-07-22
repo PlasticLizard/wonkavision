@@ -27,20 +27,21 @@ module Wonkavision
       module ClassMethods
 
         def milestone(name,*args)
-          timeline_milestones << event(name,*args) do |activity,event_data,event_path|
-            event_time = extract_event_time(event_data,event_path)
-            prev_event_time = activity[timeline_field][name]
+          timeline_milestones << event(name,*args) do
+            ctx = @wonkavision_event_context
+            event_time = self.class.extract_event_time(ctx.data,ctx.path)
+            prev_event_time = self[timeline_field][name]
             unless prev_event_time
-              activity[timeline_field][name] = event_time
+              self[timeline_field][name] = event_time
               #If the event being processed happened earlier than a previously
               #recorded event, we don't want to overwrite state of the activity, as
               #it is already more up to date than the incoming event.
-              latest_ms = activity[latest_milestone_field]
+              latest_ms = self[latest_milestone_field]
               unless latest_ms &&
-                             (last_event = activity[timeline_field][latest_ms]) &&
+                             (last_event = self[timeline_field][latest_ms]) &&
                              last_event > event_time
-                update_activity(activity,event_data)
-                activity[latest_milestone_field] = name
+                self.class.update_activity(self,ctx.data)
+                self[latest_milestone_field] = name
               end
               :updated
             else
@@ -56,7 +57,6 @@ module Wonkavision
           time ? time.to_time : nil
         end
 
-        private
         def extract_event_time(event_data,event_path)
           convert_time(event_data.delete(event_time_key.to_s)) || Time.now.utc
         end

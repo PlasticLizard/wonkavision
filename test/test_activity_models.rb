@@ -6,30 +6,38 @@ unless defined?(::TestEventHandler)
       @@knids ||= []
     end
 
+    def self.callbacks
+      @@callbacks ||= []
+    end
+
     def self.reset
       @@knids = []
+      @@callbacks = []
+    end
+
+    before_event :before
+    def before
+      TestEventHandler.callbacks << {:kind=>"before_event",:path=>event_context.path}
+    end
+
+    after_event do |handler|
+      TestEventHandler.callbacks << {:kind=>"after_event", :path=>handler.event_context.path}
     end
 
     event_namespace :vermicious
 
     handle :knid do |data,path|
-      puts "Handling #{path}. Before: #{TestEventHandler.knids.inspect}"
       TestEventHandler.knids << [data,path]
-      puts "After: #{TestEventHandler.knids.inspect}"
     end
 
     #handle events in the vermicious namespace
     handle "*" do |data,path|
-      puts "Handling #{path}. Before: #{TestEventHandler.knids.inspect}"
       TestEventHandler.knids << [data,path] if path !~ /.*knid/
-      puts "After: #{TestEventHandler.knids.inspect}"
     end
 
     #handle ALL events in any namespace
     handle "/*" do |data,path|
-      puts "Handling #{path}. Before: #{TestEventHandler.knids.inspect}"
       TestEventHandler.knids << [data,path] if path !~ /^vermicious.*/
-      puts "After: #{TestEventHandler.knids.inspect}"
     end
 
   end

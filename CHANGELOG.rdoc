@@ -1,3 +1,7 @@
+== 0.5.2
+* Added callbacks to event handler, before_event and after_event. Refactored event handling hierarchy to be a little
+  less functional and a little more object oriented.
+
 == 0.5.1
 * Ensure that subscriptions to an event namespace will only get notified once per incoming message
 
