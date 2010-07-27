@@ -1,3 +1,6 @@
+==0.5.3
+* Added 'array' expression to mapping DSL to allow for the easy mapping of collection of items from incoming messages
+
 == 0.5.2
 * Added callbacks to event handler, before_event and after_event. Refactored event handling hierarchy to be a little
   less functional and a little more object oriented.

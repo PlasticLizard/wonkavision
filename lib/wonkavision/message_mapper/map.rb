@@ -9,8 +9,6 @@ module Wonkavision
         @context_stack.push(context)
       end
 
-
-
       def context
         @context_stack[-1]
       end
@@ -48,6 +46,28 @@ module Wonkavision
           child = {}
         end
         self[field_name] = child
+      end
+
+      def array(source,options={},&block)
+        if (source.is_a?(Hash))
+          field_name = source.keys[0]
+          ctx = source.keys[1]
+        else
+          field_name = source
+          ctx = extract_value_from_context(context,field_name)
+        end
+        result = []
+        map_name = options.delete(:map_name)
+        ctx.each do |item|
+          if (map_name)
+            child = MessageMapper.execute(map_name,item)
+          else
+            child = Map.new(item)
+            child.instance_eval(&block)
+          end
+          result << child
+        end
+        self[field_name] = result
       end
 
       def string(*args)
@@ -109,17 +129,24 @@ module Wonkavision
           end
         else
           args.each do |field_name|
-            if context.respond_to?(field_name.to_sym)
-              value = context.instance_eval("self.#{field_name}")
-            elsif context.respond_to?(:[])
-              value = context[field_name]
-            else
-              value = nil
-            end
-            value = value.instance_eval(&block) if block
+            value = extract_value_from_context(context,field_name,block)
             self[field_name] = value
           end
         end
+      end
+      alias integer int
+
+      private
+      def extract_value_from_context(context,field_name,block=nil)
+        if context.respond_to?(field_name.to_sym)
+          value = context.instance_eval("self.#{field_name}")
+        elsif context.respond_to?(:[])
+          value = context[field_name]
+        else
+          value = nil
+        end
+        value = value.instance_eval(&block) if block
+        value
       end
     end
   end
