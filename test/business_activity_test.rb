@@ -17,7 +17,14 @@ class BusinessActivityTest < ActiveSupport::TestCase
     should "register correlation ids with each activity" do
       ids =  Wonkavision::Plugins::BusinessActivity.all[0].correlation_ids
       assert_equal 1, ids.length
-      assert_equal "test_id", ids[0][:event]
+      assert_equal :test_id, ids[0][:event]
+    end
+
+    should "use per binding correlation ids when specified" do
+      event = {"alt_event_id"=>"123","another_field"=>"hi there"}
+      Wonkavision.event_coordinator.receive_event("test/evt5",event)
+      assert activity = TestBusinessActivity.find_by_alt_model_id("123")
+      assert_equal "hi there", activity.another_field
     end
     
   end

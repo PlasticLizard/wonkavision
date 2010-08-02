@@ -4,6 +4,7 @@ module Wonkavision
     attr_reader :name, :events, :options
 
     def initialize(name,handler,*args)
+      args.flatten!
       @options = args.extract_options!
       @handler = handler
       @name = name

@@ -17,6 +17,7 @@ dir = File.dirname(__FILE__)
  "message_mapper",
  "plugins/callbacks",
  "plugins/event_handling",
+ "plugins/business_activity/event_binding",
  "plugins/business_activity",
  "plugins/timeline",
  "acts_as_oompa_loompa",

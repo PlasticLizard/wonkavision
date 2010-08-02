@@ -35,7 +35,7 @@ module Wonkavision
         end
 
         def handle(name,*args,&block)
-          binding = Wonkavision::EventBinding.new(name,self,*args)
+          binding = create_binding(name,self,*args)
           binding.subscribe_to_events do |event_data,event_path|
             ctx = Wonkavision::EventContext.new(event_data,event_path,binding,block)
             handler = instantiate_handler(ctx)
@@ -48,6 +48,10 @@ module Wonkavision
 
         def instantiate_handler(event_context)
           self.new
+        end
+
+        def create_binding(name,handler,*args)
+          Wonkavision::EventBinding.new(name,handler,*args)
         end
 
       end

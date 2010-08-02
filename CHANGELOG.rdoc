@@ -1,3 +1,7 @@
+==0.5.4
+* Added ability to specify correlation_ids per event binding in addition to a global correlation specification, so
+certain messages can be correlated to the business activity using arbitrary event / model id pairs.
+
 ==0.5.3
 * Added 'array' expression to mapping DSL to allow for the easy mapping of collection of items from incoming messages
 

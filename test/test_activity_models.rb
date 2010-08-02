@@ -54,10 +54,14 @@ unless defined?(::TestEventHandler)
     milestone :ms2, :evt2
     milestone :ms3, :evt3, '/not_test/evt4'
 
+    event :e1, :evt5, :correlate_by=>{:event=>:alt_event_id, :model=>:alt_model_id}
+
     map /not_test\/.*/i do
       import "evt4_test_map"
       string 'modified_another_field'=> "'#{context["another_field"]}' WAS SERVED!! OH YEAH!! IN-YOUR-FACE!!"
     end
+
+    key :alt_model_id, String
   end
 
   Wonkavision::MessageMapper.register("evt4_test_map") do
