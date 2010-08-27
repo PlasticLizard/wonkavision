@@ -26,7 +26,7 @@ module Wonkavision
       end
       alias import exec
 
-      def map(source,options={},&block)
+      def child(source,options={},&block)
         raise "Neither a block nor a map_name were provided to 'map'" unless (block || options.keys.include?(:map_name))
         if (source.is_a?(Hash))
           field_name = source.keys[0]
