@@ -1,4 +1,4 @@
-==0.5.5
+==0.5.5, 0.5.6
 * MessageMapper: Changed 'map' to 'child' to avoid conflicts when serializing to JSON. Added 'apply' alias to exec, and added
   the ability to supply an alternative context.
 
