@@ -1,5 +1,6 @@
 ==0.5.5
-* Changed 'map' to 'child' to avoid conflicts when serializing to JSON
+* MessageMapper: Changed 'map' to 'child' to avoid conflicts when serializing to JSON. Added 'apply' alias to exec, and added
+  the ability to supply an alternative context.
 
 ==0.5.4
 * Added ability to specify correlation_ids per event binding in addition to a global correlation specification, so
