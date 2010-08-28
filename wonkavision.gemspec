@@ -49,7 +49,6 @@ Gem::Specification.new do |s|
      "test/event_namespace_test.rb",
      "test/event_path_segment_test.rb",
      "test/event_test.rb",
-     "test/log/test.log",
      "test/map_test.rb",
      "test/message_mapper_test.rb",
      "test/test_activity_models.rb",
