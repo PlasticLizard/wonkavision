@@ -1,4 +1,4 @@
-==0.5.6
+==0.5.7
 * Added robust text formatting to message mapper
 
 ==0.5.5
