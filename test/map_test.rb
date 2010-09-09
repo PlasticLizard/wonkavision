@@ -238,6 +238,12 @@ class MapTest < ActiveSupport::TestCase
         m.value(:a, :format=>:yes_no)
         assert_equal "No", m.a
       end
+      should "append prefix and suffix to keys when provided" do
+        m = Wonkavision::MessageMapper::Map.new(:a=>false)
+        m.value(:a, :format=>:yes_no, :prefix=>"pre_", :suffix=>"_post")
+        assert_equal "No", m.pre_a_post
+        assert_nil m.a
+      end
     end
     context "when called with a list of names" do
       should "iterate the list, mapping each entry" do

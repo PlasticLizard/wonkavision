@@ -51,7 +51,7 @@ module Wonkavision
         else
           child = {}
         end
-        self[field_name] = child
+        set_value(field_name,child,options)
       end
 
       def array(source,options={},&block)
@@ -73,7 +73,7 @@ module Wonkavision
           end
           result << child
         end
-        self[field_name] = result
+        set_value(field_name,result,options)
       end
 
       def string(*args)
@@ -151,12 +151,12 @@ module Wonkavision
           args[0].each do |key,value|
             value = context.instance_eval(&value) if value.is_a?(Proc)
             value = value.instance_eval(&block) if block
-            self[key] = format_value(value,opts)
+            set_value(key,value,opts)
           end
         else
           args.each do |field_name|
             value = extract_value_from_context(context,field_name,block)
-            self[field_name] = format_value(value,opts)
+            set_value(field_name,value,opts)
           end
         end
       end
@@ -183,6 +183,12 @@ module Wonkavision
         end
         value = value.instance_eval(&block) if block
         value
+      end
+
+      def set_value(field_name,val,opts={})
+        if prefix = opts[:prefix]; field_name = "#{prefix}#{field_name}"; end
+        if suffix = opts[:suffix]; field_name = "#{field_name}#{suffix}"; end
+        self[field_name] = format_value(val,opts)
       end
 
       def default_formats
