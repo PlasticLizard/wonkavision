@@ -7,6 +7,11 @@ module Wonkavision
       def initialize(context)
         @context_stack = []
         @context_stack.push(context)
+        @formats = default_formats
+      end
+
+      def formats
+        @formats
       end
 
       def context
@@ -78,6 +83,23 @@ module Wonkavision
         value(*args){respond_to?(:to_f) ? to_f : self}
       end
 
+      def dollars(*args)
+        args = add_options(args,:format=>:dollars)
+        float(*args)
+      end
+      alias dollar dollars
+
+      def percent(*args)
+        args = add_options(args,:format=>:percent)
+        float(*args)
+      end
+      alias percentage percent
+
+      def yes_no(*args)
+        args = add_options(args,:format=>:yes_no)
+        value(*args)
+      end
+
       def iso8601(*args)
         value(*args) do
           if respond_to?(:strftime)
@@ -109,6 +131,7 @@ module Wonkavision
           end
         end
       end
+      alias time date
 
       def boolean(*args)
         value(*args) do
@@ -121,22 +144,34 @@ module Wonkavision
       end
 
       def value(*args,&block)
+        opts = args.length > 1 ? args.extract_options! : {}
+
         if (args.length == 1 && args[0].is_a?(Hash))
           args[0].each do |key,value|
             value = context.instance_eval(&value) if value.is_a?(Proc)
             value = value.instance_eval(&block) if block
-            self[key] = value
+            self[key] = format_value(value,opts)
           end
         else
           args.each do |field_name|
             value = extract_value_from_context(context,field_name,block)
-            self[field_name] = value
+            self[field_name] = format_value(value,opts)
           end
         end
       end
       alias integer int
 
       private
+      def format_value(val,opts={})
+        format = opts[:format]
+        format ||= :float if opts[:precision]
+        return val unless format
+        formatter = formats[format] || format
+        default_formatter = formats[:default]
+
+        formatter.respond_to?(:call) ? formatter.call(val,format,opts) : default_formatter.call(val,formatter,opts)
+      end
+
       def extract_value_from_context(context,field_name,block=nil)
         if context.respond_to?(field_name.to_sym)
           value = context.instance_eval("self.#{field_name}")
@@ -147,6 +182,28 @@ module Wonkavision
         end
         value = value.instance_eval(&block) if block
         value
+      end
+
+      def default_formats
+        HashWithIndifferentAccess.new(
+                :default=>lambda {|v,f,opts| v.respond_to?(:strftime) ? v.strftime(f) : f % v } ,
+                :float =>lambda {|v,f,opts| precision_format(opts) % v },
+                :dollars=>lambda {|v,f,opts| "$#{precision_format(opts,2)}" % v},
+                :percent=>lambda {|v,f,opts| "#{precision_format(opts,1)}%%" % v},
+                :yes_no=>lambda {|v,f,opts| v ? "Yes" : "No"}
+        )
+      end
+
+      def precision_format(opts,default_precision=nil)
+        precision = opts[:precision] || default_precision
+        "%#{precision ? "." + precision.to_s : default_precision}f"
+      end
+
+      def add_options(args,new_options)
+        opts = args.length > 1 ? args.extract_options! : {}
+        opts.merge!(new_options)
+        args << opts
+        args
       end
     end
   end

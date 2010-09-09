@@ -1,3 +1,6 @@
+==0.5.6
+* Added robust text formatting to message mapper
+
 ==0.5.5
 * Changed 'map' to 'child' to avoid conflicts when serializing to JSON
 

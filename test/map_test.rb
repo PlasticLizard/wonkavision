@@ -42,13 +42,13 @@ class MapTest < ActiveSupport::TestCase
     should "raise an exception if called without a block or map name" do
       m = Wonkavision::MessageMapper::Map.new({})
       assert_raise RuntimeError do
-        m.map(1)  
+        m.child(1)
       end
     end
     should "eval a provided block against a new map with the provided context" do
       m = Wonkavision::MessageMapper::Map.new({})
       ctx = {:hi=>true}
-      m.map "this"=>ctx do
+      m.child "this"=>ctx do
         self.ctx = context
       end
       assert_equal ctx, m.this.ctx
@@ -59,12 +59,12 @@ class MapTest < ActiveSupport::TestCase
       end
       m = Wonkavision::MessageMapper::Map.new({})
       ctx = {:hi=>true}
-      m.map({"this"=>ctx}, {:map_name=>"map_test"})
+      m.child({"this"=>ctx}, {:map_name=>"map_test"})
       assert_equal ctx, m.this.ctx
     end
     should "Get the context based on provided field name" do
       m = Wonkavision::MessageMapper::Map.new({:a=>:b})
-      m.map "length" do
+      m.child "length" do
         self.l = context
       end
       assert_equal 1,m["length"].l
@@ -138,6 +138,28 @@ class MapTest < ActiveSupport::TestCase
       assert_equal 5, m.a
     end
   end
+  context "Map.dollars" do
+    should "convert to a dollar string" do
+      m= Wonkavision::MessageMapper::Map.new(:a=>"5.2")
+      m.dollars :a
+      assert_equal "$5.20", m.a
+    end
+  end
+  context "Map.percent" do
+    should "convert to a percent string" do
+      m = Wonkavision::MessageMapper::Map.new(:a=>"5")
+      m.percent :a
+      assert_equal "5.0%", m.a
+    end
+  end
+  context "Map.yes_no" do
+    should "convert a bool into a Yes or No" do
+      m = Wonkavision::MessageMapper::Map.new(:a=>true, :b=>false)
+      m.yes_no :a,:b
+      assert_equal "Yes", m.a
+      assert_equal "No", m.b
+    end
+  end
   context "Map.value" do
     context "when the only argument is a hash" do
       should "iterate the hash, mapping each entry" do
@@ -158,6 +180,46 @@ class MapTest < ActiveSupport::TestCase
           self[:a]
         end
         assert_equal 1, m.c
+      end
+      should "format numbers via a provided format string" do
+        m = Wonkavision::MessageMapper::Map.new(:a=>"1")
+        m.value(:a, :format=>"%.1f")
+        assert_equal "1.0", m.a
+      end
+      should "format dates via a provided format string" do
+        m = Wonkavision::MessageMapper::Map.new(:a=>Date.today)
+        m.value(:a, :format=>"%Y-%m-%d %H:%M:%S")
+        assert_equal Date.today.strftime("%Y-%m-%d %H:%M:%S"), m.a
+      end
+      should "format a value as a float if precision is specified" do
+        m = Wonkavision::MessageMapper::Map.new(:a=>"3")
+        m.value(:a, :precision=>2)
+        assert_equal "3.00", m.a
+      end
+      should "format dollars as dollars" do
+        m = Wonkavision::MessageMapper::Map.new(:a=>"3.1")
+        m.value(:a, :format=>:dollars)
+        assert_equal "$3.10", m.a
+      end
+      should "repsect precision option for dollars" do
+        m = Wonkavision::MessageMapper::Map.new(:a=>"3.1")
+        m.value(:a, :format=>:dollars, :precision=>1)
+        assert_equal "$3.1", m.a
+      end
+      should "format percents" do
+        m= Wonkavision::MessageMapper::Map.new(:a=>"3.12")
+        m.value(:a, :format=>:percent)
+        assert_equal "3.1%", m.a
+      end
+      should "format yes_no = yes correctly" do
+        m = Wonkavision::MessageMapper::Map.new(:a=>true)
+        m.value(:a, :format=>:yes_no)
+        assert_equal "Yes", m.a
+      end
+      should "format yes_no = no correctly" do
+        m = Wonkavision::MessageMapper::Map.new(:a=>false)
+        m.value(:a, :format=>:yes_no)
+        assert_equal "No", m.a
       end
     end
     context "when called with a list of names" do
