@@ -208,6 +208,16 @@ class MapTest < ActiveSupport::TestCase
         m.value(:a, :format=>"%Y-%m-%d %H:%M:%S")
         assert_equal Date.today.strftime("%Y-%m-%d %H:%M:%S"), m.a
       end
+      should "return nil when a formatted date is requested on a nil value" do
+        m = Wonkavision::MessageMapper::Map.new(:a=>nil)
+        m.date(:a, :format=>"%Y")
+        assert_nil m.a
+      end
+      should "use the provided default is the mapped value is nil" do
+        m = Wonkavision::MessageMapper::Map.new(:a=>nil)
+        m.value(:a, :precision=>2, :default=>1)
+        assert_equal "1.00", m.a
+      end
       should "format a value as a float if precision is specified" do
         m = Wonkavision::MessageMapper::Map.new(:a=>"3")
         m.value(:a, :precision=>2)

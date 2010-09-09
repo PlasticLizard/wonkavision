@@ -164,6 +164,9 @@ module Wonkavision
 
       private
       def format_value(val,opts={})
+        val = opts[:default] || opts[:default_value] if val.nil?
+        return val if val.nil?
+
         format = opts[:format]
         format ||= :float if opts[:precision]
         return val unless format
