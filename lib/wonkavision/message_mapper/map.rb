@@ -25,11 +25,12 @@ module Wonkavision
         @context_stack.pop
       end
 
-      def exec(map_name)
-        mapped = MessageMapper.execute(map_name,context)
+      def exec(map_name,exec_context=self.context)
+        mapped = MessageMapper.execute(map_name,exec_context)
         self.merge!(mapped) if mapped
       end
       alias import exec
+      alias apply exec
 
       def child(source,options={},&block)
         raise "Neither a block nor a map_name were provided to 'map'" unless (block || options.keys.include?(:map_name))

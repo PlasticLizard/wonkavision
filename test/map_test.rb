@@ -138,7 +138,7 @@ class MapTest < ActiveSupport::TestCase
       assert_equal 5, m.a
     end
   end
-  context "Map.dollars" do
+   context "Map.dollars" do
     should "convert to a dollar string" do
       m= Wonkavision::MessageMapper::Map.new(:a=>"5.2")
       m.dollars :a
@@ -158,6 +158,23 @@ class MapTest < ActiveSupport::TestCase
       m.yes_no :a,:b
       assert_equal "Yes", m.a
       assert_equal "No", m.b
+    end
+  end
+  context "Map.exec" do
+    setup do
+      Wonkavision::MessageMapper.register "exec_test" do
+        string :len => context.length
+      end
+    end
+    should "apply an external map to the current context" do
+      m = Wonkavision::MessageMapper::Map.new([1,2,3])
+      m.exec "exec_test"
+      assert_equal "3", m.len
+    end
+    should "apply an external map to a supplied context" do
+      m = Wonkavision::MessageMapper::Map.new([1,2,[1,2,3,4]])
+      m.exec "exec_test", m.context[-1]
+      assert_equal "4", m.len
     end
   end
   context "Map.value" do
