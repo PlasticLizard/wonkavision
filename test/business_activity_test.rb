@@ -23,7 +23,7 @@ class BusinessActivityTest < ActiveSupport::TestCase
     should "use per binding correlation ids when specified" do
       event = {"alt_event_id"=>"123","another_field"=>"hi there"}
       Wonkavision.event_coordinator.receive_event("test/evt5",event)
-      assert activity = TestBusinessActivity.find_by_alt_model_id("123")
+      assert activity = TestBusinessActivity.first(:conditions=>{:alt_model_id=>"123"})
       assert_equal "hi there", activity.another_field
     end
     

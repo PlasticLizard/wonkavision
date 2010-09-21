@@ -21,7 +21,8 @@ dir = File.dirname(__FILE__)
  "plugins/business_activity",
  "plugins/timeline",
  "acts_as_oompa_loompa",
- "persistence/mongo_mapper_adapter"].each {|lib|require File.join(dir,'wonkavision',lib)}
+ "persistence/mongo_mapper_adapter",
+ "persistence/mongoid_adapter"].each {|lib|require File.join(dir,'wonkavision',lib)}
 
 #require File.join(dir,"cubicle","mongo_mapper","aggregate_plugin") if defined?(MongoMapper::Document)
 

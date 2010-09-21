@@ -13,7 +13,7 @@ class EventHandlerTest < ActiveSupport::TestCase
     should "invoke any configured message maps" do
       event = {"test_id"=>"123","event_time"=>"1/1/2001","another_field"=>"hi there"}
       Wonkavision.event_coordinator.receive_event("not_test/evt4",event)
-      activity = TestBusinessActivity.find_by_test_id("123")
+      activity = TestBusinessActivity.first(:conditions=>{:test_id=>"123"})
       # timeline for milestone ms3 already set
       assert_equal "1/1/2001".to_time.utc, activity.timeline["ms3"]
       assert_equal "ms3", activity.latest_milestone

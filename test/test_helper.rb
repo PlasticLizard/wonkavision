@@ -1,7 +1,10 @@
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 
 require "rubygems"
-require "mongo_mapper"
+require 'bundler'
+Bundler.setup
+require "mongoid"
+require "erb"
 require 'active_support/test_case'
 require "shoulda"
 
@@ -11,10 +14,14 @@ require File.join(dir,"..","lib","wonkavision")
 dir = File.expand_path(File.dirname(__FILE__))
 logdir = File.join(dir,'log')
 Dir.mkdir(logdir) unless File.directory?(logdir)
-MongoMapper.setup(YAML.load_file(File.join(dir,'config', 'database.yml')), "test", {
-                                                                                           :logger    => Logger.new(File.join(logdir,'test.log')),
-                                                                                           :passenger => false
-})
+
+mcfg_file = File.join(dir,'config','database.yml')
+msettings = YAML.load(ERB.new(File.new(mcfg_file).read).result)
+
+Mongoid.configure do |config|
+  config.from_hash(msettings["test"])
+  config.logger = Logger.new(File.join(logdir,'test.log'))
+end
 
 module ActiveSupport
   class TestCase
@@ -22,7 +29,7 @@ module ActiveSupport
 
     end
     def teardown
-      MongoMapper.database.collections.each do |coll|
+      Mongoid.master.collections.each do |coll|
         coll.drop unless coll.name =~ /(.*\.)?system\..*/
       end
       Time.reset #Return Time.now to its original state

@@ -79,7 +79,7 @@ module Wonkavision
               case handler.arity
               when 3 then handler.call(ctx.data,ctx.path,self)
               when 2 then handler.call(ctx.data,ctx.path)
-              when 1 then handler.call (ctx.data)
+              when 1 then handler.call(ctx.data)
               else instance_eval &handler
             end
           end

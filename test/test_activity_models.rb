@@ -43,7 +43,7 @@ unless defined?(::TestEventHandler)
   end
 
   class TestBusinessActivity
-    include MongoMapper::Document
+    include Wonkavision::Mongoid::Activity
 
     acts_as_timeline
 
@@ -61,7 +61,7 @@ unless defined?(::TestEventHandler)
       string 'modified_another_field'=> "'#{context["another_field"]}' WAS SERVED!! OH YEAH!! IN-YOUR-FACE!!"
     end
 
-    key :alt_model_id, String
+    field :alt_model_id, :type=>String
   end
 
   Wonkavision::MessageMapper.register("evt4_test_map") do
