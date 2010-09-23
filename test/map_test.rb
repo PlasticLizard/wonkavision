@@ -291,6 +291,18 @@ class MapTest < ActiveSupport::TestCase
         assert_equal "3", m.collection[1].a
         assert_equal 4, m.collection[1].b
       end
+      should "apply the supplied block to each item in the explicitly provided array" do
+        m = Wonkavision::MessageMapper::Map.new(:collection=>[{:a=>1,:b=>2},{:a=>3,:b=>4}])
+        m.array :new_collection=>m.context[:collection] do
+          string :a
+          integer :b
+        end
+        assert_equal 2, m.new_collection.length
+        assert_equal "1", m.new_collection[0].a
+        assert_equal 2, m.new_collection[0].b
+        assert_equal "3", m.new_collection[1].a
+        assert_equal 4, m.new_collection[1].b
+      end
     end
   end
 end

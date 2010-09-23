@@ -39,7 +39,7 @@ module Wonkavision
           ctx = source[field_name]
         else
           field_name = source
-          ctx = context.instance_eval("self.#{field_name}")
+          ctx = extract_value_from_context(context,field_name)
         end
         if ctx
           if (map_name = options.delete(:map_name))
@@ -57,7 +57,7 @@ module Wonkavision
       def array(source,options={},&block)
         if (source.is_a?(Hash))
           field_name = source.keys[0]
-          ctx = source.keys[1]
+          ctx = source[field_name]
         else
           field_name = source
           ctx = extract_value_from_context(context,field_name)
