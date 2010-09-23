@@ -63,6 +63,7 @@ module Wonkavision
           ctx = extract_value_from_context(context,field_name)
         end
         result = []
+        ctx = [ctx].compact.flatten
         map_name = options.delete(:map_name)
         ctx.each do |item|
           if (map_name)
@@ -143,6 +144,7 @@ module Wonkavision
       def int(*args)
         value(*args){respond_to?(:to_i) ? to_i : self}
       end
+      alias integer int
 
       def value(*args,&block)
         opts = args.length > 1 ? args.extract_options! : {}
@@ -160,7 +162,6 @@ module Wonkavision
           end
         end
       end
-      alias integer int
 
       private
       def format_value(val,opts={})
