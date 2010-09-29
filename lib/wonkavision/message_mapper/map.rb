@@ -20,7 +20,8 @@ module Wonkavision
 
       def from (context,&block)
         raise "No block ws provided to 'from'" unless block
-        context = HashWithIndifferentAccess.new if context.nil?
+        return if context.nil?
+
         @context_stack.push(context)
         instance_eval(&block)
         @context_stack.pop
