@@ -114,17 +114,15 @@ module Wonkavision
         end
       end
 
-      def date(*args)
+      def time(*args)
         value(*args) do
-          if kind_of?(Time) || kind_of?(Date)
+          if kind_of?(Time)
             self
           elsif respond_to?(:to_time)
             to_time
-          elsif respond_to?(:to_date)
-            to_date
-          elsif (date_str=to_s) && date_str.length > 0
+          elsif (time_str=to_s) && time_str.length > 0
             begin
-              Time.parse(date_str)
+              Time.parse(time_str)
             rescue
               self
             end
@@ -133,7 +131,24 @@ module Wonkavision
           end
         end
       end
-      alias time date
+
+       def date(*args)
+        value(*args) do
+          if kind_of?(Date)
+            self
+          elsif respond_to?(:to_date)
+            to_time
+          elsif (date_str=to_s) && date_str.length > 0
+            begin
+              Date.parse(date_str)
+            rescue
+              self
+            end
+          else
+            self
+          end
+        end
+      end
 
       def boolean(*args)
         value(*args) do
