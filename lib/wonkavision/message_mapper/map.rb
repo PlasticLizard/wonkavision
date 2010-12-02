@@ -199,6 +199,9 @@ module Wonkavision
           value = context.instance_eval("self.#{field_name}")
         elsif context.respond_to?(:[])
           value = context[field_name]
+          if value.nil? && field_name
+            value = context[field_name.to_sym] || context[field_name.to_s] 
+          end
         else
           value = nil
         end
