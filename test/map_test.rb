@@ -6,7 +6,7 @@ class MapTest < ActiveSupport::TestCase
       assert_equal 1, Wonkavision::MessageMapper::Map.new(1).context
     end
   end
-  context "Indexing into a MicroMapper::Map" do
+  context "Indexing into a MessageMapper::Map" do
     should "provide indifferent access" do
       h = Wonkavision::MessageMapper::Map.new({})
       h[:hello] = "hi"
@@ -14,6 +14,13 @@ class MapTest < ActiveSupport::TestCase
       h["hi"] = {:hello=>:sir}
       assert_equal({:hello=>:sir}, h[:hi])
     end
+
+    should "provide indifferent deletes" do
+      h = Wonkavision::MessageMapper::Map.new({})
+      h["hello"] = "hi"
+      assert_equal "hi", h.delete(:hello)
+    end
+
     should "allow method missing to index into hash" do
       l = Wonkavision::MessageMapper::Map.new({})
       l.hello = "goodbye"

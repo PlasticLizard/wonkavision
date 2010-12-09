@@ -25,7 +25,6 @@ class EventHandlerTest < ActiveSupport::TestCase
       Wonkavision.event_coordinator.receive_event("vermicious/hose",1)
       Wonkavision.event_coordinator.receive_event("vermicious/dog",2)
       Wonkavision.event_coordinator.receive_event("vermiciouser/knid",3)
-      puts TestEventHandler.knids.inspect
       assert_equal 2, TestEventHandler.knids.length
       assert_equal 1, TestEventHandler.knids[0][0]
       assert_equal 2, TestEventHandler.knids[1][0]
@@ -63,7 +62,7 @@ class EventHandlerTest < ActiveSupport::TestCase
       #3 execs of each kind of callback, one for event subscription, one for namespace sub and global sub
       assert_equal 3 * 2, TestEventHandler.callbacks.length
     end
-    
+
   end
 
 end

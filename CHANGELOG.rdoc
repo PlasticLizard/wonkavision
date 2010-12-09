@@ -1,3 +1,6 @@
+== 0.5.9
+ * Fixed indifferent access module to include delete in its indifferentness.
+
 ==0.5.8
 * Added Mongoid integration, changed tests to use Mongoid integration instead of MongoMapper integration.
 * Split Date and Time directives in MessageMapper to be specific, instead of always converting to time
