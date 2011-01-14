@@ -4,10 +4,17 @@ module Wonkavision
     class Map < Hash
       include IndifferentAccess
 
-      def initialize(context)
+      def initialize(context = nil)
         @context_stack = []
-        @context_stack.push(context)
+        @context_stack.push(context) if context
         @formats = default_formats
+      end
+
+      def execute(context,map_block)
+        @context_stack.push(context)
+        instance_eval(&map_block)
+        @context_stack.clear
+        self
       end
 
       def formats
@@ -200,7 +207,7 @@ module Wonkavision
         elsif context.respond_to?(:[])
           value = context[field_name]
           if value.nil? && field_name
-            value = context[field_name.to_sym] || context[field_name.to_s] 
+            value = context[field_name.to_sym] || context[field_name.to_s]
           end
         else
           value = nil

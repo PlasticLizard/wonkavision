@@ -15,10 +15,7 @@ module Wonkavision
         map_block = map.kind_of?(Proc) ? map : MessageMapper.maps[map]
 
         raise "#{map} not found" unless map_block
-        message = MessageMapper::Map.new(data_source)
-        message.instance_eval(&map_block)
-        message.instance_variable_set("@context_stack", [])
-        message
+        MessageMapper::Map.new.execute(data_source, map_block)
       end
 
       def register_map_directory(directory_path, recursive=true)
