@@ -1,0 +1,43 @@
+GIT
+  remote: http://github.com/mongoid/mongoid.git
+  revision: 1642fc9f4ac51eab5e0c378f080a6007424c8e3c
+  specs:
+    mongoid (2.0.0.rc.4)
+      activemodel (~> 3.0)
+      mongo (~> 1.1.5)
+      tzinfo (~> 0.3.22)
+      will_paginate (~> 3.0.pre)
+
+PATH
+  remote: .
+  specs:
+    wonkavision (0.5.10)
+      activesupport (>= 2.3)
+
+GEM
+  remote: http://rubygems.org/
+  specs:
+    activemodel (3.0.3)
+      activesupport (= 3.0.3)
+      builder (~> 2.1.2)
+      i18n (~> 0.4)
+    activesupport (3.0.3)
+    bson (1.1.5)
+    builder (2.1.2)
+    i18n (0.5.0)
+    mongo (1.1.5)
+      bson (>= 1.1.5)
+    rake (0.8.7)
+    shoulda (2.11.3)
+    tzinfo (0.3.23)
+    will_paginate (3.0.pre2)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  activesupport (>= 2.3)
+  mongoid!
+  rake
+  shoulda (~> 2.11)
+  wonkavision!

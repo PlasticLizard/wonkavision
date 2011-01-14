@@ -17,9 +17,8 @@ module Wonkavision
         raise "#{map} not found" unless map_block
         message = MessageMapper::Map.new(data_source)
         message.instance_eval(&map_block)
-        #We don't want to send the actual map back, it contains
-        #references to the full context, and can consume excess memory
-        { }.extend(IndifferentAccess).replace(message)
+        message.instance_variable_set("@context_stack", [])
+        message
       end
 
       def register_map_directory(directory_path, recursive=true)
