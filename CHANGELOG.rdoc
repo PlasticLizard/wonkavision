@@ -1,3 +1,6 @@
+== 0.5.11
+ * Guess that last change doesn't work in Rails 3 :) Fixed things up a different way to get the same effect, but more compatible.
+
 == 0.5.10
  * Return an indifferent hash from the message mapper, rather than the actual map class, which will hold references to potentially large objects
 
