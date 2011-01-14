@@ -1,3 +1,6 @@
+== 0.5.10
+ * Return an indifferent hash from the message mapper, rather than the actual map class, which will hold references to potentially large objects
+
 == 0.5.9
  * Fixed indifferent access module to include delete in its indifferentness.
 
