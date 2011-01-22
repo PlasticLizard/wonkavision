@@ -22,7 +22,7 @@ module Wonkavision
       self.instance_eval(&block)
     end
 
-    def map ()
+    def map
       yield root_namespace if block_given?
     end
 
@@ -40,7 +40,7 @@ module Wonkavision
 
         event_path = Wonkavision.normalize_event_path(event_path)
         targets = root_namespace.find_matching_segments(event_path).values
-        #If the event wasn't matched, maybe someone is subscribing to '/*' ? 
+        #If the event wasn't matched, maybe someone is subscribing to '/*' ?
         targets = [root_namespace] if targets.blank?
         targets.each{|target|target.notify_subscribers(event_data,event_path)}
       end

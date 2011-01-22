@@ -7,6 +7,7 @@ require "mongoid"
 require "erb"
 require 'active_support/test_case'
 require "shoulda"
+require "mocha"
 
 dir = File.dirname(__FILE__)
 require File.join(dir,"..","lib","wonkavision")

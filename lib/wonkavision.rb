@@ -1,6 +1,7 @@
 require "rubygems"
 require "active_support"
 require "active_support/hash_with_indifferent_access" unless defined?(HashWithIndifferentAccess)
+require "active_support/core_ext"
 
 dir = File.dirname(__FILE__)
 ["support",
@@ -12,6 +13,7 @@ dir = File.dirname(__FILE__)
  "event_coordinator",
  "event_binding",
  "event_handler",
+ "aggregation",
  "message_mapper/indifferent_access",
  "message_mapper/map",
  "message_mapper",
@@ -20,6 +22,9 @@ dir = File.dirname(__FILE__)
  "plugins/business_activity/event_binding",
  "plugins/business_activity",
  "plugins/timeline",
+ "plugins/aggregation/aggregation_spec.rb",
+ "plugins/aggregation/measure.rb",
+ "plugins/aggregation.rb",
  "acts_as_oompa_loompa",
  "persistence/mongo_mapper_adapter",
  "persistence/mongoid_adapter"].each {|lib|require File.join(dir,'wonkavision',lib)}
@@ -27,6 +32,8 @@ dir = File.dirname(__FILE__)
 #require File.join(dir,"cubicle","mongo_mapper","aggregate_plugin") if defined?(MongoMapper::Document)
 
 module Wonkavision
+
+   NaN = 0.0 / 0.0
 
 #  def self.register_cubicle_directory(directory_path, recursive=true)
 #    searcher = "#{recursive ? "*" : "**/*"}.rb"
@@ -73,3 +80,7 @@ module Wonkavision
 
 
 end
+
+#Load event handlers for analytics
+# dir = File.dirname(__FILE__)
+Dir[File.join(dir,"wonkavision","analytics/handlers/**/*.rb")].each {|lib|require lib}

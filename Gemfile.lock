@@ -11,7 +11,7 @@ GIT
 PATH
   remote: .
   specs:
-    wonkavision (0.5.10)
+    wonkavision (0.5.11)
       activesupport (>= 2.3)
 
 GEM
@@ -25,6 +25,8 @@ GEM
     bson (1.1.5)
     builder (2.1.2)
     i18n (0.5.0)
+    mocha (0.9.10)
+      rake
     mongo (1.1.5)
       bson (>= 1.1.5)
     rake (0.8.7)
@@ -37,6 +39,7 @@ PLATFORMS
 
 DEPENDENCIES
   activesupport (>= 2.3)
+  mocha
   mongoid!
   rake
   shoulda (~> 2.11)

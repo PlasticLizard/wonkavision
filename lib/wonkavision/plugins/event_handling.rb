@@ -69,7 +69,7 @@ module Wonkavision
         def event_context
           @wonkavision_event_context
         end
-        
+
         def handle_event
           ctx = @wonkavision_event_context
           ctx.data = map(ctx.data,ctx.path)
@@ -103,6 +103,12 @@ module Wonkavision
             return condition.call(path) if condition.arity == 1
             return condition.call(path,data)
           end
+        end
+
+        def broadcast(event_name, event)
+        end
+
+        def submit(event_name, event)
         end
       end
 
