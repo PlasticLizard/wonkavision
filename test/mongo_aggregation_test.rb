@@ -41,15 +41,21 @@ class MongoAggregationTest < ActiveSupport::TestCase
           assert_equal 1, @agg.data_collection.find(:attributes => { :a=>:b } ).to_a.length
         end
 
-        should "initialize the value for each measure to the aggregation" do
-#          assert_equal 1.0, @measures["c"]["sum"]
-#          assert_equal 2.0, @measures["d"]["sum"]
-        end
+        context "when succesful" do
+          setup do
+            @measures = @agg.data_collection.find(:attributes=>{ :a=>:b}).to_a[0]["measures"]
+          end
 
-        should "append the value for each measure to the aggregation" do
-#          @instance.add({ :c => 1.0, :d => 2.0 })
-#          assert_equal 2.0, @instance.measures["c"].sum
-#          assert_equal 4.0, @instance.measures["d"].sum
+          should "initialize the value for each measure to the aggregation" do
+            assert_equal 1.0, @measures["c"]["sum"]
+            assert_equal 2.0, @measures["d"]["sum"]
+          end
+
+          should "append the value for each measure to the aggregation" do
+            #          @instance.add({ :c => 1.0, :d => 2.0 })
+            #          assert_equal 2.0, @instance.measures["c"].sum
+            #          assert_equal 4.0, @instance.measures["d"].sum
+          end
         end
 
       end

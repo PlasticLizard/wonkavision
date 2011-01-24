@@ -32,9 +32,7 @@ module Wonkavision
             update.merge! update_measure(measure.to_s, measures[measure], method)
           end
 
-          puts "Wonkavision::Mongo.database['#{self.class.data_collection_name}'].update(#{selector.inspect},'$inc'=>#{update.inspect},:upsert=>true,:safe=>true)"
-          self.class.data_collection.update(selector, "$inc" => update, :upsert => true, :safe => true)
-          puts self.class.data_collection.find().to_a.inspect
+          self.class.data_collection.update(selector, {"$inc" => update}, :upsert => true, :safe => true)
         end
 
         def update_measure(measure_name, measure_value, update_method)
