@@ -52,9 +52,10 @@ class MongoAggregationTest < ActiveSupport::TestCase
           end
 
           should "append the value for each measure to the aggregation" do
-            #          @instance.add({ :c => 1.0, :d => 2.0 })
-            #          assert_equal 2.0, @instance.measures["c"].sum
-            #          assert_equal 4.0, @instance.measures["d"].sum
+            @instance.add({ :c => 1.0, :d => 2.0 })
+            @measures = @agg.data_collection.find(:attributes=>{ :a=>:b}).to_a[0]["measures"]
+            assert_equal 2.0, @measures["c"]["sum"]
+            assert_equal 4.0, @measures["d"]["sum"]
           end
         end
 
