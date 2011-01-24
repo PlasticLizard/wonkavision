@@ -4,6 +4,7 @@
 #names to avoid conflicts.
 module Wonkavision
   module Plugins
+
     def wonkavision_plugins
       @wonkavision_plugins ||= []
     end
@@ -25,6 +26,6 @@ module Wonkavision
       wonkavision_plugins << mod
     end
     alias use plug
-    
+
   end
 end

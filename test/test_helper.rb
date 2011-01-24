@@ -9,8 +9,10 @@ require 'active_support/test_case'
 require "shoulda"
 require "mocha"
 
+
 dir = File.dirname(__FILE__)
 require File.join(dir,"..","lib","wonkavision")
+require File.join(dir,"..","lib","wonkavision","plugins","analytics","mongo")
 
 dir = File.expand_path(File.dirname(__FILE__))
 logdir = File.join(dir,'log')
@@ -23,6 +25,8 @@ Mongoid.configure do |config|
   config.from_hash(msettings["test"])
   config.logger = Logger.new(File.join(logdir,'test.log'))
 end
+
+Wonkavision::Mongo.setup(msettings, "test")
 
 module ActiveSupport
   class TestCase

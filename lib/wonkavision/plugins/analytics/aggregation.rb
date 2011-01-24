@@ -19,7 +19,7 @@ module Wonkavision
 
       module ClassMethods
         def [](attributes)
-          @instances ||= {}
+          @instances ||= HashWithIndifferentAccess.new
           @instances[attributes] ||= self.new(attributes)
         end
 
@@ -29,7 +29,7 @@ module Wonkavision
       end
 
       module InstanceMethods
-        attr_reader :attributes
+        attr_reader :attributes, :measures
 
         def initialize(attributes)
           @attributes = attributes
@@ -46,6 +46,7 @@ module Wonkavision
         protected
         def update(measures, method)
           measures.keys.each { |measure| update_measure(measure.to_s,measures[measure], method) }
+          self
         end
 
         def update_measure(measure_name, measure_value, update_method)
@@ -54,7 +55,7 @@ module Wonkavision
         end
 
         def get_measure(measure_name)
-          @measures ||= {}
+          @measures ||= HashWithIndifferentAccess.new
           @measures[measure_name] ||= Measure.new(measure_name)
         end
 

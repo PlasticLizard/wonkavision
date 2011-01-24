@@ -3,3 +3,6 @@
 source "http://rubygems.org"
 gemspec
 gem "mongoid", :git=>"http://github.com/mongoid/mongoid.git"
+gem "mongo", "1.2.0"
+gem "bson", "1.2.0"
+gem "bson_ext", "1.2.0"

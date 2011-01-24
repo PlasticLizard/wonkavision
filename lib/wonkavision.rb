@@ -22,12 +22,13 @@ dir = File.dirname(__FILE__)
  "plugins/business_activity/event_binding",
  "plugins/business_activity",
  "plugins/timeline",
- "plugins/aggregation/aggregation_spec.rb",
- "plugins/aggregation/measure.rb",
- "plugins/aggregation.rb",
+ "plugins/analytics/aggregation/aggregation_spec.rb",
+ "plugins/analytics/aggregation/measure.rb",
+ "plugins/analytics/aggregation.rb",
  "acts_as_oompa_loompa",
  "persistence/mongo_mapper_adapter",
  "persistence/mongoid_adapter"].each {|lib|require File.join(dir,'wonkavision',lib)}
+
 
 #require File.join(dir,"cubicle","mongo_mapper","aggregate_plugin") if defined?(MongoMapper::Document)
 
@@ -83,4 +84,4 @@ end
 
 #Load event handlers for analytics
 # dir = File.dirname(__FILE__)
-Dir[File.join(dir,"wonkavision","analytics/handlers/**/*.rb")].each {|lib|require lib}
+Dir[File.join(dir,"wonkavision","plugins/analytics/handlers/**/*.rb")].each {|lib|require lib}
