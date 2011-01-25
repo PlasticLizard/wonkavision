@@ -5,12 +5,14 @@ module Wonkavision
       include IndifferentAccess
 
       def initialize(context = nil)
+	@write_nils = true
         @context_stack = []
         @context_stack.push(context) if context
         @formats = default_formats
       end
 
-      def execute(context,map_block)
+      def execute(context,map_block,options={})
+	@write_nils = options[:write_nils].nil? ? true : options[:write_nils]
         @context_stack.push(context)
         instance_eval(&map_block)
         @context_stack.clear
@@ -219,7 +221,9 @@ module Wonkavision
       def set_value(field_name,val,opts={})
         if prefix = opts[:prefix]; field_name = "#{prefix}#{field_name}"; end
         if suffix = opts[:suffix]; field_name = "#{field_name}#{suffix}"; end
-        self[field_name] = format_value(val,opts)
+        unless val.nil? && !@write_nils
+          self[field_name] = format_value(val,opts)
+        end
       end
 
       def default_formats
