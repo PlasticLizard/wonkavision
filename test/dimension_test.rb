@@ -160,6 +160,20 @@ class DimensionTest < ActiveSupport::TestCase
 
     end
 
+    context "Instance methods" do
+      context "#extract" do
+        setup do
+          @dimension = Dimension.new(:d) {  key :a; attribute :b }
+        end
+
+        should "return a hash containing all values from the message that match the dimensions attributes" do
+          assert_equal({"a" => 1, "b" => :b}, @dimension.extract({"a"=>1,"b"=>:b,"c"=>"d","d"=>0}))
+        end
+
+      end
+    end
+
+
 
   end
 end

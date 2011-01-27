@@ -15,7 +15,7 @@ module Wonkavision
         def dimension(*dimension_names,&block)
           options = dimension_names.extract_options! || {}
           dimension_names.flatten.each do |dim|
-            @dimensions[dim] = Dimension.new(name,options,&block)
+            @dimensions[dim] = Dimension.new(dim,options,&block)
           end
         end
 

@@ -14,5 +14,13 @@ class AttributeTest < ActiveSupport::TestCase
       assert_equal( { :an_option => true}, @attribute.options )
     end
 
+    context "#extract" do
+      should "extract a value from a hash based on the name of the attribute" do
+        assert_equal "hi", @attribute.extract({ "my_attribute" => "hi"})
+      end
+
+    end
+
+
   end
 end

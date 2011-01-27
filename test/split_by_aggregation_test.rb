@@ -33,9 +33,9 @@ class SplitByAggregationTest < ActiveSupport::TestCase
       should "create one entry per aggregate_by" do
         assert_equal 2, @split.length
       end
-      should "create a hasn of key values for each aggregation" do
-        assert_equal( { "a" => :a, "b" => :b}, @split[0] )
-        assert_equal( { "a" => :a, "b" => :b, "c" => :c}, @split[1] )
+      should "create a hash of key values for each aggregation" do
+        assert_equal( { "a" => { "a" => :a}, "b" => { "b"=>:b} }, @split[0] )
+        assert_equal( { "a" => { "a" => :a}, "b" => { "b"=>:b} , "c"=>{ "c"=>:c} }, @split[1] )
       end
     end
 

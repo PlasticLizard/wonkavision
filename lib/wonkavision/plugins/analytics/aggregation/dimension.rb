@@ -47,6 +47,12 @@ module Wonkavision
           @key = key
         end
 
+        def extract(data)
+          attributes.values.inject({}) do |message,attribute|
+            message.tap { |m| m[attribute.name.to_s] = attribute.extract(data)}
+          end
+        end
+
       end
     end
   end

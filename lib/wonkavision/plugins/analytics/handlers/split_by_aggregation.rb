@@ -41,8 +41,9 @@ module Wonkavision
 
       def split_dimensions_by_aggregation(aggregation,entity)
         aggregation.aggregations.inject([]) do |aggregations,aggregate_by|
-          aggregations << aggregate_by.inject({}) do |dimensions,dimension|
-            dimensions[dimension.to_s] = entity[dimension.to_s]
+          aggregations << aggregate_by.inject({}) do |dimensions,dimension_name|
+            dimension = aggregation.dimensions[dimension_name]
+            dimensions[dimension_name.to_s] = dimension.extract(entity)
             dimensions
           end
           aggregations

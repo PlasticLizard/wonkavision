@@ -11,6 +11,10 @@ module Wonkavision
           @options = options
         end
 
+        def extract(message)
+          message[name.to_s]
+        end
+
       end
     end
   end
