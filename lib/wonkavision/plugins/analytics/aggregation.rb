@@ -18,9 +18,9 @@ module Wonkavision
       end
 
       module ClassMethods
-        def [](attributes)
+        def [](dimensions)
           @instances ||= HashWithIndifferentAccess.new
-          @instances[attributes] ||= self.new(attributes)
+          @instances[dimensions] ||= self.new(dimensions)
         end
 
         def method_missing(m,*args)
@@ -29,10 +29,10 @@ module Wonkavision
       end
 
       module InstanceMethods
-        attr_reader :attributes, :measures
+        attr_reader :dimensions, :measures
 
-        def initialize(attributes)
-          @attributes = attributes
+        def initialize(dimensions)
+          @dimensions = dimensions
         end
 
         def add(measures)

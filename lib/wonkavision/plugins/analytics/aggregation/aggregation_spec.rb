@@ -3,28 +3,20 @@ module Wonkavision
     module Aggregation
       class AggregationSpec
 
-        attr_reader :name, :attributes, :measures, :aggregations
+        attr_reader :name, :dimensions, :measures, :aggregations
 
         def initialize(name)
           @name = name
-          @attributes = HashWithIndifferentAccess.new
           @measures = HashWithIndifferentAccess.new
           @aggregations = []
-          @dimensions = Set.new
+          @dimensions = HashWithIndifferentAccess.new
         end
 
-        def dimension(name, options={}, &block)
-          @dimensions << Dimension.new(name,options,&block)
-        end
-
-        def dimensions(*dimension_names)
+        def dimension(*dimension_names,&block)
           options = dimension_names.extract_options! || {}
-          options.flatten.each { |dim| dimension(dim,options) }
-        end
-
-        def attribute(*attribute_list)
-          options = attribute_list.extract_options! || {}
-          attribute_list.flatten.each { |att| self.attributes[att] = options  }
+          dimension_names.flatten.each do |dim|
+            @dimensions[dim] = Dimension.new(name,options,&block)
+          end
         end
 
         def measure(*measure_list)

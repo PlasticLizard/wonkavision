@@ -7,7 +7,7 @@ class ApplyAggregationTest < ActiveSupport::TestCase
       @agg.class_eval do
         def self.name; "MyAggregation" end
         include Wonkavision::Aggregation
-        attribute :a, :b, :c
+        dimension :a, :b, :c
         measure :d, :e
         aggregate_by :a, :b
         aggregate_by :a, :b, :c
@@ -29,13 +29,13 @@ class ApplyAggregationTest < ActiveSupport::TestCase
       should "return false unless all appropriate metadata is present and valid" do
         assert_equal false, @handler.process_event({"aggregation"=>"ack",
                                                      "action"=>"add","measures"=>{},
-                                                     "attributes"=>{}})
+                                                     "dimensions"=>{}})
 
         assert_equal false, @handler.process_event( { "aggregation"=>@agg.name,
                                                       "action"=>"add","measures"=>{}})
 
         assert_equal false, @handler.process_event( { "aggregation"=>@agg.name,
-                                                      "measures"=>{},"attributes"=>{}})
+                                                      "measures"=>{},"dimensions"=>{}})
       end
 
       context "with a valid message" do
@@ -43,15 +43,15 @@ class ApplyAggregationTest < ActiveSupport::TestCase
           @message = {
             "aggregation" => @agg.name,
             "action" => "add",
-            "attributes" => { "a" => :a, "b" => :b, "c" => :c },
+            "dimensions" => { "a" => :a, "b" => :b, "c" => :c },
             "measures" =>{ "d" => 1.0, "e" => 2.0 }
           }
 
         end
 
-        should "instantiate a new aggregation with the attributes in the message" do
-          aggregator = @agg.new(@message["attributes"])
-          @agg.expects(:new).with(@message["attributes"]).returns(aggregator)
+        should "instantiate a new aggregation with the dimensions in the message" do
+          aggregator = @agg.new(@message["dimensions"])
+          @agg.expects(:new).with(@message["dimensions"]).returns(aggregator)
           @handler.process_event(@message)
         end
         should "add measures if the action is add" do

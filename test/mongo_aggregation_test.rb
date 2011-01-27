@@ -7,7 +7,7 @@ class MongoAggregationTest < ActiveSupport::TestCase
       @agg.class_eval do
         def self.name; "MyMongoAggregation"; end
         include Wonkavision::MongoAggregation
-        attribute :a, :b, :c
+        dimension :a, :b, :c
       end
     end
 
@@ -38,12 +38,12 @@ class MongoAggregationTest < ActiveSupport::TestCase
         end
 
         should "create a record in the database for the aggregation" do
-          assert_equal 1, @agg.data_collection.find(:attributes => { :a=>:b } ).to_a.length
+          assert_equal 1, @agg.data_collection.find(:dimensions => { :a=>:b } ).to_a.length
         end
 
         context "when succesful" do
           setup do
-            @measures = @agg.data_collection.find(:attributes=>{ :a=>:b}).to_a[0]["measures"]
+            @measures = @agg.data_collection.find(:dimensions=>{ :a=>:b}).to_a[0]["measures"]
           end
 
           should "initialize the value for each measure to the aggregation" do
@@ -53,7 +53,7 @@ class MongoAggregationTest < ActiveSupport::TestCase
 
           should "append the value for each measure to the aggregation" do
             @instance.add({ :c => 1.0, :d => 2.0 })
-            @measures = @agg.data_collection.find(:attributes=>{ :a=>:b}).to_a[0]["measures"]
+            @measures = @agg.data_collection.find(:dimensions=>{ :a=>:b}).to_a[0]["measures"]
             assert_equal 2.0, @measures["c"]["sum"]
             assert_equal 4.0, @measures["d"]["sum"]
           end

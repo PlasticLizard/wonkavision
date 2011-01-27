@@ -14,12 +14,12 @@ module Wonkavision
           (aggregation = aggregation_for(event["aggregation"])) &&
           (action = event["action"]) &&
           (measures = event["measures"]) &&
-          (attributes = event["attributes"])
+          (dimensions = event["dimensions"])
 
         raise "The only valid values for 'action' on an aggregation.updated message are 'add' and 'reject', #{action} was encountered. Message: #{event.inspect}" unless ["add", "reject"].include?(action.to_s)
 
-        action.to_s == "add" ? aggregation[attributes].add(measures) :
-                               aggregation[attributes].reject(measures)
+        action.to_s == "add" ? aggregation[dimensions].add(measures) :
+                               aggregation[dimensions].reject(measures)
 
 
       end

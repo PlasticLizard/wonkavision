@@ -14,16 +14,16 @@ module Wonkavision
       module InstanceMethods
 
         protected
-        def attribute_names
-          @aggregation_key ||= @attributes.keys.sort
+        def dimension_names
+          @aggregation_key ||= @dimensions.keys.sort
         end
 
 
         def update(measures, method)
           selector = {
             :aggregation_type => self.class.name,
-            :attributes => @attributes,
-            :aggregation => attribute_names
+            :dimensions => @dimensions,
+            :dimension_names => dimension_names
           }
 
           update = {}

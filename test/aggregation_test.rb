@@ -7,7 +7,7 @@ class AggregationTest < ActiveSupport::TestCase
       @agg.class_eval do
         def self.name; "MyAggregation" end
         include Wonkavision::Aggregation
-        attribute :a, :b, :c
+        dimension :a, :b, :c
       end
     end
 
@@ -20,15 +20,15 @@ class AggregationTest < ActiveSupport::TestCase
     end
 
     should "proxy relevant calls to the specification" do
-      assert_equal @agg.attributes, @agg.aggregation_spec.attributes
-      assert_equal 3, @agg.attributes.length
+      assert_equal @agg.dimensions, @agg.aggregation_spec.dimensions
+      assert_equal 3, @agg.dimensions.length
     end
 
     should "register itself with the module" do
       assert_equal @agg, Wonkavision::Aggregation.all[@agg.name]
     end
 
-    should "manage a list of cached instances keyed by attribute hashes" do
+    should "manage a list of cached instances keyed by dimension hashes" do
       instance = @agg[{ :a => :b}]
       assert_not_nil instance
       assert_equal instance, @agg[{ :a => :b}]
@@ -36,9 +36,9 @@ class AggregationTest < ActiveSupport::TestCase
       assert_not_equal instance, @agg[{ :a => :b, :c => :d}]
     end
 
-    should "store the attributes list with the instance" do
+    should "store the dimension list with the instance" do
       instance = @agg[{ :a=> :b}]
-      assert_equal( { :a => :b}, instance.attributes )
+      assert_equal( { :a => :b}, instance.dimensions )
     end
 
     context "instance methods" do

@@ -7,7 +7,7 @@ class SplitByAggregationTest < ActiveSupport::TestCase
       @agg.class_eval do
         def self.name; "MyAggregation" end
         include Wonkavision::Aggregation
-        attribute :a, :b, :c
+        dimension :a, :b, :c
         measure :d, :e
         aggregate_by :a, :b
         aggregate_by :a, :b, :c
@@ -25,10 +25,10 @@ class SplitByAggregationTest < ActiveSupport::TestCase
       end
     end
 
-    context "#split_attributes_by_aggregation" do
+    context "#split_dimensions_by_aggregation" do
       setup do
         @entity = {"a" => :a, "b" => :b, "c" => :c, "d" => :d, "e" => :e}
-        @split = @handler.split_attributes_by_aggregation(@agg,@entity)
+        @split = @handler.split_dimensions_by_aggregation(@agg,@entity)
       end
       should "create one entry per aggregate_by" do
         assert_equal 2, @split.length
@@ -86,8 +86,8 @@ class SplitByAggregationTest < ActiveSupport::TestCase
         end
         should "key each message with a unique aggregation" do
           results = @handler.process_event(@message)
-          results[0][:attributes] = { "a" => :a, "b" => :b}
-          results[1][:attributes] = { "a" => :a, "b" => :b, "c" => :c}
+          results[0][:dimensions] = { "a" => :a, "b" => :b}
+          results[1][:dimensions] = { "a" => :a, "b" => :b, "c" => :c}
         end
 
       end

@@ -23,6 +23,8 @@ dir = File.dirname(__FILE__)
  "plugins/business_activity",
  "plugins/timeline",
  "plugins/analytics/aggregation/aggregation_spec.rb",
+ "plugins/analytics/aggregation/attribute.rb",
+ "plugins/analytics/aggregation/dimension.rb",
  "plugins/analytics/aggregation/measure.rb",
  "plugins/analytics/aggregation.rb",
  "acts_as_oompa_loompa",

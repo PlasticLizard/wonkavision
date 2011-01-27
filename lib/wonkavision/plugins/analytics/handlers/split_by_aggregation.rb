@@ -20,11 +20,11 @@ module Wonkavision
           measures
         end
 
-        messages = split_attributes_by_aggregation(aggregation,entity).map do |attributes|
+        messages = split_dimensions_by_aggregation(aggregation,entity).map do |dimensions|
           {
             :action => action,
             :aggregation => aggregation.name,
-            :attributes => attributes,
+            :dimensions => dimensions,
             :measures => measures
           }
         end
@@ -39,11 +39,11 @@ module Wonkavision
         messages
       end
 
-      def split_attributes_by_aggregation(aggregation,entity)
+      def split_dimensions_by_aggregation(aggregation,entity)
         aggregation.aggregations.inject([]) do |aggregations,aggregate_by|
-          aggregations << aggregate_by.inject({}) do |attributes,attribute|
-            attributes[attribute.to_s] = entity[attribute.to_s]
-            attributes
+          aggregations << aggregate_by.inject({}) do |dimensions,dimension|
+            dimensions[dimension.to_s] = entity[dimension.to_s]
+            dimensions
           end
           aggregations
         end

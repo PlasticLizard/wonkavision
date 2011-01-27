@@ -10,21 +10,18 @@ class AggregationSpecTest < ActiveSupport::TestCase
       assert_equal "MyAggregation", @aggregation_spec.name
     end
 
-    context "#attribute" do
+    context "#dimension" do
       setup do
-        @aggregation_spec.attribute :a, :b, :c=>"d"
+        @aggregation_spec.dimension :a, :b, :c=>"d"
       end
 
-      should "add an attribute for each provided value" do
-        assert_equal 2, @aggregation_spec.attributes.length
+      should "add a dimension for each provided value" do
+        assert_equal 2, @aggregation_spec.dimensions.length
+        ["a","b"].each { |dim| assert @aggregation_spec.dimensions.keys.include?(dim)}
       end
 
-      should "add the attributes as hash elements" do
-          [:a,:b].each {|attribute| assert @aggregation_spec.attributes[attribute] }
-      end
-
-      should "store the options to each attribute" do
-        @aggregation_spec.attributes.each_pair { |k,v| assert_equal({ "c"=>"d" }, v)}
+      should "store pass the options to each dimension" do
+        @aggregation_spec.dimensions.values.each { |dim| assert_equal({:c=>"d"},dim.options)}
       end
     end
 
