@@ -44,6 +44,12 @@ module Wonkavision
           }
         end
 
+        #Target storage format
+        # aggregation = self.class.name
+        # dimension_names = ["one","two","three"]
+        # dimensions = {"one"=>{"sortf"=>"a","captf"=>"b","keyf"=>"c"}, "two"=>{"sortf"=>1,"keyf"=>"x"}}
+        # measures = {...}
+
       end
 
     end
