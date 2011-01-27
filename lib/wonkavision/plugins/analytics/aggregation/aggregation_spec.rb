@@ -10,6 +10,16 @@ module Wonkavision
           @attributes = HashWithIndifferentAccess.new
           @measures = HashWithIndifferentAccess.new
           @aggregations = []
+          @dimensions = Set.new
+        end
+
+        def dimension(name, options={}, &block)
+          @dimensions << Dimension.new(name,options,&block)
+        end
+
+        def dimensions(*dimension_names)
+          options = dimension_names.extract_options! || {}
+          options.flatten.each { |dim| dimension(dim,options) }
         end
 
         def attribute(*attribute_list)
