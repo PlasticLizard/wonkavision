@@ -26,10 +26,16 @@ module Wonkavision
           return @sort unless sort_key
           @sort = sort_key
         end
+        alias :sort_by :sort
 
         def caption(caption_key=nil)
           return @caption unless caption_key
           @caption = caption_key
+        end
+
+        def key(key=nil)
+          return @key unless key
+          @key = key
         end
 
       end
