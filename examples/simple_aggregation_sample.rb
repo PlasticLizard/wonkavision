@@ -14,7 +14,7 @@ class TestAggregation
   aggregate_by :color
   aggregate_by :size
   aggregate_by :color, :size
-
+  @i = 0
   def self.send_messages
     colors = %w(red green red green yellow black black white red yellow)
     sizes =  %w(large large small medium medium small large small medium small)
@@ -32,6 +32,8 @@ class TestAggregation
           "cost" => costs[idx]
         }
       }
+      @i+=1
+      print @i % 100 == 0 ? @i : "."
     end
 
   end
@@ -39,6 +41,9 @@ end
 
 TestAggregation.data_collection.drop
 
-10.times { TestAggregation.send_messages }
+time = Time.now
+20.times { TestAggregation.send_messages }
+puts "\n"
+puts Time.now - time
 
 puts "Created #{TestAggregation.data_collection.count} records"
