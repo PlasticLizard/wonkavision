@@ -22,13 +22,12 @@ module Wonkavision
 
         messages = split_dimensions_by_aggregation(aggregation,entity).map do |dimensions|
           {
-            :action => action,
-            :aggregation => aggregation.name,
-            :dimensions => dimensions,
-            :measures => measures
+            "action" => action,
+            "aggregation" => aggregation.name,
+            "dimensions" => dimensions,
+            "measures" => measures
           }
         end
-
         process_aggregations messages
       end
 

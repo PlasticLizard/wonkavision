@@ -2,10 +2,11 @@ module Wonkavision
   class EventCoordinator
 
     attr_reader :root_namespace
+    attr_accessor :broadcast_transport, :job_queue_transport
 
     def initialize
       @root_namespace = Wonkavision::EventNamespace.new
-      @lock = Mutex.new
+      #@lock = Mutex.new
       #@event_cache = {}
       @incoming_event_filters = []
     end
@@ -33,9 +34,9 @@ module Wonkavision
     end
 
     def receive_event(event_path, event_data)
-      @lock.synchronize do
-                          #If process_incoming_event returns nil or false, it means a filter chose to abort
-                          #the event processing, in which case we'll break for lunch.
+      #@lock.synchronize do
+        #If process_incoming_event returns nil or false, it means a filter chose to abort
+        #the event processing, in which case we'll break for lunch.
         return unless event_data = process_incoming_event(event_path,event_data)
 
         event_path = Wonkavision.normalize_event_path(event_path)
@@ -43,7 +44,17 @@ module Wonkavision
         #If the event wasn't matched, maybe someone is subscribing to '/*' ?
         targets = [root_namespace] if targets.blank?
         targets.each{|target|target.notify_subscribers(event_data,event_path)}
-      end
+      #end
+    end
+
+    def publish(event_path, event_data)
+      raise "No transport was configured with the EventCoordinator to deliver broadcast messages. Please set Wonkavision.event_coordinator.broadcast_transport = <some transport>." unless broadcast_transport
+      broadcast_transport.publish(event_path, event_data)
+    end
+
+    def submit_job(event_path, event_data)
+      job_queue_transport ? job_queue_transport.publish(event_path,event) :
+        receive_event(event_path, event_data)
     end
 
     protected

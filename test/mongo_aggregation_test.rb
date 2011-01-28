@@ -32,6 +32,20 @@ class MongoAggregationTest < ActiveSupport::TestCase
         @instance = @agg[{ :a => :b }]
       end
 
+      context "#dimension_names" do
+        should "prepare a list of dimension names" do
+          assert_equal [:a], @instance.send(:dimension_names)
+        end
+      end
+
+      context "#dimension_keys" do
+        should "prepare a list of dimension keys" do
+          assert_equal [:b], @instance.send(:dimension_keys)
+        end
+      end
+
+
+
       context "#add" do
         setup do
           @instance.add({ :c => 1.0, :d => 2.0 })

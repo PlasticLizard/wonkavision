@@ -79,9 +79,9 @@ class SplitByAggregationTest < ActiveSupport::TestCase
         should "copy the measures once for each aggregation" do
           results =  @handler.process_event(@message)
           results.each do |result|
-            assert_equal "add", result[:action]
-            assert_equal @agg.name, result[:aggregation]
-            assert_equal( { "d" => 1.0, "e" => 2.0} , result[:measures] )
+            assert_equal "add", result["action"]
+            assert_equal @agg.name, result["aggregation"]
+            assert_equal( { "d" => 1.0, "e" => 2.0} , result["measures"] )
           end
         end
         should "key each message with a unique aggregation" do

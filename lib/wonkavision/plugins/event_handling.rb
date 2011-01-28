@@ -106,9 +106,11 @@ module Wonkavision
         end
 
         def broadcast(event_name, event)
+          Wonkavision.event_coordinator.publish(event_name, event)
         end
 
         def submit(event_name, event)
+          Wonkavision.event_coordinator.submit_job(event_name, event)
         end
       end
 

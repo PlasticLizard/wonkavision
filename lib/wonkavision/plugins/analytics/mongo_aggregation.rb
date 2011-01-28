@@ -15,24 +15,33 @@ module Wonkavision
 
         protected
         def dimension_names
-          @aggregation_key ||= @dimensions.keys.sort
+          @dimension_names ||= @dimensions.keys.sort
+        end
+
+        def dimension_keys
+          @dimension_keys ||= dimension_names.map do |dim|
+            @dimensions[dim.to_s][self.class.dimensions[dim].key.to_s]
+          end
         end
 
 
         def update(measures, method)
           selector = {
             :aggregation_type => self.class.name,
-            :dimensions => @dimensions,
+            :dimension_keys => dimension_keys,
             :dimension_names => dimension_names
           }
 
-          update = {}
-
+          inc_measures = { }
           measures.keys.each do |measure|
-            update.merge! update_measure(measure.to_s, measures[measure], method)
+            inc_measures.merge! update_measure(measure.to_s, measures[measure], method)
           end
 
-          self.class.data_collection.update(selector, {"$inc" => update}, :upsert => true, :safe => true)
+          set_dimensions = {"dimensions" => @dimensions}
+
+          self.class.data_collection.update(selector,
+                                            {"$inc" => inc_measures, "$set" => set_dimensions},
+                                            :upsert => true, :safe => true)
         end
 
         def update_measure(measure_name, measure_value, update_method)
