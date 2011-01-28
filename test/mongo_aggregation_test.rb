@@ -29,18 +29,18 @@ class MongoAggregationTest < ActiveSupport::TestCase
 
     context "instance methods" do
       setup do
-        @instance = @agg[{ :a => :b }]
+        @instance = @agg[{ "a" => {"a"=>"b" }}]
       end
 
       context "#dimension_names" do
         should "prepare a list of dimension names" do
-          assert_equal [:a], @instance.send(:dimension_names)
+          assert_equal ["a"], @instance.send(:dimension_names)
         end
       end
 
       context "#dimension_keys" do
         should "prepare a list of dimension keys" do
-          assert_equal [:b], @instance.send(:dimension_keys)
+          assert_equal ["b"], @instance.send(:dimension_keys)
         end
       end
 
@@ -48,16 +48,16 @@ class MongoAggregationTest < ActiveSupport::TestCase
 
       context "#add" do
         setup do
-          @instance.add({ :c => 1.0, :d => 2.0 })
+          @instance.add({ "c" => 1.0, "d" => 2.0 })
         end
 
         should "create a record in the database for the aggregation" do
-          assert_equal 1, @agg.data_collection.find(:dimensions => { :a=>:b } ).to_a.length
+          assert_equal 1, @agg.data_collection.find("dimensions.a.a" => "b").to_a.length
         end
 
         context "when succesful" do
           setup do
-            @measures = @agg.data_collection.find(:dimensions=>{ :a=>:b}).to_a[0]["measures"]
+            @measures = @agg.data_collection.find(:dimensions=> { :a=>{ :a=>:b }}).to_a[0]["measures"]
           end
 
           should "initialize the value for each measure to the aggregation" do
@@ -67,7 +67,7 @@ class MongoAggregationTest < ActiveSupport::TestCase
 
           should "append the value for each measure to the aggregation" do
             @instance.add({ :c => 1.0, :d => 2.0 })
-            @measures = @agg.data_collection.find(:dimensions=>{ :a=>:b}).to_a[0]["measures"]
+            @measures = @agg.data_collection.find(:dimensions=> { :a=>{ :a=>:b }}).to_a[0]["measures"]
             assert_equal 2.0, @measures["c"]["sum"]
             assert_equal 4.0, @measures["d"]["sum"]
           end
