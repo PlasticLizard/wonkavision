@@ -6,28 +6,31 @@ module Wonkavision
         def data_collection_name
           "wv.#{self.name.underscore.gsub("::",".")}.aggregations"
         end
+
         def data_collection
           Wonkavision::Mongo.database[data_collection_name]
         end
+
+        def query(query=nil,&block)
+          query ||= Wonkavision::Analytics::Query.new
+          query.instance_eval(&block) if block
+
+          criteria = {}
+          criteria[:dimension_names] = query.selected_dimensions unless query.all_dimensions?
+
+          Wonkavision::Analytics::CellSet.new( self,
+                                               query,
+                                               data_collection.find( criteria ).to_a )
+        end
+
       end
 
       module InstanceMethods
 
         protected
-        def dimension_names
-          @dimension_names ||= @dimensions.keys.sort
-        end
-
-        def dimension_keys
-          @dimension_keys ||= dimension_names.map do |dim|
-            @dimensions[dim.to_s][self.class.dimensions[dim].key.to_s]
-          end
-        end
-
 
         def update(measures, method)
           selector = {
-            :aggregation_type => self.class.name,
             :dimension_keys => dimension_keys,
             :dimension_names => dimension_names
           }

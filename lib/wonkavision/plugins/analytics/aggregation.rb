@@ -23,6 +23,20 @@ module Wonkavision
           @instances[dimensions] ||= self.new(dimensions)
         end
 
+        def dimension_names(dimensions)
+          dimensions.keys.sort
+        end
+
+        def dimension_keys(dimensions)
+          dimension_names(dimensions).map do |dim|
+            dimensions[dim.to_s][self.dimensions[dim].key.to_s]
+          end
+        end
+
+        def query(query)
+          raise NotImpelementedError, "#query is not implemented for in-memory aggregations"
+        end
+
         def method_missing(m,*args)
           aggregation_spec.respond_to?(m) ? aggregation_spec.send(m,*args) : super
         end
@@ -41,6 +55,14 @@ module Wonkavision
 
         def reject(measures)
           update(measures, :reject)
+        end
+
+        def dimension_names
+          @dimension_names ||= self.class.dimension_names(@dimensions)
+        end
+
+        def dimension_keys
+          @dimension_keys ||= self.class.dimension_keys(@dimensions)
         end
 
         protected

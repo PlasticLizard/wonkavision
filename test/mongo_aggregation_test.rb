@@ -24,6 +24,11 @@ class MongoAggregationTest < ActiveSupport::TestCase
         assert_equal "wv.my_mongo_aggregation.aggregations", @agg.data_collection.name
       end
 
+      context "#query" do
+        #todo
+      end
+
+
     end
 
 
@@ -80,15 +85,15 @@ class MongoAggregationTest < ActiveSupport::TestCase
           @instance.add({ :c => 1.0, :d=> 2.0 })
           @instance.add({ :c => 3.0, :d=>4.0 })
           @instance.reject({ :c => 1.0, :d => 2.0})
+          @measures = @agg.data_collection.find(:dimension_names=>[:a]).to_a[0]["measures"]
         end
 
         should "remove the measure values from the aggregation" do
-#          assert_equal 3.0, @instance.measures["c"].sum
-#          assert_equal 4.0, @instance.measures["d"].sum
-#          assert_equal 1, @instance.measures["c"].count
-#          assert_equal 1, @instance.measures["d"].count
+          assert_equal 3.0, @measures["c"]["sum"]
+          assert_equal 4.0, @measures["d"]["sum"]
+          assert_equal 1, @measures["c"]["count"]
+          assert_equal 1, @measures["d"]["count"]
         end
-
       end
 
     end
