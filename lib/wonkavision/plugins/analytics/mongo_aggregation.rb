@@ -14,6 +14,7 @@ module Wonkavision
         def query(query=nil,&block)
           query ||= Wonkavision::Analytics::Query.new
           query.instance_eval(&block) if block
+          query.validate!
 
           criteria = {}
           criteria[:dimension_names] = query.selected_dimensions unless query.all_dimensions?

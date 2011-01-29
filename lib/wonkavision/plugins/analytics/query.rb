@@ -15,14 +15,12 @@ module Wonkavision
       end
 
       def selected_dimensions
-        validate!
         dimensions = []
         axes.each { |dims|dimensions.concat(dims) unless dims.blank? }
         dimensions.uniq.compact.sort{ |a,b| a.to_s <=> b.to_s }
       end
 
       def all_dimensions?
-        validate!
         axes.empty?
       end
 
