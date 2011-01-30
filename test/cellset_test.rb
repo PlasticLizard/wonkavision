@@ -5,9 +5,6 @@ class CellSetTest < ActiveSupport::TestCase
 
   context "CellSet" do
     context "#initialize" do
-      should "popupate from the passed in tuples array" do
-        assert_equal [1,2,3], Wonkavision::Analytics::CellSet.new(nil,nil,[1,2,3])
-      end
 
     end
 
