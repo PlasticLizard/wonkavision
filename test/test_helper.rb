@@ -28,6 +28,8 @@ end
 
 Wonkavision::Mongo.setup(msettings, "test")
 
+$test_dir = dir
+
 module ActiveSupport
   class TestCase
     def setup

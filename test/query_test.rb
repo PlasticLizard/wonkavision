@@ -40,7 +40,7 @@ class QueryTest < ActiveSupport::TestCase
     context "#selected_dimensions" do
       should "collection dimensions from each axis" do
         @query.select :c, :d; @query.select :b, :a, :on => :rows
-        assert_equal [:a,:b,:c,:d], @query.selected_dimensions
+        assert_equal [:c,:d,:b,:a], @query.selected_dimensions
       end
     end
 

@@ -17,7 +17,7 @@ module Wonkavision
       def selected_dimensions
         dimensions = []
         axes.each { |dims|dimensions.concat(dims) unless dims.blank? }
-        dimensions.uniq.compact.sort{ |a,b| a.to_s <=> b.to_s }
+        dimensions.uniq.compact
       end
 
       def all_dimensions?

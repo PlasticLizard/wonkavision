@@ -25,6 +25,10 @@ module Wonkavision
         @cells[key]
       end
 
+      def length
+        @cells.length
+      end
+
       private
 
       def process_tuples(query,tuples)
@@ -74,19 +78,19 @@ module Wonkavision
       end
 
       class Member
-        attr_reader :dimension, :data
+        attr_reader :dimension, :attributes
         def initialize(dimension,member_data)
           @dimension = dimension
-          @data = member_data
+          @attributes = member_data
         end
         def caption
-          data[dimension.definition.caption.to_s]
+          attributes[dimension.definition.caption.to_s]
         end
         def key
-          data[dimension.definition.key.to_s]
+          attributes[dimension.definition.key.to_s]
         end
         def sort
-          data[dimension.definition.sort.to_s]
+          attributes[dimension.definition.sort.to_s]
         end
         def <=>(other)
           sort <=> other.sort

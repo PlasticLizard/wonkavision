@@ -17,7 +17,8 @@ module Wonkavision
           query.validate!
 
           criteria = {}
-          criteria[:dimension_names] = query.selected_dimensions unless query.all_dimensions?
+          dimension_names = query.selected_dimensions.sort{ |a,b| a.to_s <=> b.to_s }
+          criteria[:dimension_names] = dimension_names unless query.all_dimensions?
 
           Wonkavision::Analytics::CellSet.new( self,
                                                query,
