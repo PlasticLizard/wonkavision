@@ -9,20 +9,19 @@ module Wonkavision
           @storage = storage
         end
 
-        def update_facts(data)
-          record_id = assert_record_id(data)
+        protected
+        #Fact persistence
+        def update_facts_record(record_id, data)
           previous_facts = @storage[record_id]
           current_facts = @storage[record_id] = (previous_facts ||  {}).merge(data)
           [previous_facts, current_facts]
         end
 
-        def add_facts(data)
-          record_id = assert_record_id(data)
+        def insert_facts_record(record_id, data)
           @storage[record_id] = data
         end
 
-        def remove_facts(data)
-          record_id = assert_record_id(data)
+        def delete_facts_record(record_id, data)
           @storage.delete(record_id)
         end
 

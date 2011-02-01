@@ -30,9 +30,9 @@ module Wonkavision
           end
         end
 
-        def record_id(record_id=nil)
-          if record_id
-            facts_options[:record_id] = record_id
+        def record_id(new_record_id=nil)
+          if new_record_id
+            facts_options[:record_id] = new_record_id
           else
             facts_options[:record_id] ||= "id"
           end

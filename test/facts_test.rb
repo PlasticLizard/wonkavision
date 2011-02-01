@@ -7,6 +7,7 @@ class FactsTest < ActiveSupport::TestCase
       @facts.class_eval do
         def self.name; "MyFacts" end
         include Wonkavision::Facts
+        record_id :_id
         accept 'some/event/path'
         accept 'another/event/path/rejected', :action => :reject do
           float :mapped
@@ -26,6 +27,15 @@ class FactsTest < ActiveSupport::TestCase
     should "accept an alternative output event path" do
       @facts.output_event_path "something/else"
       assert_equal "something/else", @facts.output_event_path
+    end
+
+    should "present the configured record id" do
+      assert_equal :_id, @facts.record_id
+    end
+
+    should "allow a store to be configured" do
+      @facts.store "I'm a store"
+      assert_equal( "I'm a store", @facts.store )
     end
 
     context "#accept" do
@@ -58,17 +68,56 @@ class FactsTest < ActiveSupport::TestCase
           @instance.accept_event({ :hi=>:there}, :action=>:reject)
         end
       end
-      context "#add_fact" do
+      context "#update_facts" do
+        should "fail unless a store is configured" do
+          assert_raise(RuntimeError) {  @instance.update_facts({"_id"=>123})}
+        end
+        should "update the store" do
+          @instance.expects(:update_facts).with({ "_id"=>123}).returns([nil,nil])
+          @instance.update_facts({ "_id"=>123})
+        end
+        should "process a rejection if previous_facts are returned" do
+          store = {}
+          @instance.expects(:store).times(2).returns(store)
+          store.expects(:update_facts).returns([{ "_id"=>123},nil])
+          @instance.expects(:process_facts).with({ "_id"=>123}, "reject")
+          @instance.update_facts({ "_id"=>123})
+        end
+        should "process an addition of current_facts are returned" do
+          store = {}
+          @instance.expects(:store).times(2).returns(store)
+          store.expects(:update_facts).returns([nil,{ "_id"=>123}])
+          @instance.expects(:process_facts).with({ "_id"=>123}, "add")
+          @instance.update_facts({ "_id"=>123})
+        end
+
+      end
+
+      context "#add_facts" do
         should "call #process_facts with the correct action" do
           @instance.expects(:process_facts).with({ :hi=>:there}, "add")
           @instance.add_facts(:hi=>:there)
         end
+        should "add the facts to a store if configured" do
+          store = {}
+          @instance.expects(:store).times(2).returns(store)
+          store.expects(:add_facts).with({ "_id" => 123})
+          @instance.add_facts("_id"=>123)
+        end
+
       end
-      context "#reject_fact" do
+      context "#reject_facts" do
         should "call #process_facts with the correct action" do
           @instance.expects(:process_facts).with({ :hi=>:there}, "reject")
           @instance.reject_facts(:hi=>:there)
         end
+        should "remove the facts from a store if configured" do
+          store = {}
+          @instance.expects(:store).times(2).returns(store)
+          store.expects(:remove_facts).with({ "_id"=>123})
+          @instance.reject_facts("_id"=>123)
+        end
+
       end
       context "#process_facts" do
         should "submit a copy of the message once for each action * each aggregation" do
