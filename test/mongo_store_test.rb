@@ -25,7 +25,7 @@ class MongoStoreTest < ActiveSupport::TestCase
 
     context "Facts persistence" do
       setup do
-        @doc_id = BSON::ObjectId.new
+        @doc_id = 123
         @store.collection.insert( {"_id" => @doc_id,
                                     "tada" => @doc_id,
                                     "todo" => "hoho",
