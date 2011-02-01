@@ -10,7 +10,7 @@ class TestFacts
   accept 'test/event' do
     string :color, :size, :shape
     float :weight
-    float :cost => context[:the_cost]
+    float :cost => context["the_cost"]
   end
 
 end
@@ -45,7 +45,7 @@ class TestAggregation
         "size" => sizes[idx],
         "shape" => shapes[idx],
         "weight" => weights[idx],
-        "the_cost" => costs[idx]
+        "the_cost" => costs[idx].to_s
       }
       @i+=1
       print @i % 100 == 0 ? @i : "."

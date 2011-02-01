@@ -23,6 +23,8 @@ dir = File.dirname(__FILE__)
  "plugins/business_activity/event_binding",
  "plugins/business_activity",
  "plugins/timeline",
+ "plugins/analytics/persistence/analytics_store.rb",
+ "plugins/analytics/persistence/hash_store.rb",
  "plugins/analytics/facts.rb",
  "plugins/analytics/aggregation/aggregation_spec.rb",
  "plugins/analytics/aggregation/attribute.rb",
