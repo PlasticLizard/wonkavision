@@ -162,11 +162,7 @@ class CellSetTest < ActiveSupport::TestCase
           should "calculate an average" do
             assert_equal 5, @measure.average
           end
-
-
         end
-
-
 
       end
     end

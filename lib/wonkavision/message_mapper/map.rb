@@ -5,14 +5,14 @@ module Wonkavision
       include IndifferentAccess
 
       def initialize(context = nil)
-	@write_nils = true
+  @write_nils = true
         @context_stack = []
         @context_stack.push(context) if context
         @formats = default_formats
       end
 
       def execute(context,map_block,options={})
-	@write_nils = options[:write_nils].nil? ? true : options[:write_nils]
+  @write_nils = options[:write_nils].nil? ? true : options[:write_nils]
         @context_stack.push(context)
         instance_eval(&map_block)
         @context_stack.clear
@@ -204,16 +204,18 @@ module Wonkavision
       end
 
       def extract_value_from_context(context,field_name,block=nil)
-        if context.respond_to?(field_name.to_sym)
-          value = context.instance_eval("self.#{field_name}")
-        elsif context.respond_to?(:[])
+        value = nil
+        if context.respond_to?(:[])
           value = context[field_name]
           if value.nil? && field_name
             value = context[field_name.to_sym] || context[field_name.to_s]
           end
-        else
-          value = nil
         end
+
+        if context.respond_to?(field_name.to_sym)
+          value = context.instance_eval("self.#{field_name}")
+        end unless value
+
         value = value.instance_eval(&block) if block
         value
       end

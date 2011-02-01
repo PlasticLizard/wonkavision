@@ -4,9 +4,21 @@ require File.join dir, "../lib/wonkavision"
 Wonkavision::Aggregation.persistence = :mongo
 Wonkavision::Mongo.database = "analytics_test"
 
+class TestFacts
+  include Wonkavision::Facts
+
+  accept 'test/event' do
+    string :color, :size, :shape
+    float :weight
+    float :cost => context[:the_cost]
+  end
+
+end
 
 class TestAggregation
   include Wonkavision::MongoAggregation
+
+  aggregates TestFacts
 
   dimension :color, :size, :shape
   measure :weight, :cost
@@ -28,16 +40,12 @@ class TestAggregation
     costs =    [5, 10, 15, 20, 15, 20, 5, 8, 9, 20]
 
     (0..9).each do |idx|
-      Wonkavision.event_coordinator.submit_job "wv/analytics/entity/updated",  {
-        "aggregation" => "TestAggregation",
-        "action" => "add",
-        "entity" => {
-          "color" => colors[idx],
-          "size" => sizes[idx],
-          "shape" => shapes[idx],
-          "weight" => weights[idx],
-          "cost" => costs[idx]
-        }
+      Wonkavision.event_coordinator.submit_job "test/event",  {
+        "color" => colors[idx],
+        "size" => sizes[idx],
+        "shape" => shapes[idx],
+        "weight" => weights[idx],
+        "the_cost" => costs[idx]
       }
       @i+=1
       print @i % 100 == 0 ? @i : "."

@@ -50,20 +50,20 @@ class SplitByAggregationTest < ActiveSupport::TestCase
     context "#process_event" do
       should "return false unless all appropriate metadata is present and valid" do
         assert_equal false, @handler.process_event({"aggregation"=>"ack",
-                                                    "action"=>"add","entity"=>{}})
+                                                    "action"=>"add","data"=>{}})
 
         assert_equal false, @handler.process_event( { "aggregation"=>@agg.name,
                                                      "action"=>"add"})
 
         assert_equal false, @handler.process_event( { "aggregation"=>@agg.name,
-                                                     "entity"=>{}})
+                                                     "data"=>{}})
       end
       context "with a valid message" do
         setup do
           @message = {
             "aggregation" => @agg.name,
             "action" => "add",
-            "entity" => {
+            "data" => {
               "a" => :a, "b" => :b, "c" => :c,
               "d" => 1.0, "e" => 2.0
             }
@@ -94,7 +94,7 @@ class SplitByAggregationTest < ActiveSupport::TestCase
       context "will listen for entity updated messages" do
         should "respond to entity updated messages" do
           Wonkavision::Analytics::SplitByAggregation.any_instance.expects(:process_event)
-          Wonkavision.event_coordinator.receive_event("wv/analytics/entity/updated",{ :a=>:b})
+          Wonkavision.event_coordinator.receive_event("wv/analytics/facts/updated",{ :a=>:b})
         end
       end
 

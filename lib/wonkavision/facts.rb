@@ -1,11 +1,7 @@
 module Wonkavision
-  module Aggregation
+  module Facts
 
-    def self.all
-      Wonkavision::Plugins::Aggregation.all
-    end
-
-    def self.persistence
+  def self.persistence
       @persistence
     end
 
@@ -19,13 +15,13 @@ module Wonkavision
       @persistence = backend
     end
 
-    def self.included(handler)
-      handler.class_eval do
+    def self.included(facts)
+      facts.class_eval do
         extend Plugins
-        use Plugins::Aggregation
+        use Plugins::EventHandling
+        use Plugins::Callbacks
+        use Plugins::Facts
       end
-
-      super
     end
   end
 end

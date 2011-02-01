@@ -3,12 +3,19 @@ require "test_helper"
 class AggregationTest < ActiveSupport::TestCase
   context "Aggregation" do
     setup do
+      @facts = Class.new
+      @facts.class_eval do
+        include Wonkavision::Facts
+      end
+
       @agg = Class.new
       @agg.class_eval do
-        def self.name; "MyAggregation" end
+        def self.name; "MyAggregation"; end
         include Wonkavision::Aggregation
         dimension :a, :b, :c
       end
+      @agg.aggregates @facts
+
     end
 
     should "configure a specification" do
@@ -26,6 +33,15 @@ class AggregationTest < ActiveSupport::TestCase
 
     should "register itself with the module" do
       assert_equal @agg, Wonkavision::Aggregation.all[@agg.name]
+    end
+
+    should "set the aggregates property" do
+      assert_equal @facts, @agg.aggregates
+    end
+
+    should "register itself with its associated Facts class" do
+      assert_equal 1, @facts.aggregations.length
+      assert_equal @agg, @facts.aggregations[0]
     end
 
     should "manage a list of cached instances keyed by dimension hashes" do

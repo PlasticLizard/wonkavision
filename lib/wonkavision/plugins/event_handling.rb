@@ -97,8 +97,12 @@ module Wonkavision
 
         def map?(condition,data,path)
           return true unless condition && condition.to_s != 'all' && condition.to_s != '*'
-          return path =~ condition if condition.is_a?(Regexp)
-          if (condition.is_a?(Proc))
+
+          if condition.is_a?(Regexp)
+            path =~ condition
+          elsif condition.is_a?(String)
+            path.downcase == condition.downcase
+          elsif condition.is_a?(Proc)
             return condition.call if condition.arity  <= 0
             return condition.call(path) if condition.arity == 1
             return condition.call(path,data)

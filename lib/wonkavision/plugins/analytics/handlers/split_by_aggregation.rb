@@ -5,7 +5,7 @@ module Wonkavision
 
       event_namespace Wonkavision.join('wv', 'analytics')
 
-      handle Wonkavision.join('entity', 'updated') do
+      handle Wonkavision.join('facts', 'updated') do
         process_event(event_context.data)
       end
 
@@ -13,7 +13,7 @@ module Wonkavision
         return false unless
           (aggregation = aggregation_for(event["aggregation"])) &&
           (action = event["action"]) &&
-          (entity = event["entity"])
+          (entity = event["data"])
 
         measures = aggregation.measures.keys.inject({}) do |measures,measure|
           measures[measure] = entity[measure.to_s]
