@@ -11,6 +11,7 @@ class SplitByAggregationTest < ActiveSupport::TestCase
         measure :d, :e
         aggregate_by :a, :b
         aggregate_by :a, :b, :c
+        store :hash_store
       end
       @handler = Wonkavision::Analytics::SplitByAggregation.new
     end

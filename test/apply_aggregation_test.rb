@@ -11,6 +11,7 @@ class ApplyAggregationTest < ActiveSupport::TestCase
         measure :d, :e
         aggregate_by :a, :b
         aggregate_by :a, :b, :c
+        store :hash_store
       end
       @handler = Wonkavision::Analytics::ApplyAggregation.new
     end
@@ -43,7 +44,7 @@ class ApplyAggregationTest < ActiveSupport::TestCase
           @message = {
             "aggregation" => @agg.name,
             "action" => "add",
-            "dimensions" => { "a" => :a, "b" => :b, "c" => :c },
+            "dimensions" => { "a" => { "a" => :a }, "b" =>{ "b" => :b}, "c" => { "c" =>  :c } },
             "measures" =>{ "d" => 1.0, "e" => 2.0 }
           }
 

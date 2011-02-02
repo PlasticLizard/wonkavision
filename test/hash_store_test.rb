@@ -14,7 +14,7 @@ class HashStoreTest < ActiveSupport::TestCase
     end
 
     should "provide access to the underlying facts specification" do
-      assert_equal @facts, @store.facts
+      assert_equal @facts, @store.owner
     end
 
     context "Facts persistence" do
@@ -63,7 +63,50 @@ class HashStoreTest < ActiveSupport::TestCase
       end
 
     end
+    context "Aggregations persistence" do
+      setup do
+        @store.aggregations[{ :dimension_keys=>[1,2,3],:dimension_names=>[:a,:b,:c] }] =
+          { :dimension_keys=>[1,2,3],
+          :dimension_names=>[:a,:b,:c],
+          :dimensions=>"dims",
+          :measures=>{ "one"=>1} }
+        @store.aggregations[{ :dimension_keys=>[1,2],:dimension_names=>[:a,:b] }] =
+          { :dimension_keys=>[1,2],
+          :dimension_names=>[:a,:b],
+          :dimensions=>"dims",
+          :measures=>{ "one"=>1} }
+
+      end
+      context "#fetch_tuples" do
+        should "return tuples for the selected dimension intersections" do
+          tuples = @store.send(:fetch_tuples,[:a,:b])
+          assert_equal 1, tuples.length
+          assert_equal( [@store.aggregations[{ :dimension_keys=>[1,2],:dimension_names=>[:a,:b] }]],
+                        tuples )
+        end
+        should "return all tuples when no dimension names are specified" do
+          assert_equal @store.aggregations.values, @store.send(:fetch_tuples,[])
+        end
+      end
+      context "update_tuple" do
+        setup do
+          @update = @store.send(:fetch_tuples,[:a,:b])[0].dup
+          @update[:measures].merge!("one" => 2.5)
+        end
+
+        should "aggregate an existing tuple if present" do
+          @store.send(:update_tuple,@update)
+          assert_equal 3.5, @store.send(:fetch_tuples,[:a,:b])[0][:measures]["one"]
+        end
+        should "insert a new tuple if not present" do
+          @update[:dimension_keys] << 4
+          @update[:dimension_names] << :d
+          @store.send(:update_tuple,@update)
+          assert_equal 2.5, @store.send(:fetch_tuples,[:a,:b,:d])[0][:measures]["one"]
+        end
 
 
+      end
+    end
   end
 end

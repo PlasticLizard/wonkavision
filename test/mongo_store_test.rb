@@ -15,18 +15,18 @@ class MongoStoreTest < ActiveSupport::TestCase
     end
 
     should "provide access to the underlying facts specification" do
-      assert_equal @facts, @store.facts
+      assert_equal @facts, @store.owner
     end
 
     should "create a collection name based on the facts class name" do
-      assert_equal "wv.test_facts.facts", @store.collection_name
+      assert_equal "wv.test_facts.facts", @store.facts_collection_name
     end
 
 
     context "Facts persistence" do
       setup do
         @doc_id = 123
-        @store.collection.insert( {"_id" => @doc_id,
+        @store.facts_collection.insert( {"_id" => @doc_id,
                                     "tada" => @doc_id,
                                     "todo" => "hoho",
                                     "canttouchthis"=>"yo"} )
@@ -73,7 +73,24 @@ class MongoStoreTest < ActiveSupport::TestCase
       end
 
     end
+    context "Aggregations persistence" do
+      setup do
+        @tuple  = { :dimension_keys=>[1,2,3],
+          :dimension_names=>[:a,:b,:c],
+          :dimensions=>{"dims"=>"doms"},
+          :measures=>{ "measures.one"=>1} }
+      end
+      context "#update_tuple" do
+        should "insert a new tuple if not present" do
+          @store.send(:update_tuple, @tuple)
+          added = @store.aggregations_collection.find({ :dimension_names=>[:a,:b,:c] }).to_a[0]
+          added.delete("_id") #isn't present on the original, we know its there
+          assert_equal @tuple.merge({:measures=>{ "one" => 1}}).stringify_keys!, added
+        end
 
+      end
+
+    end
 
   end
 end

@@ -18,9 +18,26 @@ module Wonkavision
       end
 
       module ClassMethods
+        def store(new_store=nil)
+          if new_store
+            store = new_store.kind_of?(Wonkavision::Analytics::Persistence::Store) ? store :
+              Wonkavision::Analytics::Persistence::Store[new_store]
+
+            raise "Could not find a storage type of #{new_store}" unless store
+
+            store = store.new(self) if store.respond_to?(:new)
+
+            aggregation_options[:store] = store
+          else
+            aggregation_options[:store]
+          end
+        end
+
+
         def [](dimensions)
+          key = [dimension_names(dimensions),dimension_keys(dimensions)]
           @instances ||= HashWithIndifferentAccess.new
-          @instances[dimensions] ||= self.new(dimensions)
+          @instances[key] ||= self.new(dimensions)
         end
 
         def aggregates(facts_class = nil)
@@ -29,6 +46,7 @@ module Wonkavision
           facts_class.aggregations << self
           aggregation_options[:facts_class] = facts_class
         end
+        alias facts aggregates
 
         def dimension_names(dimensions)
           dimensions.keys.sort
@@ -36,13 +54,25 @@ module Wonkavision
 
         def dimension_keys(dimensions)
           dimension_names(dimensions).map do |dim|
-            dimensions[dim.to_s][self.dimensions[dim].key.to_s]
+            dimensions[dim][self.dimensions[dim].key.to_s]
           end
         end
 
-        def query(query)
-          raise NotImpelementedError, "#query is not implemented for in-memory aggregations"
+        def query(options={},&block)
+          raise "Aggregation#query is not valid unless a store has been configured" unless store
+          query = Wonkavision::Analytics::Query.new
+          query.instance_eval(&block) if block
+          query.validate!
+
+          return query if options[:defer]
+
+          tuples = store.execute_query(query)
+
+          Wonkavision::Analytics::CellSet.new( self,
+                                               query,
+                                               tuples )
         end
+
 
         def method_missing(m,*args)
           aggregation_spec.respond_to?(m) ? aggregation_spec.send(m,*args) : super
@@ -74,18 +104,29 @@ module Wonkavision
 
         protected
         def update(measures, method)
-          measures.keys.each { |measure| update_measure(measure.to_s,measures[measure], method) }
+          aggregation = {
+            :dimension_keys => dimension_keys,
+            :dimension_names => dimension_names,
+            :measures => {},
+            :dimensions => @dimensions
+          }
+
+          measures.keys.each do |measure|
+            aggregation[:measures].merge! measure_changes_for(measure.to_s,
+                                                              measures[measure],
+                                                              method)
+          end
+          self.class.store.update_aggregation(aggregation)
           self
         end
 
-        def update_measure(measure_name, measure_value, update_method)
-          measure = get_measure(measure_name)
-          measure.send(update_method, measure_value)
-        end
-
-        def get_measure(measure_name)
-          @measures ||= HashWithIndifferentAccess.new
-          @measures[measure_name] ||= Measure.new(measure_name)
+        def measure_changes_for(measure_name, measure_value, update_method)
+          sign = update_method.to_s == "reject" ? -1 : 1
+          {
+            "measures.#{measure_name}.count" => 1 * sign,
+            "measures.#{measure_name}.sum" => measure_value * sign,
+            "measures.#{measure_name}.sum2" => (measure_value * measure_value) * sign
+          }
         end
 
       end

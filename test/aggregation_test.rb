@@ -13,6 +13,8 @@ class AggregationTest < ActiveSupport::TestCase
         def self.name; "MyAggregation"; end
         include Wonkavision::Aggregation
         dimension :a, :b, :c
+        measure :d
+        store :hash_store
       end
       @agg.aggregates @facts
 
@@ -44,64 +46,112 @@ class AggregationTest < ActiveSupport::TestCase
       assert_equal @agg, @facts.aggregations[0]
     end
 
+    should "set the specified storage" do
+      assert @agg.store.kind_of?(Wonkavision::Analytics::Persistence::HashStore)
+      assert_equal @agg, @agg.store.owner
+    end
+
     should "manage a list of cached instances keyed by dimension hashes" do
-      instance = @agg[{ :a => :b}]
+      instance = @agg[{ "a" => { "a"=>:b}}]
       assert_not_nil instance
-      assert_equal instance, @agg[{ :a => :b}]
-      assert_not_equal instance, @agg[{ :a => :c}]
-      assert_not_equal instance, @agg[{ :a => :b, :c => :d}]
+      assert_equal instance, @agg[{ "a" => { "a"=>:b}}]
+      assert_not_equal instance, @agg[{  "a" => { "a"=>:b},  "b" => { "b"=>:c}}]
     end
 
     should "store the dimension list with the instance" do
-      instance = @agg[{ :a=> :b}]
-      assert_equal( { :a => :b}, instance.dimensions )
+      instance = @agg[{ "a" => { "a"=>:b}}]
+      assert_equal( { "a" => { "a"=>:b}}, instance.dimensions )
+    end
+
+    context "#query" do
+      should "create a new query" do
+        assert @agg.query(:defer=>true).kind_of?(Wonkavision::Analytics::Query)
+      end
+      should "apply a provided block to the query" do
+        assert_equal [:a], @agg.query(:defer=>true){ select :a }.selected_dimensions
+      end
+      should "raise an error if the query is invalid" do
+        assert_raise(RuntimeError) { @agg.query{ select :a, :on => :rows} }
+      end
+      should "execute the query against the configured store" do
+        @agg.store.expects(:execute_query).returns([])
+        @agg.query
+      end
+      should "return a cellset based on the query results" do
+        @agg.store.expects(:execute_query).returns([])
+        assert @agg.query.kind_of?(Wonkavision::Analytics::CellSet)
+      end
     end
 
     context "instance methods" do
       setup do
-        @instance = @agg[{ :a => :b }]
+        @instance = @agg[{ "a" => { "a"=>:b}}]
+      end
+
+      context "#dimension_names" do
+        should "present dimension names as an array" do
+          assert_equal ["a"], @instance.dimension_names
+        end
+      end
+
+      context "#dimension_keys" do
+        should "present dimension keys as an array" do
+          assert_equal [:b], @instance.dimension_keys
+        end
       end
 
       context "#add" do
-        setup do
-          @instance.add({ :c => 1.0, :d => 2.0 })
+        should "call update with the appropriate action" do
+          @instance.expects(:update).with({:a=>:b},:add)
+          @instance.add({:a=>:b})
         end
-
-        should "initialize the value for each measure to the aggregation" do
-          assert_equal 1.0, @instance.measures["c"].sum
-          assert_equal 2.0, @instance.measures["d"].sum
-        end
-
-        should "append the value for each measure to the aggregation" do
-          @instance.add({ :c => 1.0, :d => 2.0 })
-          assert_equal 2.0, @instance.measures["c"].sum
-          assert_equal 4.0, @instance.measures["d"].sum
-        end
-
-        should "call update with an action of :add" do
-          @instance.expects(:update).with({ :c=>1.0,:d=>2.0}, :add)
-          @instance.add({ :c=>1.0,:d=>2.0})
-        end
-
       end
 
       context "#reject" do
+        should "call update with the appropriate action" do
+          @instance.expects(:update).with({ :a=>:b}, :reject)
+          @instance.reject({:a=>:b})
+        end
+      end
+
+      context "#measure_changes_for" do
         setup do
-          @instance.add({ :c => 1.0, :d=> 2.0 })
-          @instance.add({ :c => 3.0, :d=>4.0 })
-          @instance.reject({ :c => 1.0, :d => 2.0})
+          @added = @instance.send(:measure_changes_for,"a", 1000, "add")
+          @rejected = @instance.send(:measure_changes_for,"a", 1000, "reject")
         end
 
-        should "remove the measure values from the aggregation" do
-          assert_equal 3.0, @instance.measures["c"].sum
-          assert_equal 4.0, @instance.measures["d"].sum
-          assert_equal 1, @instance.measures["c"].count
-          assert_equal 1, @instance.measures["d"].count
+        should "prepare a hash of measure components" do
+          assert_equal 3, @added.length
         end
+        should "prepare a count component" do
+          assert_equal 1, @added["measures.a.count"]
+        end
+        should "prepare a sum component" do
+          assert_equal 1000, @added["measures.a.sum"]
+        end
+        should "prepare a sum2 component" do
+          assert_equal 1000*1000, @added["measures.a.sum2"]
+        end
+        should "reverse the sign of the measures when the action is reject" do
+          @rejected.values.each { |val| assert val < 0}
+        end
+      end
 
-        should "call update with an action of :reject" do
-          @instance.expects(:update).with({ :c=>1.0,:d=>2.0},:reject)
-          @instance.reject({ :c=>1.0,:d=>2.0})
+      context "#update" do
+        should "prepare aggrgation data and submit it to store.update_aggregation" do
+          expected = {
+            :dimension_keys => [:b],
+            :dimension_names => ["a"],
+            :measures => {
+              "measures.d.count" => 1,
+              "measures.d.sum" => 1000,
+              "measures.d.sum2" => 1000*1000 },
+            :dimensions => { "a" => { "a"=>:b}}
+          }
+
+          @instance.class.store.expects(:update_aggregation).with(expected)
+          @instance.send(:update, { "d" => 1000}, :add)
+
         end
 
       end

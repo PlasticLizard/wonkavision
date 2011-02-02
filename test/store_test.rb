@@ -13,8 +13,8 @@ class StoreTest < ActiveSupport::TestCase
       @store = Store.new(@facts)
     end
 
-    should "provide access to the underlying facts specification" do
-      assert_equal @facts, @store.facts
+    should "provide access to the underlying owner" do
+      assert_equal @facts, @store.owner
     end
 
     should "be able to extract a record_id from a message" do
@@ -42,6 +42,27 @@ class StoreTest < ActiveSupport::TestCase
         should "extract a record_id and delegate to delete_facts_record" do
           @store.expects(:delete_facts_record).with(123,{ "tada" => 123} )
           @store.remove_facts("tada"=>123)
+        end
+      end
+      context "#execute_query" do
+        setup do
+          @query = Wonkavision::Analytics::Query.new
+          @query.select :a, :b, :on => :columns
+          @query.select :c, :on => :rows
+        end
+        should "delegate to fetch tuples, passing the selected dimensions" do
+          @store.expects(:fetch_tuples).with([:a,:b,:c])
+          @store.execute_query(@query)
+        end
+        should "pass an empty array of dimensions when nothing is selected" do
+          @store.expects(:fetch_tuples).with([])
+          @store.execute_query(Wonkavision::Analytics::Query.new)
+        end
+      end
+      context "Deriving from Store" do
+        should "register the derived class with the superclass" do
+          class NewStore < Store; end
+          assert_equal NewStore, Store[:new_store]
         end
       end
     end

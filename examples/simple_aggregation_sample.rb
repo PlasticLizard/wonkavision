@@ -1,7 +1,7 @@
 dir = File.expand_path(File.dirname(__FILE__))
 require File.join dir, "../lib/wonkavision"
+require File.join dir, "../lib/wonkavision/plugins/analytics/mongo"
 
-Wonkavision::Aggregation.persistence = :mongo
 Wonkavision::Mongo.database = "analytics_test"
 
 class TestFacts
@@ -16,7 +16,9 @@ class TestFacts
 end
 
 class TestAggregation
-  include Wonkavision::MongoAggregation
+  include Wonkavision::Aggregation
+
+  store :mongo_store
 
   aggregates TestFacts
 
@@ -54,14 +56,14 @@ class TestAggregation
   end
 end
 
-TestAggregation.data_collection.drop
+TestAggregation.store.aggregations_collection.drop
 
 time = Time.now
 10.times { TestAggregation.send_messages }
 puts "\n"
 puts Time.now - time
 
-puts "Created #{TestAggregation.data_collection.count} records"
+puts "Created #{TestAggregation.store.aggregations_collection.count} records"
 
 
 # SELECT Size * Shape on Columns, Color on Rows

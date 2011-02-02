@@ -1,5 +1,7 @@
 class TestAggregation
-  include Wonkavision::MongoAggregation
+  include Wonkavision::Aggregation
+
+  store :hash_store
 
   dimension :color, :size, :shape
   measure :weight, :cost
