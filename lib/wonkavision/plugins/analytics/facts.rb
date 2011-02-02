@@ -40,11 +40,19 @@ module Wonkavision
 
         def store(new_store=nil)
           if new_store
-            facts_options[:store] = new_store
+            store = new_store.kind_of?(Wonkavision::Analytics::Persistence::Store) ? store :
+              Wonkavision::Analytics::Persistence::Store[new_store]
+
+            raise "Could not find a storage type of #{new_store}" unless store
+
+            store = store.new(self) if store.respond_to?(:new)
+
+            facts_options[:store] = store
           else
             facts_options[:store]
           end
         end
+
       end
 
       module InstanceMethods
@@ -79,7 +87,7 @@ module Wonkavision
           self.class.store
         end
 
-       #It is unnecessary to accept multiple actions - this should be removed
+        #It is unnecessary to accept multiple actions - this should be removed
         def process_facts(event_data, *actions)
           actions.each do |action|
             self.class.aggregations.each do |aggregation|

@@ -33,9 +33,10 @@ class FactsTest < ActiveSupport::TestCase
       assert_equal :_id, @facts.record_id
     end
 
-    should "allow a store to be configured" do
-      @facts.store "I'm a store"
-      assert_equal( "I'm a store", @facts.store )
+    should "set the specified storage" do
+      @facts.store :hash_store
+      assert @facts.store.kind_of?(Wonkavision::Analytics::Persistence::HashStore)
+      assert_equal @facts, @facts.store.owner
     end
 
     context "#accept" do

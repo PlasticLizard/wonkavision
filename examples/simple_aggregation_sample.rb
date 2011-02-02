@@ -7,7 +7,11 @@ Wonkavision::Mongo.database = "analytics_test"
 class TestFacts
   include Wonkavision::Facts
 
+  store :mongo_store
+  record_id :_id
+
   accept 'test/event' do
+    value :_id
     string :color, :size, :shape
     float :weight
     float :cost => context["the_cost"]
@@ -43,6 +47,7 @@ class TestAggregation
 
     (0..9).each do |idx|
       Wonkavision.event_coordinator.submit_job "test/event",  {
+        "_id" => BSON::ObjectId.new,
         "color" => colors[idx],
         "size" => sizes[idx],
         "shape" => shapes[idx],
@@ -50,20 +55,27 @@ class TestAggregation
         "the_cost" => costs[idx].to_s
       }
       @i+=1
-      print @i % 100 == 0 ? @i : "."
+      print @i % 50 == 0 ? @i : "."
     end
 
   end
 end
 
+TestFacts.store.facts_collection.drop
 TestAggregation.store.aggregations_collection.drop
 
-time = Time.now
-10.times { TestAggregation.send_messages }
-puts "\n"
-puts Time.now - time
+5.times do |idx|
+  puts "Pass #{idx+1}"
+  time = Time.now
+  5.times { TestAggregation.send_messages }
+  puts "\n"
+  puts Time.now - time
 
-puts "Created #{TestAggregation.store.aggregations_collection.count} records"
+  puts "Facts: #{TestFacts.store.facts_collection.count}"
+  puts "Aggregations: #{TestAggregation.store.aggregations_collection.count}"
+  puts "\n"
+
+end
 
 
 # SELECT Size * Shape on Columns, Color on Rows
