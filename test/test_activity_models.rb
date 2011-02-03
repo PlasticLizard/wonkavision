@@ -66,7 +66,7 @@ unless defined?(::TestEventHandler)
 
   Wonkavision::MessageMapper.register("evt4_test_map") do
     string 'test_id'
-    date 'event_time'
+    time 'event_time'
   end
 
 end

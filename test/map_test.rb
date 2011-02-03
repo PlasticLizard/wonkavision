@@ -112,7 +112,7 @@ class MapTest < ActiveSupport::TestCase
     should "accept a time unmolested" do
       time = Time.now
       m = Wonkavision::MessageMapper::Map.new(:a=>time)
-      m.date :a
+      m.time :a
       assert_equal time, m.a
     end
   end
@@ -311,5 +311,52 @@ class MapTest < ActiveSupport::TestCase
         assert_equal 4, m.new_collection[1].b
       end
     end
+
+    context "Map.duration" do
+      should "return nil if no :from or :to value is available" do
+        m = Wonkavision::MessageMapper::Map.new
+        m.duration :a_duration
+        assert_nil m.a_duration
+      end
+      should "return time from Time.now if only to is supplied" do
+        m = Wonkavision::MessageMapper::Map.new({ :a => "1/1/2001" })
+        m.time :a
+        m.duration :a_duration, :to => m.a
+        assert m.a_duration < 0
+      end
+      should "return time to Time.now if only from is supplied" do
+        m = Wonkavision::MessageMapper::Map.new({ :a=>"1/1/2001"})
+        m.time :a
+        m.duration :a_duration, :from => m.a
+        assert m.a_duration > 0
+      end
+      should "convert the duration to the desired time unit" do
+        m = Wonkavision::MessageMapper::Map.new
+        m.expects(:convert_seconds).with(1,:months)
+        m.time :a=>"1/1/2001 00:00:00"
+        m.time :b=>"1/1/2001 00:00:01"
+        m.duration :a_duration, :from=>m.a, :to=>m.b, :in=>:months
+      end
+    end
+    context "Map.convert_seconds" do
+      setup do
+        @m = Wonkavision::MessageMapper::Map.new
+      end
+      should "raise an exception for an invalid unit" do
+        assert_raise(RuntimeError) { @m.send(:convert_seconds,1,:wakka)}
+      end
+      should "should correctly calculate proper units" do
+        assert_equal 100, @m.send(:convert_seconds,100,:seconds)
+        assert_equal 1, @m.send(:convert_seconds,60,:minutes)
+        assert_equal 1, @m.send(:convert_seconds,60*60,:hours)
+        assert_equal 1, @m.send(:convert_seconds,60*60*24,:days)
+        assert_equal 1, @m.send(:convert_seconds,60*60*24*7,:weeks)
+        assert_equal 1, @m.send(:convert_seconds,60*60*24*30,:months)
+        assert_equal 1, @m.send(:convert_seconds,60*60*24*365,:years)
+      end
+
+    end
+
+
   end
 end

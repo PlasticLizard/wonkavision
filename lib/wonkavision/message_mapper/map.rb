@@ -12,7 +12,7 @@ module Wonkavision
       end
 
       def execute(context,map_block,options={})
-  @write_nils = options[:write_nils].nil? ? true : options[:write_nils]
+        @write_nils = options[:write_nils].nil? ? true : options[:write_nils]
         @context_stack.push(context)
         instance_eval(&map_block)
         @context_stack.clear
@@ -25,6 +25,14 @@ module Wonkavision
 
       def context
         @context_stack[-1]
+      end
+
+      def ignore_nil!
+        @write_nils = false
+      end
+
+      def write_nil!
+        @write_nils = true
       end
 
       def from (context,&block)
@@ -148,7 +156,7 @@ module Wonkavision
           if kind_of?(Date)
             self
           elsif respond_to?(:to_date)
-            to_time
+            to_date
           elsif (date_str=to_s) && date_str.length > 0
             begin
               Date.parse(date_str)
@@ -189,7 +197,45 @@ module Wonkavision
         end
       end
 
+      def duration(*args, &block)
+        opts = args.extract_options! || {}
+
+        from = opts.delete(:from)
+        to = opts.delete(:to)
+
+        return nil unless from || to
+
+        from ||= Time.now; to ||= Time.now
+
+        unit = opts.delete(:in) || opts.delete(:unit) || :seconds
+
+        duration = convert_seconds(to-from,unit)
+
+        assignment = {args.shift => duration}
+        args << assignment << opts
+
+        value(*args, &block)
+
+      end
+      alias :elapsed :duration
+
       private
+
+      def convert_seconds(duration, unit)
+        duration /
+        case unit.to_s
+                         when "seconds" then 1
+                         when "minutes" then 60
+                         when "hours" then 60 * 60
+                         when "days" then 60 * 60 * 24
+                         when "weeks" then 60 * 60 * 24 * 7
+                         when "months" then 60 * 60 * 24 * 30
+                         when "years" then 60 * 60 * 24 *  365
+                         else raise "Cannot convert duration to unknown time unit #{unit}"
+                         end
+
+      end
+
       def format_value(val,opts={})
         val = opts[:default] || opts[:default_value] if val.nil?
         return val if val.nil?
