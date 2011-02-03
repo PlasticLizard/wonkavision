@@ -2,12 +2,13 @@ module Wonkavision
   class EventCoordinator
 
     attr_reader :root_namespace
-    attr_accessor :broadcast_transport, :job_queue_transport
+    attr_accessor :broadcast_transport, :job_queue
 
     def initialize
       @root_namespace = Wonkavision::EventNamespace.new
       #@lock = Mutex.new
       #@event_cache = {}
+
       @incoming_event_filters = []
     end
 
@@ -53,7 +54,7 @@ module Wonkavision
     end
 
     def submit_job(event_path, event_data)
-      job_queue_transport ? job_queue_transport.publish(event_path,event) :
+      job_queue ? job_queue.publish(event_path,event_data) :
         receive_event(event_path, event_data)
     end
 
