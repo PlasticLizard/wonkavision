@@ -1,0 +1,24 @@
+Analytics
+
+* Unit of Measure option for Measure definitions in an Aggregation
+  * Possibly include "conversions" for going from one unit to another?
+  * Possibly other kinds of documentation, such as the definition of the measure,
+    it's quality of measurement, and other business metadata
+
+* Format string for Measure definitions in an Aggregation
+* Custom calculations / methods for Measure definitions in an Aggregation
+
+* Null measures should not be counted
+* Null dimensions should get an "Unknown" value of some kind
+* Indexing for Aggregation & Facts collections
+* Ability to add a filter or slicer in queries
+* View Underlying Data
+* Kpi's
+* Metrics
+* Web GUI for
+ * Simple data analysis / reporting
+ * Managing aggregations, facts & things? Maybe...
+* General purpose worker daemon
+* Packaging format for uploading "applications" or
+  collections of facts/aggregations to make deployment to a network of nodes easier
+* node version of the worker?
