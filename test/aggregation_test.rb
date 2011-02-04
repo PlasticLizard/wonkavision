@@ -13,6 +13,11 @@ class AggregationTest < ActiveSupport::TestCase
         def self.name; "MyAggregation"; end
         include Wonkavision::Aggregation
         dimension :a, :b, :c
+
+        dimension :complex do
+          key :cpx
+        end
+
         measure :d
         store :hash_store
       end
@@ -30,7 +35,11 @@ class AggregationTest < ActiveSupport::TestCase
 
     should "proxy relevant calls to the specification" do
       assert_equal @agg.dimensions, @agg.aggregation_spec.dimensions
-      assert_equal 3, @agg.dimensions.length
+      assert_equal 4, @agg.dimensions.length
+    end
+
+    should "create complex dimensions" do
+      assert_equal :cpx, @agg.dimensions[:complex].key
     end
 
     should "register itself with the module" do

@@ -18,9 +18,11 @@ module Wonkavision
 
         raise "The only valid values for 'action' on an aggregation.updated message are 'add' and 'reject', #{action} was encountered. Message: #{event.inspect}" unless ["add", "reject"].include?(action.to_s)
 
-        action.to_s == "add" ? aggregation[dimensions].add(measures) :
-                               aggregation[dimensions].reject(measures)
-
+        #Don't bother to continue if the measures are all nil
+        if measures.values.detect{|m|m}
+          action.to_s == "add" ? aggregation[dimensions].add(measures) :
+            aggregation[dimensions].reject(measures)
+        end
 
       end
 

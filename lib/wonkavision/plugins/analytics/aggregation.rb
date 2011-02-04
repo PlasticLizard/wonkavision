@@ -74,8 +74,8 @@ module Wonkavision
         end
 
 
-        def method_missing(m,*args)
-          aggregation_spec.respond_to?(m) ? aggregation_spec.send(m,*args) : super
+        def method_missing(m,*args,&block)
+          aggregation_spec.respond_to?(m) ? aggregation_spec.send(m,*args,&block) : super
         end
       end
 

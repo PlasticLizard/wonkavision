@@ -68,6 +68,12 @@ class ApplyAggregationTest < ActiveSupport::TestCase
           @message["action"] = "whateva"
           assert_raise(RuntimeError) { @handler.process_event(@message) }
         end
+        should "do nothing if measures is empty" do
+          @message["measures"] = { "d" => nil, "e" => nil}
+          @agg.any_instance.expects(:add).never
+          @handler.process_event(@message)
+        end
+
 
       end
 
