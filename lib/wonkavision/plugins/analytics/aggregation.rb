@@ -112,9 +112,12 @@ module Wonkavision
           }
 
           measures.keys.each do |measure|
-            aggregation[:measures].merge! measure_changes_for(measure.to_s,
-                                                              measures[measure],
-                                                              method)
+            if val = measures[measure]
+              aggregation[:measures].merge! measure_changes_for(measure.to_s,
+                                                                val,
+                                                                method)
+            end
+
           end
           self.class.store.update_aggregation(aggregation)
           self

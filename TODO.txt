@@ -22,3 +22,4 @@ Analytics
 * Packaging format for uploading "applications" or
   collections of facts/aggregations to make deployment to a network of nodes easier
 * node version of the worker?
+* 'purge' mechanism on Facts to clear out facts collection and all associated aggregations collections
