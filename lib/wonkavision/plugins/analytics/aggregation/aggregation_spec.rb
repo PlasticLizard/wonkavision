@@ -3,7 +3,7 @@ module Wonkavision
     module Aggregation
       class AggregationSpec
 
-        attr_reader :name, :dimensions, :measures, :aggregations
+        attr_reader :name, :dimensions, :measures, :aggregations, :filter
 
         def initialize(name)
           @name = name
@@ -26,6 +26,16 @@ module Wonkavision
 
         def aggregate_by(*aggregation_list)
           self.aggregations << aggregation_list.flatten
+        end
+
+        def filter(&block)
+          return @filter unless block
+          @filter = block
+        end
+
+        def matches(message)
+          return true unless filter
+          filter.arity == 0 ? filter.call : filter.call(message)
         end
 
       end

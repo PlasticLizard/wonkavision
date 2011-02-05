@@ -63,6 +63,25 @@ class AggregationSpecTest < ActiveSupport::TestCase
       end
     end
 
+    context "#filter" do
+      setup do
+        @aggregation_spec.filter { |msg|msg["a"] == "b"}
+      end
+      should "register a filter block with the spec" do
+        assert_not_nil @aggregation_spec.filter
+      end
+    end
+    context "#matches" do
+      setup do
+        @aggregation_spec.filter { |msg| msg["a"] == "b"}
+      end
+      should "return true if a message matches the filter" do
+        assert @aggregation_spec.matches({ "a" => "b"})
+      end
+      should "return false if the message does not match the filter" do
+        assert !@aggregation_spec.matches({ "a" => "B"})
+      end
+    end
 
   end
 end

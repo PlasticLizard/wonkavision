@@ -15,6 +15,8 @@ module Wonkavision
           (action = event["action"]) &&
           (entity = event["data"])
 
+        return [] unless aggregation.matches(entity)
+
         measures = aggregation.measures.keys.inject({}) do |measures,measure|
           measures[measure] = entity[measure.to_s]
           measures

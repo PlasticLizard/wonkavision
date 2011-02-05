@@ -70,13 +70,21 @@ class SplitByAggregationTest < ActiveSupport::TestCase
             }
           }
         end
+
         should "prepare a message for each aggregation" do
           assert_equal 2, @handler.process_event(@message).length
         end
+
         should "submit each message for processing" do
           @handler.expects(:submit).times(2)
           @handler.process_event(@message)
         end
+
+        should "not submit messages if the filter doesn't match" do
+          @agg.filter { |m|m["a"] != :a}
+          assert_equal 0, @handler.process_event(@message).length
+        end
+
         should "copy the measures once for each aggregation" do
           results =  @handler.process_event(@message)
           results.each do |result|
@@ -85,6 +93,7 @@ class SplitByAggregationTest < ActiveSupport::TestCase
             assert_equal( { "d" => 1.0, "e" => 2.0} , result["measures"] )
           end
         end
+
         should "key each message with a unique aggregation" do
           results = @handler.process_event(@message)
           results[0][:dimensions] = { "a" => :a, "b" => :b}
