@@ -24,6 +24,8 @@ dir = File.dirname(__FILE__)
  "plugins/business_activity/event_binding",
  "plugins/business_activity",
  "plugins/timeline",
+ "extensions/symbol",
+ "plugins/analytics/member_filter",
  "plugins/analytics/persistence/store",
  "plugins/analytics/persistence/hash_store",
  "plugins/analytics/facts",

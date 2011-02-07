@@ -49,13 +49,14 @@ class StoreTest < ActiveSupport::TestCase
           @query = Wonkavision::Analytics::Query.new
           @query.select :a, :b, :on => :columns
           @query.select :c, :on => :rows
+          @query.where :d=>:e
         end
         should "delegate to fetch tuples, passing the selected dimensions" do
-          @store.expects(:fetch_tuples).with([:a,:b,:c])
+          @store.expects(:fetch_tuples).with([:a,:b,:c, :d],@query.filters)
           @store.execute_query(@query)
         end
         should "pass an empty array of dimensions when nothing is selected" do
-          @store.expects(:fetch_tuples).with([])
+          @store.expects(:fetch_tuples).with([],[])
           @store.execute_query(Wonkavision::Analytics::Query.new)
         end
       end

@@ -24,3 +24,4 @@ Analytics
 * node version of the worker?
 * 'purge' mechanism on Facts to clear out facts collection and all associated aggregations collections
 * HIRB / RIPL integration + custom shell to make exploring data easier
+* Refactor all the knowlege of the internal structure of the stored aggregations (tuples) into a Tuple class, so that knowledge of how to access and write to this data structure isn't spread hither, thither and yon

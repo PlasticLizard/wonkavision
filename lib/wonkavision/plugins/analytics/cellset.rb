@@ -7,7 +7,7 @@ module Wonkavision
 
       def initialize(aggregation,query,tuples)
         @axes = []
-        dimension_members, @cells = process_tuples(query,tuples)
+        dimension_members, @cells = process_tuples(aggregation, query, tuples)
 
         query.axes.each do |axis_dimensions|
           @axes << Axis.new(axis_dimensions,dimension_members,aggregation)
@@ -31,12 +31,12 @@ module Wonkavision
 
       private
 
-      def process_tuples(query,tuples)
+      def process_tuples(aggregation, query, tuples)
         dims = {}
         cells = {}
         tuples.each do |record|
-          cell_key = key_for(query,record)
-          cells[cell_key] = Cell.new(cell_key,record["measures"])
+          next unless query.matches_filter?(aggregation, record)
+          append_to_cell( cells, query, record )
           record["dimension_names"].each_with_index do |dim_name,idx|
             dim = dims[dim_name] ||= {}
             dim_key = record["dimension_keys"][idx]
@@ -54,6 +54,18 @@ module Wonkavision
           key << record["dimension_keys"][dim_ordinal]
         end
         key
+      end
+
+      def append_to_cell(cells, query, record)
+        #If a slicer is used for a dimension not on one of the main axes,
+        #then we'll have cases where more than one tuple needs to be
+        #stuck into a cell. In these cases, we need to aggregate
+        #the measure data for that cell on the fly
+        cell_key = key_for(query,record)
+        measures = record["measures"]
+
+        cell = cells[cell_key]
+        cell ? cell.aggregate(measures) : cells[cell_key] = Cell.new(cell_key,measures)
       end
 
       class Axis
@@ -110,6 +122,13 @@ module Wonkavision
             @measures[measure_name] = Measure.new(measure_name,measure)
           end
         end
+        def aggregate(measure_data)
+          measure_data.each_pair do |measure_name,measure_data|
+            measure = @measures[measure_name]
+            measure ? measure.aggregate(measure_data) :
+              @measures[measure_name] = Measure.new(measure_name,measure)
+          end
+        end
         def method_missing(method,*args)
           measures[method] || super
         end
@@ -132,6 +151,12 @@ module Wonkavision
         def std_dev
           return Wonkavision::NaN unless count > 1
            Math.sqrt((sum2.to_f - ((sum.to_f * sum.to_f)/count.to_f)) / (count.to_f - 1))
+        end
+
+        def aggregate(new_data)
+          @data["sum"] = @data["sum"].to_f + new_data["sum"].to_f
+          @data["sum2"] = @data["sum2"].to_f + new_data["sum2"].to_f
+          @data["count"] = @data["count"].to_i + new_data["count"].to_i
         end
 
       end

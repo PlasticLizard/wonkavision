@@ -50,8 +50,9 @@ module Wonkavision
         end
 
         #Aggregation persistence
-        def fetch_tuples(dimension_names=[])
+        def fetch_tuples(dimension_names, filters)
           criteria = dimension_names.blank? ? {} : { :dimension_names => dimension_names }
+          append_filters(criteria,filters)
           aggregations_collection.find(criteria).to_a
         end
 
@@ -69,6 +70,15 @@ module Wonkavision
           documents.length > 1 ? documents : documents.pop
         end
 
+        private
+        def append_filters(criteria,filters)
+          filters.each do |filter|
+            filter_key = "#{filter.member_type}s.#{filter.name}.#{filter.attribute_key(owner)}"
+            criteria[filter_key] = filter.operator == :eq ? filter.value :
+              { "$#{filter.operator}" => filter.value}
+            filter.applied!
+          end
+        end
       end
     end
   end

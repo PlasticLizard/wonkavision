@@ -52,9 +52,10 @@ module Wonkavision
         # matching tuples
         def execute_query(query)
           dimension_names = query.all_dimensions? ? [] :
-            query.selected_dimensions.sort{ |a,b| a.to_s <=> b.to_s }
+            query.referenced_dimensions.sort{ |a,b| a.to_s <=> b.to_s }
 
-          fetch_tuples(dimension_names)
+          fetch_tuples(dimension_names, query.filters)
+
         end
 
         def update_aggregation(aggregation_data)
@@ -86,7 +87,7 @@ module Wonkavision
           raise NotImplementedError
         end
 
-        def fetch_tuples(dimension_names)
+        def fetch_tuples(dimension_names, filters = [])
           raise NotImplementedError
         end
 

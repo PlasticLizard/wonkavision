@@ -87,6 +87,25 @@ class MongoStoreTest < ActiveSupport::TestCase
           added.delete("_id") #isn't present on the original, we know its there
           assert_equal @tuple.merge({:measures=>{ "one" => 1}}).stringify_keys!, added
         end
+      end
+      context "#append_filters" do
+        setup do
+          @dim_filter = Wonkavision::Analytics::MemberFilter.new("tada",:value=>[1,2,3])
+          @measure_filter = Wonkavision::Analytics::MemberFilter.new("haha",
+                                                                     :member_type=>:measure,
+                                                                     :op=>:gte,
+                                                                     :value=>100.0)
+          @criteria = {}
+          @dim_filter.expects(:attribute_key).returns "tada_key"
+          @store.send(:append_filters,@criteria,[@dim_filter,@measure_filter])
+        end
+        should "prepare the dimension filter for mongodb" do
+          assert_equal( [1,2,3], @criteria["dimensions.tada.tada_key"] )
+        end
+        should "prepare the measure filter for mongodb" do
+          assert_equal( { "$gte" => 100.0 }, @criteria["measures.haha.count"] )
+        end
+
 
       end
 

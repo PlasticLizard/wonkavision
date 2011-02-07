@@ -14,6 +14,7 @@ class CellSetTest < ActiveSupport::TestCase
       @query = Wonkavision::Analytics::Query.new
       @query.select :size, :shape, :on => :columns
       @query.select :color, :on => :rows
+      @query.where  :dimensions.color.ne => "black"
       @cellset = CellSet.new @aggregation, @query, @test_data
     end
 
@@ -32,7 +33,7 @@ class CellSetTest < ActiveSupport::TestCase
         end
 
         should "populate cells from tuples" do
-          assert_equal @test_data.length, @cellset.length
+          assert_equal @test_data.length - 2, @cellset.length #2 records filtered out (color=black)
         end
       end
       context "#[]" do
@@ -45,18 +46,18 @@ class CellSetTest < ActiveSupport::TestCase
       end
       context "#length" do
         should "return the number of total tuples in the set" do
-          assert_equal @test_data.length, @cellset.length
+          assert_equal @test_data.length - 2, @cellset.length #2 records filtered out (color = black)
         end
       end
     end
     context "Implementation" do
       context "#process_tuples" do
         setup do
-          @dims, @cells = @cellset.send(:process_tuples, @query, @test_data)
+          @dims, @cells = @cellset.send(:process_tuples, @aggregation, @query, @test_data)
         end
         context "processed cells" do
-          should "contain one entry for each tuple" do
-            assert_equal @test_data.length, @cells.length
+          should "contain one entry for each matching tuple" do
+            assert_equal @test_data.length - 2, @cells.length #2 records are black, and filtered
           end
           should "be keyed by a query-ordered array of dimension keys" do
             test_key = @cells.keys.find { |key|key - ["red", "square", "large"] == []}
@@ -70,7 +71,7 @@ class CellSetTest < ActiveSupport::TestCase
           end
           should "provide a hash of members for the dimensions" do
             test_dim = @dims["color"]
-            %w(red green yellow black white).each do |mem_key|
+            %w(red green yellow white).each do |mem_key| #black is filtered out
               assert test_dim.keys.include?(mem_key)
             end
           end
@@ -145,7 +146,24 @@ class CellSetTest < ActiveSupport::TestCase
             assert_equal @cell.measures["cost"], @cell.cost
             assert_equal @cell.measures["weight"], @cell.weight
           end
+          context "#aggregate" do
+            setup do
+              @cell.aggregate({"cost"=>{ "count"=>1,"sum"=>1,"sum2"=>2},
+                                "different"=>{ "count"=>2,"sum"=>2,"sum2"=>8}})
+
+            end
+            should "insert any new measures" do
+              assert @cell.measures.keys.include?("different")
+            end
+            should "aggregate data from an existing measure" do
+              assert_equal 11, @cell.cost.count
+              assert_equal 51, @cell.cost.sum
+              assert_equal 252, @cell.cost.sum2
+            end
+
+          end
         end
+
         context "Measure" do
           setup { @measure = @cellset[:large, :square, :red].cost }
           should "provide access to its name" do
@@ -162,6 +180,18 @@ class CellSetTest < ActiveSupport::TestCase
           should "calculate an average" do
             assert_equal 5, @measure.average
           end
+          context "#aggregate" do
+            setup do
+              @measure.aggregate(@measure.data.dup)
+            end
+            should "add sum, sum2 and count to the existing values" do
+              assert_equal 20, @measure.count
+              assert_equal 100, @measure.sum
+              assert_equal 500, @measure.sum2
+            end
+
+          end
+
         end
 
       end

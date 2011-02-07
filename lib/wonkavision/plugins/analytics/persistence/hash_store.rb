@@ -30,7 +30,7 @@ module Wonkavision
         end
 
         #Aggregation persistence
-        def fetch_tuples(dimension_names = [])
+        def fetch_tuples(dimension_names = [], filters = [])
           return aggregations.values if dimension_names.blank?
           tuples = []
           aggregations.each_pair do |agg_key, agg|
