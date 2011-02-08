@@ -4,13 +4,14 @@ module Wonkavision
   module Plugins
     module Aggregation
       class Dimension
-        attr_reader :name, :attributes, :options
+        attr_reader :name, :attributes, :options, :from
         attr_writer :key, :sort, :caption
 
         def initialize(name,options={},&block)
           @name = name
           @options = options
           @attributes = HashWithIndifferentAccess.new
+          @from = options[:from]
           key options[:key] if options[:key]
           sort options[:sort] if options[:sort]
           caption options[:caption] if options[:caption]
@@ -48,8 +49,11 @@ module Wonkavision
         end
 
         def extract(data)
+          dimension_data = data[from.to_s] if from
+          dimension_data ||= data[name.to_s] if data[name.to_s].kind_of?(Hash)
+          dimension_data ||= data
           attributes.values.inject({}) do |message,attribute|
-            message.tap { |m| m[attribute.name.to_s] = attribute.extract(data)}
+            message.tap { |m| m[attribute.name.to_s] = attribute.extract(dimension_data)}
           end
         end
 

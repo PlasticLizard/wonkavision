@@ -167,7 +167,14 @@ class DimensionTest < ActiveSupport::TestCase
         end
 
         should "return a hash containing all values from the message that match the dimensions attributes" do
-          assert_equal({"a" => 1, "b" => :b}, @dimension.extract({"a"=>1,"b"=>:b,"c"=>"d","d"=>0}))
+          assert_equal({"a" => 1, "b" => :b}, @dimension.extract({"a"=>1,"b"=>:b,"c"=>"d","f"=>0}))
+        end
+        should "extract the keys from an embedded hash if present" do
+          assert_equal({"a" => 1, "b" => :b}, @dimension.extract({ "d" => {"a"=>1,"b"=>:b}}))
+        end
+        should "extract keys from the 'from' key if specified" do
+          @dimension.instance_variable_set("@from", "z")
+          assert_equal({"a" => 1, "b" => :b}, @dimension.extract({ "z" => {"a"=>1,"b"=>:b}}))
         end
 
       end
