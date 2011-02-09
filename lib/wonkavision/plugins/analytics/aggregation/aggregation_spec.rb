@@ -28,6 +28,14 @@ module Wonkavision
           self.aggregations << aggregation_list.flatten
         end
 
+        def aggregate_all_combinations
+          dimension_names = dimensions.keys
+          (1..dimension_names.length).each do |combination_size|
+            dimension_names.combination(combination_size).each { |combo| aggregate_by *combo}
+          end
+        end
+        alias aggregate_by_all aggregate_all_combinations
+
         def filter(&block)
           return @filter unless block
           @filter = block

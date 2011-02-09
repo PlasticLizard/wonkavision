@@ -63,6 +63,18 @@ class AggregationSpecTest < ActiveSupport::TestCase
       end
     end
 
+    context "#aggregate_all_combinations" do
+      setup do
+        @aggregation_spec.dimension :a,:b,:c
+        @aggregation_spec.aggregate_all_combinations
+      end
+      should "determine all possible combinations of dimensions" do
+        assert_equal 7, @aggregation_spec.aggregations.length
+        combinations = [["a"], ["b"], ["c"], ["a", "b"], ["a", "c"], ["b", "c"], ["a", "b", "c"]]
+        assert_equal combinations, @aggregation_spec.aggregations
+      end
+    end
+
     context "#filter" do
       setup do
         @aggregation_spec.filter { |msg|msg["a"] == "b"}
