@@ -32,8 +32,9 @@ module Wonkavision
         #Fact persistence
         def update_facts_record(record_id, data)
           query = { :_id => record_id }
-          update = { "$set" => data }
+          update = { "$set" => data.merge(:_id=>record_id) }
           previous_facts = facts_collection.find_and_modify :query=>query, :update=>update, :upsert=>true
+          puts "Looked for #{query.inspect}, updated to #{update.inspect} and got #{previous_facts} back"
           current_facts = (previous_facts || {}).merge(data)
           remove_mongo_id(previous_facts, current_facts)
         end
