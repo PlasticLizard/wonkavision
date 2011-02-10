@@ -53,7 +53,7 @@ module Wonkavision
           dimension_data ||= data[name.to_s] if data[name.to_s].kind_of?(Hash)
           dimension_data ||= data
           attributes.values.inject({}) do |message,attribute|
-            message.tap { |m| m[attribute.name.to_s] = attribute.extract(dimension_data)}
+            message.tap { |m| m[attribute.name.to_s] = attribute.extract(dimension_data)};
           end
         end
 
