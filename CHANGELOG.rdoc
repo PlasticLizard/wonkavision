@@ -1,3 +1,6 @@
+== 0.6.0
+ * Initial, experimental draft of real time analytics framework.
+
 == 0.5.11
  * Guess that last change doesn't work in Rails 3 :) Fixed things up a different way to get the same effect, but more compatible.
 
