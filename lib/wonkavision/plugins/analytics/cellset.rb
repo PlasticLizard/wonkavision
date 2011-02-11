@@ -21,6 +21,10 @@ module Wonkavision
       def chapters; axes[3]; end
       def sections; axes[4]; end
 
+      def inspect
+        "<Cellset #{object_id} select:#{@query.selected_dimensions} where:#{@query.slicer}>"
+      end
+
       def [](*coordinates)
         key = coordinates.map{ |c|c.to_s }
         @cells[key]
