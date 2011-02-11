@@ -3,10 +3,11 @@ require "set"
 module Wonkavision
   module Analytics
     class CellSet
-      attr_reader :axes
+      attr_reader :axes, :query
 
       def initialize(aggregation,query,tuples)
         @axes = []
+        @query = query
         dimension_members, @cells = process_tuples(aggregation, query, tuples)
 
         query.axes.each do |axis_dimensions|
@@ -19,6 +20,10 @@ module Wonkavision
       def pages; axex[2]; end
       def chapters; axes[3]; end
       def sections; axes[4]; end
+
+      def inspect
+        "<Cellset #{object_id} select:#{@query.selected_dimensions} where:#{@query.slicer}>"
+      end
 
       def [](*coordinates)
         key = coordinates.map{ |c|c.to_s }
@@ -85,7 +90,7 @@ module Wonkavision
         def initialize(name,definition,members)
           @name = name.to_s
           @definition = definition
-          @members = members.values.map{ |mem_data| Member.new(self,mem_data)}.sort
+          @members = members ? members.values.map{ |mem_data| Member.new(self,mem_data)}.sort : []
         end
       end
 

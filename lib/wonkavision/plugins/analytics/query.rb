@@ -29,11 +29,12 @@ module Wonkavision
       end
 
       def slicer
-        @slicer.to_a
+        dims = selected_dimensions
+        @slicer.reject{|m|dims.include?(m)}
       end
 
       def referenced_dimensions
-        ( [] + selected_dimensions + slicer ).uniq.compact
+        ( [] + selected_dimensions + slicer ).compact
       end
 
       def selected_dimensions
