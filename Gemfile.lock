@@ -11,7 +11,7 @@ GIT
 PATH
   remote: .
   specs:
-    wonkavision (0.5.11)
+    wonkavision (0.6.0)
       activesupport (>= 2.3)
 
 GEM
