@@ -91,5 +91,16 @@ class QueryTest < ActiveSupport::TestCase
 
     end
 
+    context "#slicer" do
+      setup do
+        @query.select :a, :b
+        @query.where :dimensions.b=>:b, :dimensions.c=>:c
+      end
+      should "include only dimensions not on another axis" do
+        assert_equal [:c], @query.slicer
+      end
+
+    end
+
   end
 end
