@@ -176,6 +176,19 @@ class CellSetTest < ActiveSupport::TestCase
               assert_equal ["large", "square", "red"], @cell.key
             end
           end
+          context "#filters" do
+            setup do
+              @query.where :dimensions.another.caption.gt => 5
+            end
+            should "include one filter for each component of the cell" do
+              expected = [:dimensions["size"].key.eq('large'),
+                          :dimensions["shape"].key.eq('square'),
+                          :dimensions["color"].key.eq('red'),
+                          :dimensions["another"].caption.gt(5)]
+             assert_equal expected, @cell.filters
+            end
+
+          end
         end
 
         context "Measure" do

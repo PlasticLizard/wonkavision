@@ -36,9 +36,14 @@ module Wonkavision
       end
 
       def to_s
-        val = value || "nil"
-        val = "'#{val}'" if val != "nil" && (val.kind_of?(String) || val.kind_of?(Symbol))
-        ":#{member_type}s.#{name}.#{attribute_name}.#{operator}(#{val})"
+        val = case value
+              when nil then "nil"
+              when String, Symbol then "'#{value}'"
+              when Time then "Time.parse('#{value}')"
+              else value.inspect
+              end
+
+        ":#{member_type}s['#{name}'].#{attribute_name}.#{operator}(#{val})"
       end
 
       def inspect
@@ -73,8 +78,10 @@ module Wonkavision
 
         assert_operator_matches_value
 
-        data = extract_attribute_value_from_tuple(aggregation, tuple)
+        matches_value extract_attribute_value_from_tuple(aggregation, tuple)
+      end
 
+      def matches_value(data)
         case operator
         when :gt then data ? data > value : false
         when :lt then data ? data < value : false

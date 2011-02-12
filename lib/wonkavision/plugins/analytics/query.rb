@@ -23,18 +23,22 @@ module Wonkavision
             MemberFilter.new(filter)
           member_filter.value = value
           @filters << member_filter
-          @slicer << member_filter.name if member_filter.dimension?
+          @slicer << member_filter if member_filter.dimension? &&
+            !selected_dimensions.include?(member_filter.name)
         end
         self
       end
 
       def slicer
-        dims = selected_dimensions
-        @slicer.reject{|m|dims.include?(m)}
+        @slicer.to_a
+      end
+
+      def slicer_dimensions
+        @slicer.map{ |f|f.name }
       end
 
       def referenced_dimensions
-        ( [] + selected_dimensions + slicer ).compact
+        ( [] + selected_dimensions + slicer.map{|f|f.name} ).compact
       end
 
       def selected_dimensions

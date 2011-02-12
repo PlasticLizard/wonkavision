@@ -92,6 +92,13 @@ class AggregationTest < ActiveSupport::TestCase
       end
     end
 
+    context "#facts_for" do
+      should "pass the request to the underlying Facts class" do
+        @facts.expects(:facts_for).with(@agg, [:a,:b,:c])
+        @agg.facts_for([:a,:b,:c])
+      end
+    end
+
     context "instance methods" do
       setup do
         @instance = @agg[{ "a" => { "a"=>:b}}]

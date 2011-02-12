@@ -81,12 +81,12 @@ class QueryTest < ActiveSupport::TestCase
 
       should "add dimension names to the slicer" do
         @query.where :dimensions.a => :b
-        assert @query.slicer.include?(:a)
+        assert @query.slicer_dimensions.include?(:a)
       end
 
       should "not add measure names to the slicer" do
         @query.where :measures.a => :b
-        assert @query.slicer.include?(:a) == false
+        assert @query.slicer_dimensions.include?(:a) == false
       end
 
     end
@@ -97,7 +97,7 @@ class QueryTest < ActiveSupport::TestCase
         @query.where :dimensions.b=>:b, :dimensions.c=>:c
       end
       should "include only dimensions not on another axis" do
-        assert_equal [:c], @query.slicer
+        assert_equal [:c], @query.slicer_dimensions
       end
 
     end

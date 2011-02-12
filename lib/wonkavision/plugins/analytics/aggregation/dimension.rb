@@ -4,7 +4,7 @@ module Wonkavision
   module Plugins
     module Aggregation
       class Dimension
-        attr_reader :name, :attributes, :options, :from
+        attr_reader :name, :attributes, :options
         attr_writer :key, :sort, :caption
 
         def initialize(name,options={},&block)
@@ -49,12 +49,26 @@ module Wonkavision
         end
 
         def extract(data)
-          dimension_data = data[from.to_s] if from
-          dimension_data ||= data[name.to_s] if data[name.to_s].kind_of?(Hash)
-          dimension_data ||= data
+          dimension_data = complex? ? data[from.to_s] : data
           attributes.values.inject({}) do |message,attribute|
             message.tap { |m| m[attribute.name.to_s] = attribute.extract(dimension_data)};
           end
+        end
+
+        def from
+          @from || name
+        end
+
+        def complex?
+          #complex dimensions have multiple attributes
+          #and are represented by nested hashes in their
+          #underlying facts records. Simple dimensions
+          #are composed of only a key which is directly
+          #stored on the facts record, unless 'from' is
+          #specified, which automatically makes them complex
+          #because 'from' specifies a particular nested
+          #hash on the facts record
+          @from ||  attributes.length > 1
         end
 
       end

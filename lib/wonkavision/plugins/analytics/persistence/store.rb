@@ -78,7 +78,12 @@ module Wonkavision
             :dimension_names => aggregation_data[:dimension_names]
           }
         end
+
         #Abstract methods
+        def facts_for(aggregation,*filters)
+          raise NotImplementedError
+        end
+
         def update_facts_record(record_id, data)
           raise NotImplementedError
         end

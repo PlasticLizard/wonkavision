@@ -53,6 +53,12 @@ module Wonkavision
           end
         end
 
+        def facts_for(aggregation,filters)
+          raise "Please configure a storage for your Facts class before attempting to use #facts_for" unless store
+
+          store.facts_for(aggregation,filters)
+        end
+
       end
 
       module InstanceMethods

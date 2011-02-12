@@ -73,6 +73,12 @@ module Wonkavision
                                                tuples )
         end
 
+        def facts_for(filters)
+          raise "Cannot provide underlying facts. Did you forget to associate your aggregation with a Facts class using 'aggregates' ? " unless aggregates
+
+          aggregates.facts_for(self, filters)
+        end
+
 
         def method_missing(m,*args,&block)
           aggregation_spec.respond_to?(m) ? aggregation_spec.send(m,*args,&block) : super

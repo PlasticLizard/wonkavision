@@ -13,6 +13,7 @@ module Wonkavision
         query.axes.each do |axis_dimensions|
           @axes << Axis.new(axis_dimensions,dimension_members,aggregation)
         end
+
       end
 
       def columns; axes[0]; end
@@ -31,7 +32,7 @@ module Wonkavision
 
       def [](*coordinates)
         key = coordinates.map{ |c|c.to_s }
-        @cells[key] || Cell.new(key,coordinates,{})
+        @cells[key] || Cell.new(self,key,coordinates,{})
       end
 
       def length
@@ -75,7 +76,10 @@ module Wonkavision
         measures = record["measures"]
 
         cell = cells[cell_key]
-        cell ? cell.aggregate(measures) : cells[cell_key] = Cell.new(cell_key, cell_dims, measures)
+        cell ? cell.aggregate(measures) : cells[cell_key] = Cell.new(self,
+                                                                     cell_key,
+                                                                     cell_dims,
+                                                                     measures)
       end
 
       class Axis
@@ -124,10 +128,10 @@ module Wonkavision
       end
 
       class Cell
-        attr_reader :key
-        attr_reader :measures
-        attr_reader :dimensions
-        def initialize(key,dims,measure_data)
+        attr_reader :key, :measures, :dimensions, :cellset
+
+        def initialize(cellset,key,dims,measure_data)
+          @cellset = cellset
           @key = key
           @dimensions = dims
           @measures = HashWithIndifferentAccess.new
@@ -150,6 +154,17 @@ module Wonkavision
 
         def empty?
           measure_data.blank?
+        end
+
+        def filters
+          unless @filters
+            @filters = []
+            dimensions.each_with_index do |dim_name, index|
+              @filters << MemberFilter.new( dim_name, :value => key[index] )
+            end
+            @filters += cellset.query.slicer
+          end
+          @filters
         end
       end
 

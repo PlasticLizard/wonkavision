@@ -49,10 +49,16 @@ module Wonkavision
           remove_mongo_id(facts_collection.find_and_modify(:query=>query, :remove=>true))
         end
 
+        def facts_for(aggregation,filters)
+          criteria = {}
+          append_facts_filters(aggregation,criteria,filters)
+          facts_collection.find(criteria).to_a
+        end
+
         #Aggregation persistence
         def fetch_tuples(dimension_names, filters)
           criteria = dimension_names.blank? ? {} : { :dimension_names => dimension_names }
-          append_filters(criteria,filters)
+          append_aggregations_filters(criteria,filters)
           aggregations_collection.find(criteria).to_a
         end
 
@@ -71,14 +77,38 @@ module Wonkavision
         end
 
         private
-        def append_filters(criteria,filters)
+        def append_aggregations_filters(criteria,filters)
           filters.each do |filter|
             filter_key = "#{filter.member_type}s.#{filter.name}.#{filter.attribute_key(owner)}"
-            criteria[filter_key] = filter.operator == :eq ? filter.value :
-              { "$#{filter.operator}" => filter.value}
+            criteria[filter_key] = filter_value_for(filter)
             filter.applied!
           end
         end
+
+        def append_facts_filters(aggregation,criteria,filters)
+          filters.each do |filter|
+
+            filter_name = filter.dimension? ? filter.attribute_key(aggregation) : filter.name
+            prefix =      filter_prefix_for(aggregation,filter)
+
+            filter_key =  [prefix,filter_name].compact.join(".")
+
+            criteria[filter_key] = filter_value_for(filter)
+          end
+        end
+
+        def filter_value_for(filter)
+          filter.operator == :eq ? filter.value :
+              { "$#{filter.operator}" => filter.value}
+        end
+
+        def filter_prefix_for(aggregation,filter)
+          if filter.dimension?
+            dimension = aggregation.dimensions[filter.name]
+            dimension.complex? ? dimension.from : nil
+          end
+        end
+
       end
     end
   end

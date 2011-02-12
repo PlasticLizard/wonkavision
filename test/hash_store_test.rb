@@ -61,6 +61,58 @@ class HashStoreTest < ActiveSupport::TestCase
         end
 
       end
+      context "#facts_for" do
+        setup do
+          @agg = Class.new
+          @agg.class_eval do
+            include Wonkavision::Aggregation
+            dimension :simple
+            dimension :less_simple, :from=>:russia
+            dimension :with_love do
+              caption :hi_there
+            end
+          end
+
+          @store.send(:insert_facts_record,123,
+                      {
+                        "simple"=>"simon",
+                        "russia"=>{ "less_simple"=>"seeriously"},
+                        "with_love"=>{ "with_love"=>"ooooh","hi_there"=>"friend"}
+                      })
+          @store.send(:insert_facts_record,456,
+                      {
+                        "simple"=>"simon",
+                        "russia"=>{ "less_simple"=>"seeriously"},
+                        "with_love"=>{ "with_love"=>"ooooh","hi_there"=>"jebus"}
+                      })
+        end
+
+        should "return facts a given set of filters" do
+          filters = [:dimensions.simple.eq("simon"),:dimensions.with_love.caption.eq("jebus")]
+          assert_equal 1, @store.send(:facts_for,@agg,filters).length
+          assert_equal [@store[456]], @store.send(:facts_for,@agg,filters)
+        end
+        context "#attributes_for" do
+          should "return return the original facts for measures" do
+            filter = :measures.simple
+            assert_equal @store[123], @store.send(:attributes_for,@agg,filter,@store[123])
+          end
+          should "return the original facts for simple dimensions" do
+            filter = :dimensions.simple
+            assert_equal @store[123], @store.send(:attributes_for,@agg,filter,@store[123])
+          end
+          should "return a nested object for dimensions with from specified" do
+            filter = :dimensions.less_simple
+            assert_equal @store[123]["russia"], @store.send(:attributes_for,@agg,filter,@store[123])
+          end
+          should "return a nested object for complex dimensions" do
+            filter = :dimensions.with_love.caption
+            assert_equal( @store[123]["with_love"],
+                          @store.send(:attributes_for,@agg,filter,@store[123]) )
+          end
+
+        end
+      end
 
     end
     context "Aggregations persistence" do

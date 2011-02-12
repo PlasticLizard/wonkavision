@@ -13,7 +13,12 @@ module Wonkavision
           @storage[:aggregations] ||= {}
         end
 
+        def[](record_id)
+          @storage[record_id]
+        end
+
         protected
+
         #Fact persistence
         def update_facts_record(record_id, data)
           previous_facts = @storage[record_id]
@@ -27,6 +32,29 @@ module Wonkavision
 
         def delete_facts_record(record_id, data)
           @storage.delete(record_id)
+        end
+
+        def facts_for(aggregation,filters)
+          matches = []
+          @storage.each_pair do |record_id,facts|
+            next if record_id == :aggregations
+            failed = filters.detect do |filter|
+              attributes = attributes_for(aggregation,filter,facts)
+              data = attributes[filter.attribute_key(aggregation)]
+              !filter.matches_value(data)
+            end
+            matches << facts unless failed
+          end
+          matches
+        end
+
+        def attributes_for(aggregation, filter, facts)
+          if filter.dimension?
+            dimension = aggregation.dimensions[filter.name]
+            dimension.complex? ? facts[dimension.from] : facts
+          else
+            facts
+          end
         end
 
         #Aggregation persistence

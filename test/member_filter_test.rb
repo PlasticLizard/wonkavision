@@ -1,4 +1,5 @@
 require "test_helper"
+require "cgi"
 
 class MemberFilterTest < ActiveSupport::TestCase
   context "MemberFilter" do
@@ -141,7 +142,7 @@ class MemberFilterTest < ActiveSupport::TestCase
     context "#to_s, #inspect" do
       should "produce a canonical string representation of a member filter" do
         filter = Wonkavision::Analytics::MemberFilter.new(:hi).eq(3)
-        assert_equal ":dimensions.hi.key.eq(3)", filter.to_s
+        assert_equal ":dimensions['hi'].key.eq(3)", filter.to_s
       end
       should "should be 'eval'able to reproduce the filter" do
         filter = Wonkavision::Analytics::MemberFilter.new(:hi).eq(3)
@@ -150,15 +151,15 @@ class MemberFilterTest < ActiveSupport::TestCase
       end
       should "represent nil value with an unquoted string 'nil'" do
         filter = Wonkavision::Analytics::MemberFilter.new(:hi)
-        assert_equal ":dimensions.hi.key.eq(nil)", filter.to_s
+        assert_equal ":dimensions['hi'].key.eq(nil)", filter.to_s
       end
       should "wrap strings in a single quote" do
         filter = Wonkavision::Analytics::MemberFilter.new(:hi).ne("whatever")
-        assert_equal ":dimensions.hi.key.ne('whatever')", filter.to_s
+        assert_equal ":dimensions['hi'].key.ne('whatever')", filter.to_s
       end
       should "prefix member filters with :members" do
         filter = :measures.a_measure.gt(3)
-        assert_equal ":measures.a_measure.count.gt(3)", filter.inspect
+        assert_equal ":measures['a_measure'].count.gt(3)", filter.inspect
       end
       should "produce 'eval'able measure filter" do
         filter = :measures.a_measure.average.lt(5)
@@ -166,5 +167,23 @@ class MemberFilterTest < ActiveSupport::TestCase
         assert_equal filter, filter2
       end
     end
+
+    context "for urls" do
+      should "be able to re-hydrate a dimension filter after passing through a url" do
+        filter = :dimensions.a_dimension.an_attribute.lt(100)
+        escaped = CGI.escape(filter.to_s)
+        unescaped = CGI.unescape(escaped)
+        assert_equal filter, eval(unescaped)
+      end
+      should "be able to re-hydrate a list of filters after passing through a url" do
+        filters = [:dimensions.a_dimension.an_attribute.lt(100),
+                   :this_dim.caption.eq("hi there"),
+                   :measures.a_m.lte(Time.now)]
+        escaped = CGI.escape(filters.inspect)
+        unescaped = CGI.unescape(escaped)
+        assert_equal filters, eval(unescaped)
+      end
+    end
+
   end
 end
