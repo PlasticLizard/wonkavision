@@ -22,12 +22,16 @@ module Wonkavision
       def sections; axes[4]; end
 
       def inspect
-        "<Cellset #{object_id} select:#{@query.selected_dimensions} where:#{@query.slicer}>"
+        @cells.inspect
+      end
+
+      def to_s
+        @cells.to_s
       end
 
       def [](*coordinates)
         key = coordinates.map{ |c|c.to_s }
-        @cells[key]
+        @cells[key] || Cell.new(key,coordinates,{})
       end
 
       def length
@@ -51,9 +55,9 @@ module Wonkavision
         [dims, cells]
       end
 
-      def key_for(query,record)
+      def key_for(dims,record)
         key = []
-        query.selected_dimensions.each_with_index do |dim_name, idx|
+        dims.each_with_index do |dim_name, idx|
           dim_name = dim_name.to_s
           dim_ordinal = record["dimension_names"].index(dim_name)
           key << record["dimension_keys"][dim_ordinal]
@@ -66,11 +70,12 @@ module Wonkavision
         #then we'll have cases where more than one tuple needs to be
         #stuck into a cell. In these cases, we need to aggregate
         #the measure data for that cell on the fly
-        cell_key = key_for(query,record)
+        cell_dims = query.selected_dimensions
+        cell_key = key_for(cell_dims,record)
         measures = record["measures"]
 
         cell = cells[cell_key]
-        cell ? cell.aggregate(measures) : cells[cell_key] = Cell.new(cell_key,measures)
+        cell ? cell.aggregate(measures) : cells[cell_key] = Cell.new(cell_key, cell_dims, measures)
       end
 
       class Axis
@@ -80,14 +85,15 @@ module Wonkavision
           dimensions.each do |dim_name|
             definition = aggregation.dimensions[dim_name]
             members = dimension_members[dim_name.to_s]
-            @dimensions << Dimension.new(dim_name,definition,members)
+            @dimensions << Dimension.new(self,dim_name,definition,members)
           end
         end
       end
 
       class Dimension
         attr_reader :definition,:members,:name
-        def initialize(name,definition,members)
+        def initialize(axis,name,definition,members)
+          @axis = axis
           @name = name.to_s
           @definition = definition
           @members = members ? members.values.map{ |mem_data| Member.new(self,mem_data)}.sort : []
@@ -120,13 +126,16 @@ module Wonkavision
       class Cell
         attr_reader :key
         attr_reader :measures
-        def initialize(key,measure_data)
+        attr_reader :dimensions
+        def initialize(key,dims,measure_data)
           @key = key
+          @dimensions = dims
           @measures = HashWithIndifferentAccess.new
           measure_data.each_pair do |measure_name,measure|
             @measures[measure_name] = Measure.new(measure_name,measure)
           end
         end
+
         def aggregate(measure_data)
           measure_data.each_pair do |measure_name,measure_data|
             measure = @measures[measure_name]
@@ -134,8 +143,13 @@ module Wonkavision
               @measures[measure_name] = Measure.new(measure_name,measure)
           end
         end
+
         def method_missing(method,*args)
-          measures[method] || super
+          measures[method] || Measure.new(method,{})
+        end
+
+        def empty?
+          measure_data.blank?
         end
       end
 
@@ -146,11 +160,15 @@ module Wonkavision
           @data = data
         end
 
-        def sum; @data["sum"]; end
-        def sum2; @data["sum2"]; end
+        def empty?
+          count.nil? || count < 1
+        end
+
+        def sum; empty? ? nil : @data["sum"]; end
+        def sum2; empty? ? nil : @data["sum2"]; end
         def count; @data["count"]; end
 
-        def mean; sum/count; end
+        def mean; empty? ? nil : sum/count; end
         alias :average :mean
 
         def std_dev

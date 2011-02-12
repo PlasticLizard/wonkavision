@@ -1,6 +1,7 @@
 module Wonkavision
   module Analytics
     class MemberFilter
+      include Comparable
 
       attr_reader :name, :operator, :member_type
       attr_accessor :value
@@ -34,11 +35,35 @@ module Wonkavision
         @applied
       end
 
+      def to_s
+        val = value || "nil"
+        val = "'#{val}'" if val != "nil" && (val.kind_of?(String) || val.kind_of?(Symbol))
+        ":#{member_type}s.#{name}.#{attribute_name}.#{operator}(#{val})"
+      end
+
+      def inspect
+        to_s
+      end
+
+      def <=>(other)
+        to_s <=> other.to_s
+      end
+
+      def ==(other)
+        to_s == other.to_s
+      end
+
       [:gt, :lt, :gte, :lte, :ne, :in, :nin, :eq].each do |operator|
         define_method(operator) do |*args|
          @value = args[0] if args.length > 0
          @operator = operator; self
         end unless method_defined?(operator)
+      end
+
+      def method_missing(sym,*args)
+        super unless args.blank?
+        @attribute_name = sym
+        self
       end
 
       def matches(aggregation, tuple)

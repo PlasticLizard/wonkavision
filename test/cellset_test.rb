@@ -43,6 +43,10 @@ class CellSetTest < ActiveSupport::TestCase
           assert_equal ["large", "square", "red"], cell.key
           assert_equal 10, cell.cost.count
         end
+        should "return an empty cell if the coordinates don't match an existing tuple" do
+          assert @cellset[:large,:octagon,:red].empty?
+        end
+
       end
       context "#length" do
         should "return the number of total tuples in the set" do
@@ -88,7 +92,9 @@ class CellSetTest < ActiveSupport::TestCase
             "dimension_names"=>["color", "shape", "size"] }
         end
         should "re-order the dimension_keys array to match query order" do
-          assert_equal ["small", "square", "yellow"], @cellset.send(:key_for,@query,@record)
+          assert_equal ["small", "square", "yellow"], @cellset.send(:key_for,
+                                                                    @query.selected_dimensions,
+                                                                    @record)
         end
       end
       context "Support Classes" do
@@ -146,6 +152,9 @@ class CellSetTest < ActiveSupport::TestCase
             assert_equal @cell.measures["cost"], @cell.cost
             assert_equal @cell.measures["weight"], @cell.weight
           end
+          should "return an empty measure if no measure exists" do
+            assert @cell.a_non_existent_member.empty?
+          end
           context "#aggregate" do
             setup do
               @cell.aggregate({"cost"=>{ "count"=>1,"sum"=>1,"sum2"=>2},
@@ -160,7 +169,12 @@ class CellSetTest < ActiveSupport::TestCase
               assert_equal 51, @cell.cost.sum
               assert_equal 252, @cell.cost.sum2
             end
-
+            should "maintain a reference to the dimensions represented by the cell" do
+              assert_equal [:size,:shape,:color], @cell.dimensions
+            end
+            should "maintain a reference to the cell key" do
+              assert_equal ["large", "square", "red"], @cell.key
+            end
           end
         end
 
@@ -189,9 +203,24 @@ class CellSetTest < ActiveSupport::TestCase
               assert_equal 100, @measure.sum
               assert_equal 500, @measure.sum2
             end
-
           end
-
+          context "when empty" do
+            should "say it is empty" do
+              assert Wonkavision::Analytics::CellSet::Measure.new(:hi,{}).empty?
+            end
+            should "say it is empty when the count is 0" do
+              assert Wonkavision::Analytics::CellSet::Measure.new(:hi,{"count"=>0}).empty?
+            end
+            should "return null for sum, sum2 and average" do
+              cell = Wonkavision::Analytics::CellSet::Measure.new(:hi,
+                                                                  { "count"=>0,
+                                                                    "sum"=>100,
+                                                                    "sum2"=>1000})
+              assert_nil cell.sum
+              assert_nil cell.sum2
+              assert_nil cell.average
+            end
+          end
         end
 
       end
