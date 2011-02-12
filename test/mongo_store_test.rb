@@ -122,6 +122,38 @@ class MongoStoreTest < ActiveSupport::TestCase
 
       end
 
+      context "#where" do
+        setup do
+           @store.send(:insert_facts_record,123,
+                      {
+                        "simple"=>"simon",
+                        "russia"=>{ "less_simple"=>"seriously?"},
+                        "with_love"=>{ "with_love"=>"ooooh","hi_there"=>"friend"}
+                      })
+          @store.send(:insert_facts_record,456,
+                      {
+                        "simple"=>"simon",
+                        "russia"=>{ "less_simple"=>"seriously!"},
+                        "with_love"=>{ "with_love"=>"ooooh!","hi_there"=>"jebus"}
+                      })
+        end
+        should "select records using the provided criteria" do
+          results = @store.where :simple=>:simon, "with_love.with_love" => "ooooh"
+          assert_equal [@store[123]], results
+        end
+        context "#count" do
+          should "return the total number of records with no criteria" do
+            assert_equal 2, @store.count
+          end
+          should "return the number of records matching the criteria" do
+            assert_equal 1, @store.count({ :simple=>:simon, "with_love.with_love" => "ooooh" })
+          end
+
+        end
+
+      end
+
+
     end
     context "Aggregations persistence" do
       setup do

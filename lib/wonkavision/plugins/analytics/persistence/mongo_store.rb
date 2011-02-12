@@ -27,6 +27,19 @@ module Wonkavision
           facts_collection.find({ :_id => document_id}).to_a.pop
         end
 
+        def where(criteria)
+          collection = owner.kind_of?(Wonkavision::Aggregation) ? aggregations_collection :
+            facts_collection
+
+          collection.find(criteria).to_a
+        end
+
+        def count(criteria={})
+          collection = owner.kind_of?(Wonkavision::Aggregation) ? aggregations_collection :
+            facts_collection
+
+          collection.find(criteria).count
+        end
 
         protected
         #Fact persistence
