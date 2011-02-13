@@ -11,8 +11,6 @@ Analytics
 * Null measures should not be counted
 * Null dimensions should get an "Unknown" value of some kind
 * Indexing for Aggregation & Facts collections
-* Ability to add a filter or slicer in queries
-* View Underlying Data
 * Kpi's
 * Metrics
 * Web GUI for
