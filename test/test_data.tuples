@@ -59,12 +59,12 @@
    {"cost"=>{"count"=>10, "sum"=>200, "sum2"=>4000},
     "weight"=>{"count"=>10, "sum"=>22.0, "sum2"=>48.4}}},
  {"_id"=>BSON::ObjectId('4d470fb0ca248815e73bd8b8'),
-  "dimension_keys"=>["black", "circle", "large"],
+  "dimension_keys"=>["red", "circle", "large"],
   "dimension_names"=>["color", "shape", "size"],
   "dimensions"=>
    {"size"=>{"size"=>"large"},
     "shape"=>{"shape"=>"circle"},
-    "color"=>{"color"=>"black"}},
+    "color"=>{"color"=>"red"}},
   "measures"=>
    {"cost"=>{"count"=>10, "sum"=>50, "sum2"=>250},
     "weight"=>{"count"=>10, "sum"=>13.0, "sum2"=>16.9}}},

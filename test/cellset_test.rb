@@ -33,8 +33,13 @@ class CellSetTest < ActiveSupport::TestCase
         end
 
         should "populate cells from tuples" do
-          assert_equal @test_data.length - 2, @cellset.length #2 records filtered out (color=black)
+          assert_equal @test_data.length - 1, @cellset.length #1 record filtered out (color=black)
         end
+
+        should "calculate a grand total" do
+          assert_equal 90, @cellset.totals.cost.count
+        end
+
       end
       context "#[]" do
         should "locate a cell based on its coordinates, specified in query order" do
@@ -50,21 +55,21 @@ class CellSetTest < ActiveSupport::TestCase
       end
       context "#length" do
         should "return the number of total tuples in the set" do
-          assert_equal @test_data.length - 2, @cellset.length #2 records filtered out (color = black)
+          assert_equal @test_data.length - 1, @cellset.length #1 record filtered out (color = black)
         end
       end
     end
     context "Implementation" do
       context "#process_tuples" do
         setup do
-          @dims, @cells = @cellset.send(:process_tuples, @aggregation, @query, @test_data)
+          @dims = @cellset.send(:process_tuples, @aggregation, @query, @test_data)
         end
         context "processed cells" do
           should "contain one entry for each matching tuple" do
-            assert_equal @test_data.length - 2, @cells.length #2 records are black, and filtered
+            assert_equal @test_data.length - 1, @cellset.cells.length #1 record are black, and filtered
           end
           should "be keyed by a query-ordered array of dimension keys" do
-            test_key = @cells.keys.find { |key|key - ["red", "square", "large"] == []}
+            test_key = @cellset.cells.keys.find { |key|key - ["red", "square", "large"] == []}
             assert_equal ["large", "square", "red"], test_key
           end
         end
@@ -108,7 +113,36 @@ class CellSetTest < ActiveSupport::TestCase
               assert_equal "size", @axis.dimensions[0].name
               assert_equal "shape", @axis.dimensions[1].name
             end
+            should "calculate appropriate start and end indexes" do
+              assert_equal 0, @axis.start_index
+              assert_equal 1, @axis.end_index
+              assert_equal 2, @cellset.rows.start_index
+              assert_equal 2, @cellset.rows.end_index
+            end
           end
+          context "#[]" do
+            setup do
+              @cell = @axis[:large,:circle]
+            end
+            should "locate a totals cell for the given coordinates" do
+              assert_not_nil @cell
+            end
+            should "locate a cell with an abbreviated key matching just the axis coords" do
+              assert_equal ["large", "circle"], @cell.key
+            end
+            should "locate a cell with correctly specified dimensions" do
+              assert_equal [:size,:shape], @cell.dimensions
+            end
+            should "aggregate all detail for the given summary cell" do
+              assert_equal 20, @cell.cost.count
+            end
+            should "aggregate detail for each dimension in the axis" do
+              assert_equal 30, @axis[:large].cost.count
+              assert_equal ["large"], @axis[:large].key
+              assert_equal [:size], @axis[:large].dimensions
+            end
+          end
+
         end
         context "Dimension" do
           setup { @dimension = @cellset.columns.dimensions[0] }

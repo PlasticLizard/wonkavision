@@ -3,16 +3,22 @@ require "set"
 module Wonkavision
   module Analytics
     class CellSet
-      attr_reader :axes, :query
+      attr_reader :axes, :query, :cells, :totals
 
       def initialize(aggregation,query,tuples)
         @axes = []
         @query = query
-        dimension_members, @cells = process_tuples(aggregation, query, tuples)
+        @cells = {}
 
+        dimension_members = process_tuples(aggregation, query, tuples)
+
+        start_index = 0
         query.axes.each do |axis_dimensions|
-          @axes << Axis.new(axis_dimensions,dimension_members,aggregation)
+          @axes << Axis.new(self,axis_dimensions,dimension_members,aggregation,start_index)
+          start_index += axis_dimensions.length
         end
+
+        calculate_totals
 
       end
 
@@ -31,8 +37,8 @@ module Wonkavision
       end
 
       def [](*coordinates)
-        key = coordinates.map{ |c|c.to_s }
-        @cells[key] || Cell.new(self,key,coordinates,{})
+        key = coordinates.map{ |c|c.nil? ? nil : c.to_s }
+        @cells[key] || Cell.new(self,key,[],{})
       end
 
       def length
@@ -41,19 +47,32 @@ module Wonkavision
 
       private
 
+      def calculate_totals
+        cells.keys.each do |cell_key|
+          measure_data = cells[cell_key].measure_data
+          axes.each do |axis|
+            axis.append_to_totals(cell_key, measure_data) unless
+              cells[cell_key].empty?
+          end
+          @totals ? @totals.aggregate(measure_data) : @totals = Cell.new(self,
+                                                                         [],
+                                                                         [],
+                                                                         measure_data)
+        end
+      end
+
       def process_tuples(aggregation, query, tuples)
         dims = {}
-        cells = {}
         tuples.each do |record|
           next unless query.matches_filter?(aggregation, record)
-          append_to_cell( cells, query, record )
+          update_cell( query.selected_dimensions, record )
           record["dimension_names"].each_with_index do |dim_name,idx|
             dim = dims[dim_name] ||= {}
             dim_key = record["dimension_keys"][idx]
             dim[dim_key] ||= record["dimensions"][dim_name]
           end
         end
-        [dims, cells]
+        dims
       end
 
       def key_for(dims,record)
@@ -66,32 +85,61 @@ module Wonkavision
         key
       end
 
-      def append_to_cell(cells, query, record)
-        #If a slicer is used for a dimension not on one of the main axes,
-        #then we'll have cases where more than one tuple needs to be
-        #stuck into a cell. In these cases, we need to aggregate
-        #the measure data for that cell on the fly
-        cell_dims = query.selected_dimensions
-        cell_key = key_for(cell_dims,record)
-        measures = record["measures"]
+      def update_cell(dimensions,record)
+        cell_key ||= key_for(dimensions,record)
+        measure_data = record["measures"]
+        append_to_cell(dimensions, measure_data, cell_key)
+      end
 
+      def append_to_cell(dimensions, measure_data, cell_key)
         cell = cells[cell_key]
-        cell ? cell.aggregate(measures) : cells[cell_key] = Cell.new(self,
-                                                                     cell_key,
-                                                                     cell_dims,
-                                                                     measures)
+        cell ? cell.aggregate(measure_data) : cells[cell_key] = Cell.new(self,
+                                                                         cell_key,
+                                                                         dimensions,
+                                                                         measure_data)
       end
 
       class Axis
-        attr_reader :dimensions
-        def initialize(dimensions,dimension_members,aggregation)
+        attr_reader :cellset, :dimensions, :start_index, :end_index, :totals
+        def initialize(cellset,dimensions,dimension_members,aggregation,start_index)
+          @cellset = cellset
+          @totals = {}
           @dimensions = []
           dimensions.each do |dim_name|
             definition = aggregation.dimensions[dim_name]
             members = dimension_members[dim_name.to_s]
             @dimensions << Dimension.new(self,dim_name,definition,members)
           end
+          @start_index= start_index
+          @end_index = start_index + @dimensions.length - 1
         end
+
+        def[](*coordinates)
+          cell_key = coordinates.map{ |c|c.nil? ? nil : c.to_s}
+          totals[cell_key] || Cell.new(self.cellset,cell_key,coordinates,{})
+        end
+
+        def dimension_names
+          dimensions.map{ |d|d.definition.name}
+        end
+
+        def append_to_totals(cell_key, measure_data)
+          (start_index..end_index).each do |idx|
+            totals_dims = dimension_names.slice(0..start_index-idx)
+            totals_key = cell_key.slice(start_index..idx)
+            append_to_cell( totals_dims, measure_data, totals_key )
+          end
+        end
+
+        private
+        def append_to_cell(dimensions, measure_data, cell_key)
+          cell = totals[cell_key]
+          cell ? cell.aggregate(measure_data) : totals[cell_key] = Cell.new(self,
+                                                                            cell_key,
+                                                                            dimensions,
+                                                                            measure_data)
+        end
+
       end
 
       class Dimension
@@ -128,14 +176,16 @@ module Wonkavision
       end
 
       class Cell
-        attr_reader :key, :measures, :dimensions, :cellset
+        attr_reader :key, :measures, :dimensions, :cellset, :measure_data
 
         def initialize(cellset,key,dims,measure_data)
           @cellset = cellset
           @key = key
           @dimensions = dims
+          @measure_data = measure_data
+
           @measures = HashWithIndifferentAccess.new
-          measure_data.each_pair do |measure_name,measure|
+          @measure_data.each_pair do |measure_name,measure|
             @measures[measure_name] = Measure.new(measure_name,measure)
           end
         end
@@ -156,6 +206,14 @@ module Wonkavision
           measure_data.blank?
         end
 
+        def to_s
+          "<Cell #{@key.inspect}>"
+        end
+
+        def inspect
+          to_s
+        end
+
         def filters
           unless @filters
             @filters = []
@@ -172,7 +230,7 @@ module Wonkavision
         attr_reader :name, :data
         def initialize(name,data)
           @name = name
-          @data = data
+          @data = data ? data.dup : {}
         end
 
         def empty?
@@ -188,7 +246,7 @@ module Wonkavision
 
         def std_dev
           return Wonkavision::NaN unless count > 1
-           Math.sqrt((sum2.to_f - ((sum.to_f * sum.to_f)/count.to_f)) / (count.to_f - 1))
+          Math.sqrt((sum2.to_f - ((sum.to_f * sum.to_f)/count.to_f)) / (count.to_f - 1))
         end
 
         def aggregate(new_data)
