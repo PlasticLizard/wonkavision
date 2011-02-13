@@ -5,7 +5,6 @@ Analytics
   * Possibly other kinds of documentation, such as the definition of the measure,
     it's quality of measurement, and other business metadata
 
-* Format string for Measure definitions in an Aggregation
 * Custom calculations / methods for Measure definitions in an Aggregation
 
 * Null measures should not be counted
