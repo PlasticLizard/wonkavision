@@ -3,18 +3,19 @@ require "set"
 module Wonkavision
   module Analytics
     class CellSet
-      attr_reader :axes, :query, :cells, :totals
+      attr_reader :axes, :query, :cells, :totals, :aggregation
 
       def initialize(aggregation,query,tuples)
         @axes = []
         @query = query
+        @aggregation = aggregation
         @cells = {}
 
-        dimension_members = process_tuples(aggregation, query, tuples)
+        dimension_members = process_tuples(tuples)
 
         start_index = 0
         query.axes.each do |axis_dimensions|
-          @axes << Axis.new(self,axis_dimensions,dimension_members,aggregation,start_index)
+          @axes << Axis.new(self,axis_dimensions,dimension_members,start_index)
           start_index += axis_dimensions.length
         end
 
@@ -61,7 +62,7 @@ module Wonkavision
         end
       end
 
-      def process_tuples(aggregation, query, tuples)
+      def process_tuples(tuples)
         dims = {}
         tuples.each do |record|
           next unless query.matches_filter?(aggregation, record)
@@ -101,12 +102,12 @@ module Wonkavision
 
       class Axis
         attr_reader :cellset, :dimensions, :start_index, :end_index, :totals
-        def initialize(cellset,dimensions,dimension_members,aggregation,start_index)
+        def initialize(cellset,dimensions,dimension_members,start_index)
           @cellset = cellset
           @totals = {}
           @dimensions = []
           dimensions.each do |dim_name|
-            definition = aggregation.dimensions[dim_name]
+            definition = cellset.aggregation.dimensions[dim_name]
             members = dimension_members[dim_name.to_s]
             @dimensions << Dimension.new(self,dim_name,definition,members)
           end
@@ -134,7 +135,7 @@ module Wonkavision
         private
         def append_to_cell(dimensions, measure_data, cell_key)
           cell = totals[cell_key]
-          cell ? cell.aggregate(measure_data) : totals[cell_key] = Cell.new(self,
+          cell ? cell.aggregate(measure_data) : totals[cell_key] = Cell.new(self.cellset,
                                                                             cell_key,
                                                                             dimensions,
                                                                             measure_data)
@@ -186,7 +187,8 @@ module Wonkavision
 
           @measures = HashWithIndifferentAccess.new
           @measure_data.each_pair do |measure_name,measure|
-            @measures[measure_name] = Measure.new(measure_name,measure)
+            measure_opts = cellset.aggregation.measures[measure_name] || {}
+            @measures[measure_name] = Measure.new(measure_name,measure,measure_opts)
           end
         end
 
@@ -227,10 +229,29 @@ module Wonkavision
       end
 
       class Measure
-        attr_reader :name, :data
-        def initialize(name,data)
+        attr_reader :name, :data, :options, :default_component, :format
+        def initialize(name,data,opts={})
           @name = name
           @data = data ? data.dup : {}
+          @options = opts
+          @default_component = options[:default_component] || options[:default_to] || :count
+          @format = options[:format] || nil
+        end
+
+        def to_s
+          formatted_value
+        end
+
+        def inspect
+          value
+        end
+
+        def formatted_value
+          format.blank? ? value.to_s : StringFormatter.format(value, format, options)
+        end
+
+        def value
+          send(@default_component)
         end
 
         def empty?

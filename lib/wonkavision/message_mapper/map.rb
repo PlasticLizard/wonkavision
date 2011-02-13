@@ -8,7 +8,6 @@ module Wonkavision
   @write_nils = true
         @context_stack = []
         @context_stack.push(context) if context
-        @formats = default_formats
       end
 
       def execute(context,map_block,options={})
@@ -17,10 +16,6 @@ module Wonkavision
         instance_eval(&map_block)
         @context_stack.clear
         self
-      end
-
-      def formats
-        @formats
       end
 
       def context
@@ -242,11 +237,7 @@ module Wonkavision
 
         format = opts[:format]
         format ||= :float if opts[:precision]
-        return val unless format
-        formatter = formats[format] || format
-        default_formatter = formats[:default]
-
-        formatter.respond_to?(:call) ? formatter.call(val,format,opts) : default_formatter.call(val,formatter,opts)
+        format ? Wonkavision::StringFormatter.format(val,format,opts) : val
       end
 
       def extract_value_from_context(context,field_name,block=nil)
@@ -272,21 +263,6 @@ module Wonkavision
         unless val.nil? && !@write_nils
           self[field_name] = format_value(val,opts)
         end
-      end
-
-      def default_formats
-        HashWithIndifferentAccess.new(
-                :default=>lambda {|v,f,opts| v.respond_to?(:strftime) ? v.strftime(f) : f % v } ,
-                :float =>lambda {|v,f,opts| precision_format(opts) % v },
-                :dollars=>lambda {|v,f,opts| "$#{precision_format(opts,2)}" % v},
-                :percent=>lambda {|v,f,opts| "#{precision_format(opts,1)}%%" % v},
-                :yes_no=>lambda {|v,f,opts| v ? "Yes" : "No"}
-        )
-      end
-
-      def precision_format(opts,default_precision=nil)
-        precision = opts[:precision] || default_precision
-        "%#{precision ? "." + precision.to_s : default_precision}f"
       end
 
       def add_options(args,new_options)

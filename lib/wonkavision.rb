@@ -6,6 +6,7 @@ require "active_support/core_ext"
 dir = File.dirname(__FILE__)
 ["support",
  "plugins",
+ "string_formatter",
  "event_path_segment",
  "event",
  "event_context",
@@ -32,7 +33,6 @@ dir = File.dirname(__FILE__)
  "plugins/analytics/aggregation/aggregation_spec",
  "plugins/analytics/aggregation/attribute",
  "plugins/analytics/aggregation/dimension",
- "plugins/analytics/aggregation/measure",
  "plugins/analytics/aggregation",
  "plugins/analytics/cellset",
  "plugins/analytics/query",

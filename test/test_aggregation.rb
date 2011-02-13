@@ -4,7 +4,8 @@ class TestAggregation
   store :hash_store
 
   dimension :color, :size, :shape
-  measure :weight, :cost
+  measure :weight, :default_to=>:average, :format=>:float,:precision=>2
+  measure :cost, :default_to=>:sum, :format=>:float, :precision=>1
 
   aggregate_by :color
   aggregate_by :size

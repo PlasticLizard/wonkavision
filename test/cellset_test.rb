@@ -6,16 +6,17 @@ class CellSetTest < ActiveSupport::TestCase
   Query = Wonkavision::Analytics::Query
   CellSet = Wonkavision::Analytics::CellSet
 
+  test_data = File.join $test_dir, "test_data.tuples"
+  @@test_data = eval(File.read(test_data))
+
   context "CellSet" do
     setup do
       @aggregation = ::TestAggregation
-      test_data = File.join $test_dir, "test_data.tuples"
-      @test_data = eval(File.read(test_data))
       @query = Wonkavision::Analytics::Query.new
       @query.select :size, :shape, :on => :columns
       @query.select :color, :on => :rows
       @query.where  :dimensions.color.ne => "black"
-      @cellset = CellSet.new @aggregation, @query, @test_data
+      @cellset = CellSet.new @aggregation, @query, @@test_data
     end
 
     context "Public API" do
@@ -33,7 +34,7 @@ class CellSetTest < ActiveSupport::TestCase
         end
 
         should "populate cells from tuples" do
-          assert_equal @test_data.length - 1, @cellset.length #1 record filtered out (color=black)
+          assert_equal @@test_data.length - 1, @cellset.length #1 record filtered out (color=black)
         end
 
         should "calculate a grand total" do
@@ -55,18 +56,18 @@ class CellSetTest < ActiveSupport::TestCase
       end
       context "#length" do
         should "return the number of total tuples in the set" do
-          assert_equal @test_data.length - 1, @cellset.length #1 record filtered out (color = black)
+          assert_equal @@test_data.length - 1, @cellset.length #1 record filtered out (color = black)
         end
       end
     end
     context "Implementation" do
       context "#process_tuples" do
         setup do
-          @dims = @cellset.send(:process_tuples, @aggregation, @query, @test_data)
+          @dims = @cellset.send(:process_tuples, @@test_data)
         end
         context "processed cells" do
           should "contain one entry for each matching tuple" do
-            assert_equal @test_data.length - 1, @cellset.cells.length #1 record are black, and filtered
+            assert_equal @@test_data.length - 1, @cellset.cells.length #1 record are black, and filtered
           end
           should "be keyed by a query-ordered array of dimension keys" do
             test_key = @cellset.cells.keys.find { |key|key - ["red", "square", "large"] == []}
@@ -268,6 +269,27 @@ class CellSetTest < ActiveSupport::TestCase
               assert_nil cell.average
             end
           end
+          context "formatting and defaults" do
+            setup do
+              @m1 = @cellset[:large, :square, :red].weight
+              @m2 = @cellset[:large, :square, :red].cost
+            end
+            should "return the default aggregation component when asked for a value" do
+              assert_equal @m1.average, @m1.value
+              assert_equal @m2.sum, @m2.value
+            end
+            should "return the formatted_value using the requested format" do
+              assert_equal "1.00", @m1.formatted_value
+              assert_equal "50.0", @m2.formatted_value
+            end
+            should "use formatted value for #to_s" do
+              assert_equal @m1.formatted_value, @m1.to_s
+            end
+            should "use raw value for inspect" do
+              assert_equal @m1.value, @m1.inspect
+            end
+          end
+
         end
 
       end
