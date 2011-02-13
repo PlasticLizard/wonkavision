@@ -24,6 +24,22 @@ module Wonkavision
           measure_list.flatten.each { |m| self.measures[m] = options }
         end
 
+        def average(*measure_list)
+          measure_list.add_options! :default_component=>:average
+          measure(*measure_list)
+        end
+        alias :mean :average
+
+        def count(*measure_list)
+          measure_list.add_options! :default_component=>:count
+          measure(*measure_list)
+        end
+
+        def sum(*measure_list)
+          measure_list.add_options! :default_component=>:sum
+          measure(*measure_list)
+        end
+
         def aggregate_by(*aggregation_list)
           self.aggregations << aggregation_list.flatten
         end

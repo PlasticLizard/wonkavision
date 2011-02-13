@@ -100,19 +100,19 @@ module Wonkavision
       end
 
       def dollars(*args)
-        args = add_options(args,:format=>:dollars)
+        args.add_options!(:format=>:dollars)
         float(*args)
       end
       alias dollar dollars
 
       def percent(*args)
-        args = add_options(args,:format=>:percent)
+        args.add_options!(:format=>:percent)
         float(*args)
       end
       alias percentage percent
 
       def yes_no(*args)
-        args = add_options(args,:format=>:yes_no)
+        args.add_options!(:format=>:yes_no)
         value(*args)
       end
 
@@ -265,12 +265,12 @@ module Wonkavision
         end
       end
 
-      def add_options(args,new_options)
-        opts = args.length > 1 ? args.extract_options! : {}
-        opts.merge!(new_options)
-        args << opts
-        args
-      end
+      #def add_options(args,new_options)
+      #  opts = args.length > 1 ? args.extract_options! : {}
+      #  opts.merge!(new_options)
+      #  args << opts
+      #  args
+      #end
     end
   end
 end

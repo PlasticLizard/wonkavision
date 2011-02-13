@@ -43,6 +43,16 @@ class AggregationSpecTest < ActiveSupport::TestCase
       end
     end
 
+    context "measure aliases" do
+      should "call measure with an appropriate default component specified" do
+        [:average,:sum,:count].each do |m_alias|
+          @aggregation_spec.send(m_alias,:my_measure)
+          assert_equal m_alias, @aggregation_spec.measures[:my_measure][:default_component]
+        end
+      end
+
+    end
+
     context "#aggregate_by" do
       setup do
         @aggregation_spec.aggregate_by :a, :b
