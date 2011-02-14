@@ -35,33 +35,42 @@ module Wonkavision
         @applied
       end
 
-      def to_s
-        val = case value
-              when nil then "nil"
-              when String, Symbol then "'#{value}'"
-              when Time then "Time.parse('#{value}')"
-              else value.inspect
-              end
+      def to_s(options={})
+        properties = [member_type,name,attribute_name,operator,delimited_value]
+        properties.pop if options[:exclude_value]
+        properties.join("::")
+      end
 
-        ":#{member_type}s['#{name}'].#{attribute_name}.#{operator}(#{val})"
+      def self.parse(filter_string,options={})
+        new(nil).parse(filter_string,options)
+      end
+
+      def parse(filter_string,options={})
+        parts = filter_string.split("::")
+        @member_type = parts.shift.to_sym
+        @name = parts.shift
+        @attribute_name = parts.shift
+        @operator = parts.shift.to_sym
+        @value = parse_value(options[:value] || parts.shift || @value)
+        self
       end
 
       def inspect
-        to_s
+        ":#{member_type}s['#{name}'].#{attribute_name}.#{operator}(#{delimited_value(true)})"
       end
 
       def <=>(other)
-        to_s <=> other.to_s
+        inspect <=> other.inspect
       end
 
       def ==(other)
-        to_s == other.to_s
+        inspect == other.inspect
       end
 
       [:gt, :lt, :gte, :lte, :ne, :in, :nin, :eq].each do |operator|
         define_method(operator) do |*args|
-         @value = args[0] if args.length > 0
-         @operator = operator; self
+          @value = args[0] if args.length > 0
+          @operator = operator; self
         end unless method_defined?(operator)
       end
 
@@ -108,6 +117,24 @@ module Wonkavision
       end
 
       private
+
+      def delimited_value(for_eval=false)
+        case value
+        when nil then "nil"
+        when String, Symbol then "'#{value}'"
+        when Time  then for_eval ? "Time.parse('#{value}')" : "time(#{value})"
+        else value.inspect
+        end
+      end
+
+      def parse_value(value_string)
+        case value_string
+        when /^\'.*\'$/ then value_string[1..-2]
+        when /^time\(.*\)$/ then Time.parse(value_string[5..-2])
+        when String then value_string.is_numeric? ? eval(value_string) : value_string
+        else value_string
+        end
+      end
 
       # TODO: This is smelly - we should have a Tuple class that knows its aggregation
       # and can return this kind of information on demand - it is dirty business

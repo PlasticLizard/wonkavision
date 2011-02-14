@@ -139,11 +139,7 @@ class MemberFilterTest < ActiveSupport::TestCase
       end
     end
 
-    context "#to_s, #inspect" do
-      should "produce a canonical string representation of a member filter" do
-        filter = Wonkavision::Analytics::MemberFilter.new(:hi).eq(3)
-        assert_equal ":dimensions['hi'].key.eq(3)", filter.to_s
-      end
+    context "#inspect" do
       should "should be 'eval'able to reproduce the filter" do
         filter = Wonkavision::Analytics::MemberFilter.new(:hi).eq(3)
         filter2 = eval(filter.inspect)
@@ -151,11 +147,11 @@ class MemberFilterTest < ActiveSupport::TestCase
       end
       should "represent nil value with an unquoted string 'nil'" do
         filter = Wonkavision::Analytics::MemberFilter.new(:hi)
-        assert_equal ":dimensions['hi'].key.eq(nil)", filter.to_s
+        assert_equal ":dimensions['hi'].key.eq(nil)", filter.inspect
       end
       should "wrap strings in a single quote" do
         filter = Wonkavision::Analytics::MemberFilter.new(:hi).ne("whatever")
-        assert_equal ":dimensions['hi'].key.ne('whatever')", filter.to_s
+        assert_equal ":dimensions['hi'].key.ne('whatever')", filter.inspect
       end
       should "prefix member filters with :members" do
         filter = :measures.a_measure.gt(3)
@@ -168,20 +164,41 @@ class MemberFilterTest < ActiveSupport::TestCase
       end
     end
 
-    context "for urls" do
-      should "be able to re-hydrate a dimension filter after passing through a url" do
-        filter = :dimensions.a_dimension.an_attribute.lt(100)
-        escaped = CGI.escape(filter.to_s)
-        unescaped = CGI.unescape(escaped)
-        assert_equal filter, eval(unescaped)
+     context "#to_s" do
+      should "produce a canonical string representation of a member filter" do
+        filter = Wonkavision::Analytics::MemberFilter.new(:hi).eq(3)
+        assert_equal "dimension::hi::key::eq::3", filter.to_s
       end
-      should "be able to re-hydrate a list of filters after passing through a url" do
-        filters = [:dimensions.a_dimension.an_attribute.lt(100),
-                   :this_dim.caption.eq("hi there"),
-                   :measures.a_m.lte(Time.now)]
-        escaped = CGI.escape(filters.inspect)
-        unescaped = CGI.unescape(escaped)
-        assert_equal filters, eval(unescaped)
+      should "should be 'parse'able to reproduce the filter" do
+        filter = Wonkavision::Analytics::MemberFilter.new(:hi).eq(3)
+        filter2 = Wonkavision::Analytics::MemberFilter.parse(filter.to_s)
+        assert_equal filter, filter2
+      end
+      should "wrap strings in a single quote" do
+        filter = Wonkavision::Analytics::MemberFilter.new(:hi).ne("whatever")
+        assert_equal "dimension::hi::key::ne::'whatever'", filter.to_s
+      end
+      should "be able to represent a parseable time as a filter value" do
+        filter = Wonkavision::Analytics::MemberFilter.new(:hi).gt(Time.now)
+        filter2 = Wonkavision::Analytics::MemberFilter.parse(filter.to_s)
+        assert_equal filter, filter2
+      end
+      should "omit the value portion of the string when requested" do
+        filter = Wonkavision::Analytics::MemberFilter.new(:hi).gt(5)
+        assert_equal "dimension::hi::key::gt", filter.to_s(:exclude_value=>true)
+      end
+      should "be able to parse a value-less emission" do
+        filter = Wonkavision::Analytics::MemberFilter.new(:hi).gt(5)
+        filter2 = Wonkavision::Analytics::MemberFilter.parse(filter.to_s(:exclude_value=>true))
+        assert_nil filter2.value
+        filter2.value = 5
+        assert_equal filter, filter2
+      end
+      should "take its value from an option on parse" do
+        filter = Wonkavision::Analytics::MemberFilter.new(:hi).gt(5)
+        filter2 = Wonkavision::Analytics::MemberFilter.parse(filter.to_s(:exclude_value=>true),
+                                                             :value=>5)
+        assert_equal filter, filter2
       end
     end
 
