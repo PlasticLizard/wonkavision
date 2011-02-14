@@ -9,6 +9,8 @@ Analytics
 
 * Null measures should not be counted
 * Null dimensions should get an "Unknown" value of some kind
+* Optionally record lists of dimension members in a special collection to populate drop downs on UI's and things
+* When an uppdate is processed, if the previous value is empty, do not send a retraction. If the previous value matches the current value, do not send any further updates at all.
 * Indexing for Aggregation & Facts collections
 * Kpi's
 * Metrics
