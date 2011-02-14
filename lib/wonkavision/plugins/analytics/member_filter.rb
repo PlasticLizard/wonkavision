@@ -35,6 +35,15 @@ module Wonkavision
         @applied
       end
 
+       def delimited_value(for_eval=false)
+        case value
+        when nil then "nil"
+        when String, Symbol then "'#{value}'"
+        when Time  then for_eval ? "Time.parse('#{value}')" : "time(#{value})"
+        else value.inspect
+        end
+      end
+
       def to_s(options={})
         properties = [member_type,name,attribute_name,operator,delimited_value]
         properties.pop if options[:exclude_value]
@@ -117,15 +126,6 @@ module Wonkavision
       end
 
       private
-
-      def delimited_value(for_eval=false)
-        case value
-        when nil then "nil"
-        when String, Symbol then "'#{value}'"
-        when Time  then for_eval ? "Time.parse('#{value}')" : "time(#{value})"
-        else value.inspect
-        end
-      end
 
       def parse_value(value_string)
         case value_string
