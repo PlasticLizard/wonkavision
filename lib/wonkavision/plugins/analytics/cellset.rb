@@ -10,6 +10,7 @@ module Wonkavision
         @query = query
         @aggregation = aggregation
         @cells = {}
+        @measure_names = Set.new
 
         dimension_members = process_tuples(tuples)
 
@@ -28,6 +29,10 @@ module Wonkavision
       def pages; axex[2]; end
       def chapters; axes[3]; end
       def sections; axes[4]; end
+
+      def measure_names
+        @measure_names.to_a
+      end
 
       def inspect
         @cells.inspect
@@ -89,6 +94,7 @@ module Wonkavision
       def update_cell(dimensions,record)
         cell_key ||= key_for(dimensions,record)
         measure_data = record["measures"]
+        @measure_names += measure_data.keys if measure_data
         append_to_cell(dimensions, measure_data, cell_key)
       end
 

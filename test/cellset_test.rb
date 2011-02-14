@@ -41,6 +41,11 @@ class CellSetTest < ActiveSupport::TestCase
           assert_equal 90, @cellset.totals.cost.count
         end
 
+        should "maintain a list of measure names used" do
+          assert_equal [], ["cost","weight"] - @cellset.measure_names
+        end
+
+
       end
       context "#[]" do
         should "locate a cell based on its coordinates, specified in query order" do
