@@ -101,24 +101,50 @@ class MongoStoreTest < ActiveSupport::TestCase
         should "return facts a given set of filters" do
           filters = [:dimensions.simple.eq("simon"),:dimensions.with_love.caption.eq("jebus")]
           assert_equal 1, @store.send(:facts_for,@agg,filters).length
-          assert_equal [@store[456]], @store.send(:facts_for,@agg,filters)
+          assert_equal [@store[456]], @store.facts_for(@agg,filters)
         end
         should "return facts that match a given simple filter" do
           filters = [:dimensions.simple.eq("simon")]
-          assert_equal 2, @store.send(:facts_for,@agg,filters).length
+          assert_equal 2, @store.facts_for(@agg,filters).length
         end
         should "return facts that utilize a 'from' filter" do
           filters = [:dimensions.less_simple.eq("seriously!")]
-          assert_equal [@store[456]], @store.send(:facts_for,@agg,filters)
+          assert_equal [@store[456]], @store.facts_for(@agg,filters)
         end
         should "return facts that utilize a measure filter" do
           filters = [:measures.simple.gt("a")]
-          assert_equal 2, @store.send(:facts_for,@agg,filters).length
+          assert_equal 2, @store.facts_for(@agg,filters).length
         end
         should "exclude facts that don't match a measure filter" do
           filters = [:measures.simple.lt("a")]
-          assert_equal 0, @store.send(:facts_for,@agg,filters).length
+          assert_equal 0, @store.facts_for(@agg,filters).length
         end
+        context "pagination" do
+          filters = [:dimensions.simple.eq("simon")]
+          should "return only per-page records when specified" do
+            assert_equal 1, @store.facts_for(@agg, filters, :per_page=>1).length
+          end
+          should "configure the results with pagination related properties" do
+            filters = [:dimensions.simple.eq("simon")]
+            results = @store.facts_for(@agg, filters, :per_page =>1, :page=>2)
+            assert_equal 2, results.total_pages
+            assert_equal 2, results.current_page
+            assert_equal 2, results.total_entries
+            assert_equal nil, results.next_page
+            assert_equal 1, results.previous_page
+          end
+          should "fetch the correct records per page" do
+            results = @store.facts_for(@agg,[],:per_page=>1, :sort=>[:_id,1])
+            assert_equal 123, results[0]["_id"]
+            results = @store.facts_for(@agg,[],
+                                       :per_page=>1,
+                                       :sort=>[:_id,1],
+                                       :page=>results.next_page)
+            assert_equal 456, results[0]["_id"]
+          end
+
+        end
+
 
       end
 

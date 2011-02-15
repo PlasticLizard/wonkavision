@@ -47,7 +47,7 @@ module Wonkavision
 
           facts_collection.find(criteria,options).to_a.tap do |facts|
             if pagination
-              facts.include(Wonkavision::Analytics::Paginated)
+              class << facts;include(Wonkavision::Analytics::Paginated);end
               facts.initialize_pagination(pagination[:total],
                                           pagination[:page],
                                           pagination[:per_page])
@@ -59,14 +59,13 @@ module Wonkavision
         protected
 
         def paginate(criteria,options)
-          if page = options.delete(:page)
-            page = page.to_i
+          if options[:page] || options[:per_page]
+            page = options.delete(:page) || 1
             per_page = options.delete(:per_page) || 25
-            total = facts_collection.count(criteria)
-            criteria[:limit] = per_page
-            criteria[:skip] = (page - 1) * per_page
+            options[:limit] = per_page
+            options[:skip] = (page - 1) * per_page
             {
-              :total => total,
+              :total => facts_collection.find(criteria).count,
               :page => page,
               :per_page => per_page
             }
