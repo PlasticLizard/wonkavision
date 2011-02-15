@@ -253,7 +253,8 @@ module Wonkavision
         end
 
         def formatted_value
-          format.blank? ? value.to_s : StringFormatter.format(value, format, options)
+          format.blank? || value.blank? ? value.to_s :
+            StringFormatter.format(value, format, options)
         end
 
         def value
