@@ -62,6 +62,10 @@ module Wonkavision
           update_tuple(aggregation_data)
         end
 
+        def facts_for(aggregation,*filters)
+          raise NotImplementedError
+        end
+
         protected
 
         def assert_record_id(data)
@@ -80,9 +84,6 @@ module Wonkavision
         end
 
         #Abstract methods
-        def facts_for(aggregation,*filters)
-          raise NotImplementedError
-        end
 
         def update_facts_record(record_id, data)
           raise NotImplementedError

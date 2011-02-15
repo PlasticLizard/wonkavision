@@ -40,6 +40,12 @@ module Wonkavision
             facts_collection
         end
 
+        def facts_for(aggregation,filters)
+          criteria = {}
+          append_facts_filters(aggregation,criteria,filters)
+          facts_collection.find(criteria).to_a
+        end
+
         protected
         #Fact persistence
         def update_facts_record(record_id, data)
@@ -59,12 +65,6 @@ module Wonkavision
         def delete_facts_record(record_id, data)
           query = { :_id => record_id }
           remove_mongo_id(facts_collection.find_and_modify(:query=>query, :remove=>true))
-        end
-
-        def facts_for(aggregation,filters)
-          criteria = {}
-          append_facts_filters(aggregation,criteria,filters)
-          facts_collection.find(criteria).to_a
         end
 
         #Aggregation persistence

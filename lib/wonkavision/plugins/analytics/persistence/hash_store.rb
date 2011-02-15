@@ -17,6 +17,20 @@ module Wonkavision
           @storage[record_id]
         end
 
+        def facts_for(aggregation,filters)
+          matches = []
+          @storage.each_pair do |record_id,facts|
+            next if record_id == :aggregations
+            failed = filters.detect do |filter|
+              attributes = attributes_for(aggregation,filter,facts)
+              data = attributes[filter.attribute_key(aggregation)]
+              !filter.matches_value(data)
+            end
+            matches << facts unless failed
+          end
+          matches
+        end
+
         protected
 
         #Fact persistence
@@ -32,20 +46,6 @@ module Wonkavision
 
         def delete_facts_record(record_id, data)
           @storage.delete(record_id)
-        end
-
-        def facts_for(aggregation,filters)
-          matches = []
-          @storage.each_pair do |record_id,facts|
-            next if record_id == :aggregations
-            failed = filters.detect do |filter|
-              attributes = attributes_for(aggregation,filter,facts)
-              data = attributes[filter.attribute_key(aggregation)]
-              !filter.matches_value(data)
-            end
-            matches << facts unless failed
-          end
-          matches
         end
 
         def attributes_for(aggregation, filter, facts)
