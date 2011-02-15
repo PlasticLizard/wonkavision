@@ -137,15 +137,24 @@ class CellSetTest < ActiveSupport::TestCase
               assert_equal ["large", "circle"], @cell.key
             end
             should "locate a cell with correctly specified dimensions" do
-              assert_equal [:size,:shape], @cell.dimensions
+              assert_equal [:size,:shape], @cell.totals.dimensions
             end
             should "aggregate all detail for the given summary cell" do
-              assert_equal 20, @cell.cost.count
+              assert_equal 20, @cell.totals.cost.count
             end
             should "aggregate detail for each dimension in the axis" do
-              assert_equal 30, @axis[:large].cost.count
-              assert_equal ["large"], @axis[:large].key
-              assert_equal [:size], @axis[:large].dimensions
+              assert_equal 30, @axis[:large].totals.cost.count
+              assert_equal ["large"], @axis[:large].totals.key
+              assert_equal [:size], @axis[:large].totals.dimensions
+            end
+            context "descendent info" do
+              setup do
+                @cell = @axis[:large]
+              end
+
+              should "provide a count of non-empty members beneath the selected member" do
+                assert_equal 2, @cell.descendent_count
+              end
             end
           end
 
