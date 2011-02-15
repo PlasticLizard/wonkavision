@@ -43,10 +43,36 @@ module Wonkavision
         def facts_for(aggregation,filters,options={})
           criteria = {}
           append_facts_filters(aggregation,criteria,filters)
-          facts_collection.find(criteria,options).to_a
+          pagination = paginate(criteria,options)
+
+          facts_collection.find(criteria,options).to_a.tap do |facts|
+            if pagination
+              facts.include(Wonkavision::Analytics::Paginated)
+              facts.initialize_pagination(pagination[:total],
+                                          pagination[:page],
+                                          pagination[:per_page])
+            end
+
+          end
         end
 
         protected
+
+        def paginate(criteria,options)
+          if page = options.delete(:page)
+            page = page.to_i
+            per_page = options.delete(:per_page) || 25
+            total = facts_collection.count(criteria)
+            criteria[:limit] = per_page
+            criteria[:skip] = (page - 1) * per_page
+            {
+              :total => total,
+              :page => page,
+              :per_page => per_page
+            }
+          end
+        end
+
         #Fact persistence
         def update_facts_record(record_id, data)
           query = { :_id => record_id }
