@@ -60,7 +60,7 @@ module Wonkavision
 
         def paginate(criteria,options)
           if options[:page] || options[:per_page]
-            page = options.delete(:page) || 1
+            page = ( options.delete(:page) || 1 ).to_i
             per_page = options.delete(:per_page) || 25
             options[:limit] = per_page
             options[:skip] = (page - 1) * per_page

@@ -126,7 +126,7 @@ class MongoStoreTest < ActiveSupport::TestCase
           end
           should "configure the results with pagination related properties" do
             filters = [:dimensions.simple.eq("simon")]
-            results = @store.facts_for(@agg, filters, :per_page =>1, :page=>2)
+            results = @store.facts_for(@agg, filters, :per_page =>1, :page=>"2")
             assert_equal 2, results.total_pages
             assert_equal 2, results.current_page
             assert_equal 2, results.total_entries
