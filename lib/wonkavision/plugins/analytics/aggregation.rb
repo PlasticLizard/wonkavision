@@ -73,10 +73,10 @@ module Wonkavision
                                                tuples )
         end
 
-        def facts_for(filters)
+        def facts_for(filters, options={})
           raise "Cannot provide underlying facts. Did you forget to associate your aggregation with a Facts class using 'aggregates' ? " unless aggregates
 
-          aggregates.facts_for(self, filters)
+          aggregates.facts_for(self, filters, options)
         end
 
 

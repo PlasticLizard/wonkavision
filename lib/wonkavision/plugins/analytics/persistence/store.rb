@@ -62,7 +62,7 @@ module Wonkavision
           update_tuple(aggregation_data)
         end
 
-        def facts_for(aggregation,*filters)
+        def facts_for(aggregation,filters,options={})
           raise NotImplementedError
         end
 

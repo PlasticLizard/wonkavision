@@ -94,7 +94,7 @@ class AggregationTest < ActiveSupport::TestCase
 
     context "#facts_for" do
       should "pass the request to the underlying Facts class" do
-        @facts.expects(:facts_for).with(@agg, [:a,:b,:c])
+        @facts.expects(:facts_for).with(@agg, [:a,:b,:c],{})
         @agg.facts_for([:a,:b,:c])
       end
     end

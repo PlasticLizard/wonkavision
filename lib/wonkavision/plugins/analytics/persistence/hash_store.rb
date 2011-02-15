@@ -17,7 +17,7 @@ module Wonkavision
           @storage[record_id]
         end
 
-        def facts_for(aggregation,filters)
+        def facts_for(aggregation,filters,options={})
           matches = []
           @storage.each_pair do |record_id,facts|
             next if record_id == :aggregations

@@ -40,10 +40,10 @@ module Wonkavision
             facts_collection
         end
 
-        def facts_for(aggregation,filters)
+        def facts_for(aggregation,filters,options={})
           criteria = {}
           append_facts_filters(aggregation,criteria,filters)
-          facts_collection.find(criteria).to_a
+          facts_collection.find(criteria,options).to_a
         end
 
         protected

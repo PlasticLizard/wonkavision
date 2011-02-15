@@ -57,7 +57,7 @@ class FactsTest < ActiveSupport::TestCase
     context "#facts_for" do
       should "pass arguments to underlying storage" do
         @facts.store :hash_store
-        @facts.store.expects(:facts_for).with("agg",[:a,:b,:c])
+        @facts.store.expects(:facts_for).with("agg",[:a,:b,:c],{})
         @facts.facts_for("agg",[:a,:b,:c])
       end
     end
