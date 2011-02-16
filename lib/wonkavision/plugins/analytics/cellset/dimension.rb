@@ -11,7 +11,7 @@ module Wonkavision
         end
 
         def non_empty(*parents)
-          members.reject { |mem| key = parents << mem.key; axis[key].empty? }
+          members.reject { |mem| key = parents.dup << mem.key; axis[key].empty? }
         end
 
       end
