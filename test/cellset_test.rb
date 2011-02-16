@@ -173,7 +173,7 @@ class CellSetTest < ActiveSupport::TestCase
                 assert_equal size, @dimension.members[idx].key
               end
             end
-            context "#nonempty" do
+            context "#non_empty" do
               should "produce a list of non-empty members" do
                 assert_equal @dimension.members, @dimension.non_empty
               end
