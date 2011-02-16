@@ -173,6 +173,17 @@ class CellSetTest < ActiveSupport::TestCase
                 assert_equal size, @dimension.members[idx].key
               end
             end
+            context "#nonempty" do
+              should "produce a list of non-empty members" do
+                assert_equal @dimension.members, @dimension.non_empty
+              end
+              should "produce a list of non-empty children of a given parent" do
+                assert_equal( ["circle","square"],
+                              @cellset.columns.dimensions[1].non_empty("large").map{ |m|m.to_s} )
+              end
+
+            end
+
           end
         end
         context "Member" do

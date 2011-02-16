@@ -17,6 +17,7 @@ module Wonkavision
         end
 
         def[](*coordinates)
+          coordinates.flatten!
           cell_key = coordinates.map{ |c|c.nil? ? nil : c.to_s}
 
           members[cell_key] ||  MemberInfo.new(self,cell_key,coordinates,{})
@@ -68,6 +69,14 @@ module Wonkavision
 
           def empty?
             totals.empty?
+          end
+
+          def to_s
+            empty?  ? "<MemberInfo #{key.inspect} empty=true>" : "<MemberInfo #{key.inspect} #{totals}>"
+          end
+
+          def inspect
+            to_s
           end
 
         end
