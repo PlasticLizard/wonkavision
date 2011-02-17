@@ -17,9 +17,7 @@ module Wonkavision
         end
 
         def[](*coordinates)
-          coordinates.flatten!
-          cell_key = coordinates.map{ |c|c.nil? ? nil : c.to_s}
-
+          cell_key = coordinates.flatten.compact.map{ |c|c.nil? ? nil : c.to_s}
           members[cell_key] ||=  MemberInfo.new(self,cell_key)
         end
 

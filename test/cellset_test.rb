@@ -60,7 +60,9 @@ class CellSetTest < ActiveSupport::TestCase
           assert_equal 10, @cellset[:large, :square].cost.count
           assert_equal 30, @cellset[:large].cost.count
         end
-
+        should "calculate subtotals for axis > 0" do
+          assert_equal 40, @cellset.rows[:red].totals.cost.count
+        end
 
       end
       context "#length" do
@@ -158,8 +160,17 @@ class CellSetTest < ActiveSupport::TestCase
               should "provide a count of non-empty members beneath the selected member" do
                 assert_equal 2, @cell.descendent_count
               end
-              should "work for axes > 0" do
-                assert_equal 0, @cellset.rows[:red].descendent_count
+              context "for an axis > 0" do
+                setup do
+                  @query = Wonkavision::Analytics::Query.new
+                  @query.select :size, :on => :columns
+                  @query.select :shape, :color, :on => :rows
+                  @query.where  :dimensions.color.ne => "black"
+                  @cellset = CellSet.new @aggregation, @query, @@test_data
+                end
+                should "work for axes > 0" do
+                  assert_equal 2, @cellset.rows[:square].descendent_count
+                end
               end
 
             end
