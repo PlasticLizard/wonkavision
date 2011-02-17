@@ -33,9 +33,6 @@ class CellSetTest < ActiveSupport::TestCase
           end
         end
 
-        should "populate cells from tuples" do
-          assert_equal @@test_data.length - 1, @cellset.length #1 record filtered out (color=black)
-        end
 
         should "calculate a grand total" do
           assert_equal 90, @cellset.totals.cost.count
@@ -44,8 +41,6 @@ class CellSetTest < ActiveSupport::TestCase
         should "maintain a list of measure names used" do
           assert_equal [], ["cost","weight"] - @cellset.measure_names
         end
-
-
       end
       context "#[]" do
         should "locate a cell based on its coordinates, specified in query order" do
@@ -57,11 +52,20 @@ class CellSetTest < ActiveSupport::TestCase
         should "return an empty cell if the coordinates don't match an existing tuple" do
           assert @cellset[:large,:octagon,:red].empty?
         end
+        should "provide access to subtotals via partial keys" do
+          subtotal = @cellset[:large, :square]
+          assert subtotal.empty? == false
+        end
+        should "calculate subtotals for partial keys" do
+          assert_equal 10, @cellset[:large, :square].cost.count
+          assert_equal 30, @cellset[:large].cost.count
+        end
+
 
       end
       context "#length" do
         should "return the number of total tuples in the set" do
-          assert_equal @@test_data.length - 1, @cellset.length #1 record filtered out (color = black)
+          assert_equal @cellset.cells.length, @cellset.length #1 record filtered out (color = black)
         end
       end
     end
@@ -71,9 +75,8 @@ class CellSetTest < ActiveSupport::TestCase
           @dims = @cellset.send(:process_tuples, @@test_data)
         end
         context "processed cells" do
-          should "contain one entry for each matching tuple" do
-            assert_equal @@test_data.length - 1, @cellset.cells.length #1 record are black, and filtered
-          end
+
+
           should "be keyed by a query-ordered array of dimension keys" do
             test_key = @cellset.cells.keys.find { |key|key - ["red", "square", "large"] == []}
             assert_equal ["large", "square", "red"], test_key
@@ -132,12 +135,13 @@ class CellSetTest < ActiveSupport::TestCase
             end
             should "locate a totals cell for the given coordinates" do
               assert_not_nil @cell
+              assert @cell.empty? == false
             end
             should "locate a cell with an abbreviated key matching just the axis coords" do
               assert_equal ["large", "circle"], @cell.key
             end
             should "locate a cell with correctly specified dimensions" do
-              assert_equal [:size,:shape], @cell.totals.dimensions
+              assert_equal ["size","shape"], @cell.totals.dimensions
             end
             should "aggregate all detail for the given summary cell" do
               assert_equal 20, @cell.totals.cost.count
@@ -145,16 +149,19 @@ class CellSetTest < ActiveSupport::TestCase
             should "aggregate detail for each dimension in the axis" do
               assert_equal 30, @axis[:large].totals.cost.count
               assert_equal ["large"], @axis[:large].totals.key
-              assert_equal [:size], @axis[:large].totals.dimensions
+              assert_equal ["size"], @axis[:large].totals.dimensions
             end
             context "descendent info" do
               setup do
                 @cell = @axis[:large]
               end
-
               should "provide a count of non-empty members beneath the selected member" do
                 assert_equal 2, @cell.descendent_count
               end
+              should "work for axes > 0" do
+                assert_equal 0, @cellset.rows[:red].descendent_count
+              end
+
             end
           end
 
@@ -245,7 +252,7 @@ class CellSetTest < ActiveSupport::TestCase
                           :dimensions["shape"].key.eq('square'),
                           :dimensions["color"].key.eq('red'),
                           :dimensions["another"].caption.gt(5)]
-             assert_equal expected, @cell.filters
+              assert_equal expected, @cell.filters
             end
 
           end

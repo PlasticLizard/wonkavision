@@ -43,6 +43,7 @@ module Wonkavision
       end
 
       def [](*coordinates)
+        coordinates.flatten!
         key = coordinates.map{ |c|c.nil? ? nil : c.to_s }
         @cells[key] || Cell.new(self,key,[],{})
       end
@@ -53,17 +54,44 @@ module Wonkavision
 
       private
 
-      def calculate_totals
+      def calculate_totals(include_subtotals=false)
         cells.keys.each do |cell_key|
           measure_data = cells[cell_key].measure_data
-          axes.each do |axis|
-            axis.append_to_totals(cell_key, measure_data) unless
-              cells[cell_key].empty?
-          end
+          #axes.each do |axis|
+          #  axis.append_to_totals(cell_key, measure_data) unless
+          #    cells[cell_key].empty?
+          #
+          #end
+          append_to_subtotals(measure_data,cell_key)
           @totals ? @totals.aggregate(measure_data) : @totals = Cell.new(self,
                                                                          [],
                                                                          [],
                                                                          measure_data)
+
+
+        end
+      end
+
+      def append_to_subtotals(measure_data, cell_key)
+        dims = []
+        axes.each do |axis|
+          axis.dimensions.each_with_index do |dimension, idx|
+            dims << dimension.name
+            sub_key = cell_key[0..dims.length-1]
+
+            append_to_cell(dims.dup, measure_data, sub_key) if
+              dims.length < cell_key.length #otherwise the leaf and already in the set
+
+            #For axes > 0, subtotals must be padded with nil for all prior axes members
+            if (axis.start_index > 0)
+              axis_dims = dims[axis.start_index..axis.start_index + idx]
+              axis_sub_key = Array.new(axis.start_index) +
+                cell_key[axis.start_index..axis.start_index + idx]
+
+              append_to_cell(axis_dims, measure_data, axis_sub_key)
+            end
+
+          end
         end
       end
 
@@ -105,6 +133,7 @@ module Wonkavision
                                                                          dimensions,
                                                                          measure_data)
       end
+
     end
   end
 end

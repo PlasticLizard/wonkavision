@@ -20,50 +20,57 @@ module Wonkavision
           coordinates.flatten!
           cell_key = coordinates.map{ |c|c.nil? ? nil : c.to_s}
 
-          members[cell_key] ||  MemberInfo.new(self,cell_key,coordinates,{})
+          members[cell_key] ||=  MemberInfo.new(self,cell_key)
         end
 
         def dimension_names
           dimensions.map{ |d|d.definition.name}
         end
 
-        def append_to_totals(cell_key, measure_data)
-          (start_index..end_index).each do |idx|
-            totals_dims = dimension_names.slice(0..start_index-idx)
-            totals_key = cell_key.slice(start_index..idx)
-            append_to_cell( totals_dims, measure_data, totals_key )
-          end
-        end
+        #def append_to_totals(cell_key, measure_data)
+        #  (start_index..end_index).each do |idx|
+        #    totals_dims = dimension_names.slice(0..start_index-idx)
+        #    totals_key = cell_key.slice(start_index..idx)
+        #    append_to_cell( totals_dims, measure_data, totals_key )
+        #  end
+        #end
 
         private
-        def append_to_cell(dimensions, measure_data, cell_key)
-          member_info = members[cell_key]
-          member_info ? member_info.totals.aggregate(measure_data) :
-            members[cell_key] = MemberInfo.new(self,
-                                               cell_key,
-                                               dimensions,
-                                               measure_data)
-        end
+        #def append_to_cell(dimensions, measure_data, cell_key)
+        #  member_info = members[cell_key]
+        #  member_info ? member_info.totals.aggregate(measure_data) :
+        #    members[cell_key] = MemberInfo.new(self,
+        #                                       cell_key,
+        #                                       dimensions,
+        #                                       measure_data)
+        #end
 
 
 
         class MemberInfo
 
-          attr_reader :axis,:totals, :key
-          def initialize(axis,cell_key,dimensions,measure_data)
+          attr_reader :axis, :key
+          def initialize(axis,cell_key)
             @axis = axis
             @key = cell_key
-            @totals = CellSet::Cell.new(axis.cellset,cell_key,dimensions,measure_data)
+          end
+
+          def totals
+            cell_key = Array.new(axis.start_index) + key
+            cell = axis.cellset[cell_key]
           end
 
           def descendent_count(include_empty=false)
             return descendent_keys.length if include_empty
-            @descendent_count ||= descendent_keys.reject{ |k| axis.members[k].empty? }.length
+            @descendent_count ||= descendent_keys.reject{ |k| axis[k].empty? }.length
           end
 
           def descendent_keys
-            @descendent_keys ||= axis.members.keys.select do |k|
-              k.length > key.length && k[0..key.length-1] == key
+            cell_key = Array.new(axis.start_index) + key
+            @descendent_keys ||= axis.cellset.cells.keys.select do |k|
+              k.length > cell_key.length &&
+                k.length <= axis.end_index + 1 &&
+                k[0..cell_key.length-1] == cell_key
             end
           end
 
