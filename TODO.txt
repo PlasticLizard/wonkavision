@@ -25,3 +25,4 @@ Analytics
 * HIRB / RIPL integration + custom shell to make exploring data easier
 * Refactor all the knowlege of the internal structure of the stored aggregations (tuples) into a Tuple class, so that knowledge of how to access and write to this data structure isn't spread hither, thither and yon
 * Pagination capabilities for "facts_for"
+* A process to remove aggregations with zero counts
