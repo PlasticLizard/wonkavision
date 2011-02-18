@@ -30,7 +30,7 @@ module Wonkavision
         end
 
         def empty?
-          measure_data.blank?
+          measure_data.blank? || measures.values.detect{ |m| !m.empty? }.nil?
         end
 
         def to_s

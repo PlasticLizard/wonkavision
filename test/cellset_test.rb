@@ -233,6 +233,11 @@ class CellSetTest < ActiveSupport::TestCase
           should "return an empty measure if no measure exists" do
             assert @cell.a_non_existent_member.empty?
           end
+          should "be empty if all measures are empty" do
+            @cell.cost.data["count"] = 0
+            @cell.weight.data["count"] = 0
+            assert @cell.empty?
+          end
           context "#aggregate" do
             setup do
               @cell.aggregate({"cost"=>{ "count"=>1,"sum"=>1,"sum2"=>2},
@@ -265,7 +270,6 @@ class CellSetTest < ActiveSupport::TestCase
                           :dimensions["another"].caption.gt(5)]
               assert_equal expected, @cell.filters
             end
-
           end
         end
 
