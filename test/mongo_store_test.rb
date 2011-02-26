@@ -115,10 +115,17 @@ class MongoStoreTest < ActiveSupport::TestCase
           filters = [:measures.simple.gt("a")]
           assert_equal 2, @store.facts_for(@agg,filters).length
         end
+        should "respect the global filters" do
+          filters = [:measures.simple.gt("a")]
+          Wonkavision::Analytics.context.filter :dimensions.less_simple => "seriously!"
+          assert_equal [@store[456]], @store.facts_for(@agg,filters)
+          Wonkavision::Analytics.context.clear
+        end
         should "exclude facts that don't match a measure filter" do
           filters = [:measures.simple.lt("a")]
           assert_equal 0, @store.facts_for(@agg,filters).length
         end
+
         context "pagination" do
           filters = [:dimensions.simple.eq("simon")]
           should "return only per-page records when specified" do
@@ -206,6 +213,7 @@ class MongoStoreTest < ActiveSupport::TestCase
           @criteria = {}
           @dim_filter.expects(:attribute_key).returns "tada_key"
           @store.send(:append_aggregations_filters,@criteria,[@dim_filter,@measure_filter])
+
         end
         should "prepare the dimension filter for mongodb" do
           assert_equal( [1,2,3], @criteria["dimensions.tada.tada_key"] )

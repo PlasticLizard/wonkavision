@@ -40,7 +40,10 @@ module Wonkavision
             facts_collection
         end
 
-        def facts_for(aggregation,filters,options={})
+
+
+        protected
+        def fetch_facts(aggregation,filters,options={})
           criteria = {}
           append_facts_filters(aggregation,criteria,filters)
           pagination = paginate(criteria,options)
@@ -55,8 +58,6 @@ module Wonkavision
 
           end
         end
-
-        protected
 
         def paginate(criteria,options)
           if options[:page] || options[:per_page]
@@ -115,28 +116,29 @@ module Wonkavision
 
         private
         def append_aggregations_filters(criteria,filters)
-          filters.each do |filter|
-            filter_key = "#{filter.member_type}s.#{filter.name}.#{filter.attribute_key(owner)}"
-            criteria[filter_key] = filter_value_for(filter)
-            filter.applied!
+          filter_hash = merge_filters(filters,true) do |filter|
+            "#{filter.member_type}s.#{filter.name}.#{filter.attribute_key(owner)}"
           end
+          criteria.merge! filter_hash
         end
 
         def append_facts_filters(aggregation,criteria,filters)
-          filters.each do |filter|
-
+          filter_hash = merge_filters(filters,false) do |filter|
             filter_name = filter.dimension? ? filter.attribute_key(aggregation) : filter.name
             prefix =      filter_prefix_for(aggregation,filter)
 
-            filter_key =  [prefix,filter_name].compact.join(".")
-
-            criteria[filter_key] = filter_value_for(filter)
+            [prefix,filter_name].compact.join(".")
           end
+          criteria.merge! filter_hash
         end
 
-        def filter_value_for(filter)
-          filter.operator == :eq ? filter.value :
-              { "$#{filter.operator}" => filter.value}
+        def filter_value_for(criteria_hash)
+          return criteria_hash[:eq].value if criteria_hash[:eq]
+          filter_value = {}
+          criteria_hash.each_pair do |operator,filter|
+            filter_value["$#{operator}"] = filter.value
+          end
+          filter_value
         end
 
         def filter_prefix_for(aggregation,filter)
@@ -144,6 +146,50 @@ module Wonkavision
             dimension = aggregation.dimensions[filter.name]
             dimension.complex? ? dimension.from : nil
           end
+        end
+
+        def transform_filter_hash(filter_hash)
+          transformed = {}
+          filter_hash.each_pair do |filter_key, filter_criteria|
+            transformed[filter_key] = filter_value_for(filter_criteria)
+          end
+          transformed
+        end
+
+        def merge_filters(filters,apply)
+          merged = {}
+          filters.each do |filter|
+            filter_key = yield(filter)
+            mf = merged[filter_key] ||= {}
+            if mf.empty?
+              mf[filter.operator] = filter
+            elsif mf[:eq]
+              assert_compatible_filters(mf[:eq], filter)
+            elsif filter.operator == :eq
+              #eq must be the only element in the filter.
+              #Therefore, if the current filter gets along with previous filters,
+              #we'll set it as the sole component to this criteria, otherwise,
+              #an error needs to be raised
+              mf.values.each{ |existing| assert_compatible_filters(existing,filter) }
+              mf.replace(:eq => filter)
+            elsif mf[filter.operator]
+              check_duplicate_filters(mf[filter.operator], filter)
+            else
+              mf[filter.operator] = filter
+            end
+            filter.apply! if apply
+          end
+          transform_filter_hash merged
+        end
+
+        def check_duplicate_filters(filter1,filter2)
+          raise "Incompatible filters used. You attempted to filter #{filter1.qualified_name} using the same operator (#{filter1.operator}) but different values #{filter1.value} and #{filter2.value}" unless filter1.value == filter2.value
+        end
+
+        def assert_compatible_filters(filter1,filter2)
+          ok = filter1.operator == :eq ? filter2.matches_value(filter1.value) :
+            filter1.matches_value(filter2.value)
+          raise "Incompatible filters used: #{filter1.inspect} and #{filter2.inspect}" unless ok
         end
 
       end

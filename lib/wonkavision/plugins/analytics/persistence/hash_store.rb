@@ -17,7 +17,11 @@ module Wonkavision
           @storage[record_id]
         end
 
-        def facts_for(aggregation,filters,options={})
+
+
+        protected
+
+        def fetch_facts(aggregation,filters,options={})
           matches = []
           @storage.each_pair do |record_id,facts|
             next if record_id == :aggregations
@@ -30,8 +34,6 @@ module Wonkavision
           end
           matches
         end
-
-        protected
 
         #Fact persistence
         def update_facts_record(record_id, data)

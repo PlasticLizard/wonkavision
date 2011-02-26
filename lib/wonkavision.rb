@@ -28,6 +28,7 @@ dir = File.dirname(__FILE__)
  "extensions/string",
  "extensions/symbol",
  "extensions/array",
+ "plugins/analytics",
  "plugins/analytics/paginated.rb",
  "plugins/analytics/member_filter",
  "plugins/analytics/persistence/store",

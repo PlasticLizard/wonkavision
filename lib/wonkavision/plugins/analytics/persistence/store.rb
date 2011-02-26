@@ -54,7 +54,8 @@ module Wonkavision
           dimension_names = query.all_dimensions? ? [] :
             query.referenced_dimensions.sort{ |a,b| a.to_s <=> b.to_s }
 
-          fetch_tuples(dimension_names, query.filters)
+          filters = (query.filters + Wonkavision::Analytics.context.global_filters).compact.uniq
+          fetch_tuples(dimension_names, filters)
 
         end
 
@@ -63,7 +64,8 @@ module Wonkavision
         end
 
         def facts_for(aggregation,filters,options={})
-          raise NotImplementedError
+          filters = (filters + Wonkavision::Analytics.context.global_filters).compact.uniq
+          fetch_facts(aggregation,filters,options)
         end
 
         protected
@@ -84,6 +86,9 @@ module Wonkavision
         end
 
         #Abstract methods
+        def fetch_facts(aggregation,filters,options)
+          raise NotImplementedError
+        end
 
         def update_facts_record(record_id, data)
           raise NotImplementedError
