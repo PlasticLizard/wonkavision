@@ -44,6 +44,16 @@ class StoreTest < ActiveSupport::TestCase
           @store.remove_facts("tada"=>123)
         end
       end
+
+      context "#facts_for" do
+        should "append global filters and call fetch_facts" do
+          @store.expects(:fetch_facts).with(:hi,[:a,:dimensions.a.eq(:b)],{ })
+          Wonkavision::Analytics.context.filter :a=>:b
+          @store.facts_for(:hi, [:a])
+          Wonkavision::Analytics.context.clear
+        end
+      end
+
       context "#execute_query" do
         setup do
           @query = Wonkavision::Analytics::Query.new
@@ -55,6 +65,14 @@ class StoreTest < ActiveSupport::TestCase
           @store.expects(:fetch_tuples).with([:a,:b,:c, :d],@query.filters)
           @store.execute_query(@query)
         end
+        should "append global filters if present" do
+          filters = @query.filters + [:dimensions.a.eq(:b)]
+          @store.expects(:fetch_tuples).with([:a,:b,:c,:d],filters)
+          Wonkavision::Analytics.context.filter :a=>:b
+          @store.execute_query(@query)
+          Wonkavision::Analytics.context.clear
+        end
+
         should "pass an empty array of dimensions when nothing is selected" do
           @store.expects(:fetch_tuples).with([],[])
           @store.execute_query(Wonkavision::Analytics::Query.new)
@@ -67,5 +85,6 @@ class StoreTest < ActiveSupport::TestCase
         end
       end
     end
+
   end
 end
