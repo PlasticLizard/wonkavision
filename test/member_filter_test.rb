@@ -200,7 +200,14 @@ class MemberFilterTest < ActiveSupport::TestCase
                                                              :value=>5)
         assert_equal filter, filter2
       end
+      should "return just a name with name_only is true" do
+        filter = Wonkavision::Analytics::MemberFilter.new(:hi)
+        assert_equal "dimension::hi::key", filter.to_s(:name_only=>true)
+        assert_equal filter.qualified_name, filter.to_s(:name_only=>true)
+      end
+
     end
+
 
   end
 end

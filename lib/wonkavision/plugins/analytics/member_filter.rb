@@ -46,7 +46,9 @@ module Wonkavision
 
       def to_s(options={})
         properties = [member_type,name,attribute_name,operator,delimited_value]
-        properties.pop if options[:exclude_value]
+        properties.pop if options[:exclude_value] || options[:name_only]
+        properties.pop if options[:name_only]
+
         properties.join("::")
       end
 
@@ -66,6 +68,10 @@ module Wonkavision
 
       def inspect
         ":#{member_type}s['#{name}'].#{attribute_name}.#{operator}(#{delimited_value(true)})"
+      end
+
+      def qualified_name
+        to_s(:name_only=>true)
       end
 
       def <=>(other)
