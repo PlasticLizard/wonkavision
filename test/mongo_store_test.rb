@@ -119,7 +119,7 @@ class MongoStoreTest < ActiveSupport::TestCase
           filters = [:measures.simple.gt("a")]
           Wonkavision::Analytics.context.filter :dimensions.less_simple => "seriously!"
           assert_equal [@store[456]], @store.facts_for(@agg,filters)
-          Wonkavision::Analytics.context.clear
+          Wonkavision::Analytics.context.global_filters.clear
         end
         should "exclude facts that don't match a measure filter" do
           filters = [:measures.simple.lt("a")]

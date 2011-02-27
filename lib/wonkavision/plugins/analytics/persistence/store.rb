@@ -52,11 +52,14 @@ module Wonkavision
         # matching tuples
         def execute_query(query)
           dimension_names = query.all_dimensions? ? [] :
-            query.referenced_dimensions.sort{ |a,b| a.to_s <=> b.to_s }
+            query.referenced_dimensions.dup.
+            concat(Wonkavision::Analytics.context.global_filters.
+            select{ |f| f.dimension?}.map{ |dim_filter| dim_filter.name }).uniq.
+            sort{ |a,b| a.to_s <=> b.to_s }
 
           filters = (query.filters + Wonkavision::Analytics.context.global_filters).compact.uniq
-          fetch_tuples(dimension_names, filters)
 
+          fetch_tuples(dimension_names, filters)
         end
 
         def update_aggregation(aggregation_data)

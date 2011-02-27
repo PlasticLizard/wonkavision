@@ -16,11 +16,6 @@ module Wonkavision
         @storage[:_wonkavision_global_filters] ||= []
       end
 
-      def clear
-        @storage.clear
-      end
-
-      #Yes, I #@$#@ know this isn't dry. Get off my ass, conscience
       def filter(criteria_hash = {})
         criteria_hash.each_pair do |filter, value|
           global_filter = filter.kind_of?(MemberFilter) ? filter : MemberFilter.new(filter)
@@ -36,9 +31,7 @@ module Wonkavision
         def []=(key,value)
           store[key] = value
         end
-        def clear
-          Thread.current[:_wonkavision_context] = nil
-        end
+
         private
         def store
           Thread.current[:_wonkavision_context] ||= HashWithIndifferentAccess.new
