@@ -221,9 +221,112 @@ class MongoStoreTest < ActiveSupport::TestCase
         should "prepare the measure filter for mongodb" do
           assert_equal( { "$gte" => 100.0 }, @criteria["measures.haha.count"] )
         end
+      end
 
+      context "#merge_filters" do
+        should "apply filters if requested"do
+          filters = [:dimensions.a.eq(1)]
+          @store.send(:merge_filters,filters,true){ "hi" }
+          assert filters[0].applied?
+        end
+        should "not apply filters unless requested" do
+          filters = [:dimensions.a.eq(1)]
+          @store.send(:merge_filters,filters,false){ "hi" }
+          assert_equal false, filters[0].applied?
+        end
+        should "format filters according to the provided block" do
+          filters = [:dimensions.a.eq(1)]
+          result = @store.send(:merge_filters,filters,false){ |f|f.qualified_name}
+          assert_equal filters[0].qualified_name, result.keys[0]
+        end
+        context "when a filter contains an equals and is succeeded by other filters" do
+          should "accepts a filter where the eq is withing the range of the second" do
+            filters = [:dimensions.a.eq(1), :dimensions.a.gt(0)]
+            assert_nothing_raised do
+              @store.send(:merge_filters, filters,false){ |f|f.qualified_name}
+            end
+          end
+          should "raise an exception when the eq is not within the range of the second" do
+            filters = [:dimensions.a.eq(1), :dimensions.a.lt(1)]
+            assert_raise RuntimeError do
+              @store.send(:merge_filters, filters, false){ |f|f.qualified_name }
+            end
+          end
+          should "accept an identical filter" do
+            filters = [:dimensions.a.eq(1), :dimensions.a.eq(1)]
+            assert_nothing_raised do
+              @store.send(:merge_filters, filters, false){ |f|f.qualified_name}
+            end
+          end
+        end
+        context "when an eq filter is encountered after other filters" do
+          should "accept the eq filter if the eq filter is within the range of all prior" do
+            filters = [:dimensions.a.gt(2),:dimensions.a.lt(5),:dimensions.a.eq(3)]
+            assert_nothing_raised do
+              @store.send(:merge_filters, filters, false){ |f| f.qualified_name }
+            end
+          end
+          should "raise an exception if the eq filter is not within range of all prior" do
+            filters = [:dimensions.a.gt(2),:dimensions.a.lt(5),:dimensions.a.eq(6)]
+            assert_raise RuntimeError do
+              @store.send(:merge_filters, filters, false){ |f|f.qualified_name}
+            end
+          end
+          should "replace the entire filter hash for the key with the eq" do
+            filters = [:dimensions.a.gt(2),:dimensions.a.lt(5),:dimensions.a.eq(3)]
+            results = @store.send(:merge_filters, filters, false){ |f|f.qualified_name}
+            assert_equal( {:dimensions.a.gt(2).qualified_name => 3 }, results )
+          end
+        end
+        context "when non-eq filters collide" do
+          should "accept identical filters" do
+            filters = [:dimensions.a.gt(2), :dimensions.a.gt(2)]
+            assert_nothing_raised do
+              @store.send(:merge_filters, filters, false){ |f|f.qualified_name}
+            end
+          end
+          should "raise an exception if a later filter contradicts a previous filter" do
+            filters = [:dimensions.a.gt(2), :dimensions.a.gt(3)]
+            assert_raise RuntimeError do
+              @store.send(:merge_filters, filters, false) { |f|f.qualified_name }
+            end
+          end
+          should "not raise an exception if a previous filter is within range of later filters" do
+            filters = [:dimensions.a.gt(2), :dimensions.a.gt(1), :dimensions.a.gt(2)]
+            assert_nothing_raised do
+              @store.send(:merge_filters, filters, false){ |f|f.qualified_name}
+            end
+          end
+        end
+        context "a typical security scenario" do
+          should "fail if the requested customer is not in the list of approved customers" do
+            filters = [:dimensions.customer_id.eq(1), :dimensions.customer_id.in([2,3,4])]
+            assert_raise RuntimeError do
+              @store.send(:merge_filters, filters, false){ |f|f.qualified_name }
+            end
+          end
+          should "not fail if the requested customer is in the list of approved customers" do
+            filters = [:dimensions.customer_id.eq(1), :dimensions.customer_id.in([1,2,3])]
+            assert_nothing_raised do
+              @store.send(:merge_filters, filters, false){ |f|f.qualified_name }
+            end
+          end
+          should "fail if a list of customers is not entirely within the approved list" do
+            filters = [:dimensions.customer_id.in([1,2]), :dimensions.customer_id.in([1,3])]
+            assert_raise RuntimeError do
+              @store.send(:merge_filters, filters, false){ |f| f.qualified_name }
+            end
+          end
+          should "not fail if a list of customers is entirely within the approved list" do
+            filters = [:dimensions.customer_id.in([1,3]), :dimensions.customer_id.in([1,2,3])]
+            assert_nothing_raised do
+              @store.send(:merge_filters, filters, false){ |f|f.qualified_name}
+            end
+          end
+        end
 
       end
+
 
     end
 

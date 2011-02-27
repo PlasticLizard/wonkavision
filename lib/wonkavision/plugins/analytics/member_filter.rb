@@ -111,8 +111,18 @@ module Wonkavision
         when :lt then data ? data < value : false
         when :gte then data ? data >= value : false
         when :lte then data ? data <= value : false
-        when :in then value.include?(data)
-        when :nin then !value.include?(data)
+        when :in then
+          if data.kind_of?(Array)
+            (value | data).length == value.length
+          else
+            value.include?(data)
+          end
+        when :nin then
+          if data.kind_of?(Array)
+            value & data == []
+          else
+            !value.include?(data)
+          end
         when :ne then data != value
         when :eq then value == data
         else raise "Unknown filter operator #{operator}"

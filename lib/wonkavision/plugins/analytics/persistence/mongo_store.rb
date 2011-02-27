@@ -170,25 +170,21 @@ module Wonkavision
               #Therefore, if the current filter gets along with previous filters,
               #we'll set it as the sole component to this criteria, otherwise,
               #an error needs to be raised
-              mf.values.each{ |existing| assert_compatible_filters(existing,filter) }
+              mf.values.each{ |existing| assert_compatible_filters(filter,existing) }
               mf.replace(:eq => filter)
             elsif mf[filter.operator]
-              check_duplicate_filters(mf[filter.operator], filter)
+              assert_compatible_filters(mf[filter.operator], filter)
             else
               mf[filter.operator] = filter
             end
-            filter.apply! if apply
+            filter.applied! if apply
           end
           transform_filter_hash merged
         end
 
-        def check_duplicate_filters(filter1,filter2)
-          raise "Incompatible filters used. You attempted to filter #{filter1.qualified_name} using the same operator (#{filter1.operator}) but different values #{filter1.value} and #{filter2.value}" unless filter1.value == filter2.value
-        end
-
         def assert_compatible_filters(filter1,filter2)
-          ok = filter1.operator == :eq ? filter2.matches_value(filter1.value) :
-            filter1.matches_value(filter2.value)
+          ok = (filter1.operator == filter2.operator &&
+                filter1.value == filter2.value) || filter2.matches_value(filter1.value)
           raise "Incompatible filters used: #{filter1.inspect} and #{filter2.inspect}" unless ok
         end
 
