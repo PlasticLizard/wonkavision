@@ -72,8 +72,8 @@ module Wonkavision
 
           previous_facts, current_facts = store.update_facts(data)
           unless previous_facts == current_facts
-            process_facts previous_facts, "reject" if previous_facts
-            process_facts current_facts, "add" if current_facts
+            process_facts previous_facts, "reject" unless previous_facts.blank?
+            process_facts current_facts, "add" unless current_facts.blank?
           end
         end
 
