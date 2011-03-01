@@ -3,11 +3,12 @@ module Wonkavision
     module Aggregation
       class AggregationSpec
 
-        attr_reader :name, :dimensions, :measures, :aggregations, :filter
+        attr_reader :name, :dimensions, :measures, :calculated_measures, :aggregations, :filter
 
         def initialize(name)
           @name = name
           @measures = HashWithIndifferentAccess.new
+          @calculated_measures = HashWithIndifferentAccess.new
           @aggregations = []
           @dimensions = HashWithIndifferentAccess.new
         end
@@ -39,6 +40,12 @@ module Wonkavision
           measure_list.add_options! :default_component=>:sum
           measure(*measure_list)
         end
+
+        def calc(measure_name,options={},&block)
+          options[:calculation] = block
+          calculated_measures[measure_name] = options
+        end
+        alias calculate calc
 
         def aggregate_by(*aggregation_list)
           self.aggregations << aggregation_list.flatten

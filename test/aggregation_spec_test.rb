@@ -43,6 +43,23 @@ class AggregationSpecTest < ActiveSupport::TestCase
       end
     end
 
+    context "#calc" do
+      setup do
+        @aggregation_spec.calc :calculated do
+          c + d
+        end
+      end
+      should "add a calculated measure" do
+        assert_equal 1, @aggregation_spec.calculated_measures.length
+      end
+      should "be stored by name" do
+        assert_equal "calculated", @aggregation_spec.calculated_measures.keys[0]
+      end
+      should "store the provided block in the options" do
+        assert @aggregation_spec.calculated_measures[:calculated][:calculation].kind_of?(Proc)
+      end
+    end
+
     context "measure aliases" do
       should "call measure with an appropriate default component specified" do
         [:average,:sum,:count].each do |m_alias|

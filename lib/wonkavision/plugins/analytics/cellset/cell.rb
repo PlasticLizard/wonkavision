@@ -25,8 +25,12 @@ module Wonkavision
           end
         end
 
+        def [](measure_name)
+          measures[measure_name] || Measure.new(measure_name,{})
+        end
+
         def method_missing(method,*args)
-          measures[method] || Measure.new(method,{})
+          self[method]
         end
 
         def empty?
