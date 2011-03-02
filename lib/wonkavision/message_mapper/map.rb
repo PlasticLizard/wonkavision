@@ -55,7 +55,7 @@ module Wonkavision
           field_name = source
           ctx = extract_value_from_context(context,field_name)
         end
-        if ctx
+        if ctx && ctx != KeyMissing
           if (map_name = options.delete(:map_name))
             child = MessageMapper.execute(map_name,ctx)
           else
@@ -75,6 +75,7 @@ module Wonkavision
         else
           field_name = source
           ctx = extract_value_from_context(context,field_name)
+          ctx = nil if ctx == KeyMissing
         end
         result = []
         ctx = [ctx].compact.flatten
