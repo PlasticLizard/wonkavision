@@ -17,6 +17,7 @@ module Wonkavision
 
         return [] unless aggregation.matches(entity)
 
+        entity["count"] ||= 1 #default fact count measure
         measures = aggregation.measures.keys.inject({}) do |measures,measure|
           measures[measure] = entity[measure.to_s]
           measures

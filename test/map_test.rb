@@ -147,16 +147,16 @@ class MapTest < ActiveSupport::TestCase
   end
    context "Map.dollars" do
     should "convert to a dollar string" do
-      m= Wonkavision::MessageMapper::Map.new(:a=>"5.2")
+      m= Wonkavision::MessageMapper::Map.new(:a=>"100255.2")
       m.dollars :a
-      assert_equal "$5.20", m.a
+      assert_equal "$100,255.20", m.a
     end
   end
   context "Map.percent" do
     should "convert to a percent string" do
       m = Wonkavision::MessageMapper::Map.new(:a=>"5")
       m.percent :a
-      assert_equal "5.0%", m.a
+      assert_equal "500.0%", m.a
     end
   end
   context "Map.yes_no" do
@@ -241,9 +241,9 @@ class MapTest < ActiveSupport::TestCase
         assert_equal "$3.1", m.a
       end
       should "format percents" do
-        m= Wonkavision::MessageMapper::Map.new(:a=>"3.12")
+        m= Wonkavision::MessageMapper::Map.new(:a=>"3.1212")
         m.value(:a, :format=>:percent)
-        assert_equal "3.1%", m.a
+        assert_equal "312.1%", m.a
       end
       should "format yes_no = yes correctly" do
         m = Wonkavision::MessageMapper::Map.new(:a=>true)

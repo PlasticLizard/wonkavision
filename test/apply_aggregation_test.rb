@@ -56,13 +56,13 @@ class ApplyAggregationTest < ActiveSupport::TestCase
           @handler.process_event(@message)
         end
 
-        should "inject the default count and add measures if the action is add" do
-          @agg.any_instance.expects(:add).with(@message["measures"].merge("count"=>1))
+        should "add measures if the action is add" do
+          @agg.any_instance.expects(:add).with(@message["measures"])
           @handler.process_event(@message)
         end
-        should "inject the default count and reject measures if the action is reject" do
+        should "reject measures if the action is reject" do
           @message["action"] = "reject"
-          @agg.any_instance.expects(:reject).with(@message["measures"].merge("count"=>1))
+          @agg.any_instance.expects(:reject).with(@message["measures"])
           @handler.process_event(@message)
         end
         should "raise an error if the action is anything other than add or reject" do

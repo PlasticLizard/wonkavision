@@ -21,20 +21,24 @@ module Wonkavision
                                           v.strftime(f.to_s) : f.to_s % v } ,
                                         :float =>lambda {|v,f,opts| precision_format(opts) % v },
                                         :dollars=>lambda {|v,f,opts|
-                                          "$#{precision_format(opts,2)}" % v},
+                                          to_currency(v, '$', ',', '.', precision_format(opts,2))},
                                         :percent=>lambda {|v,f,opts|
-                                          "#{precision_format(opts,1)}%%" % v},
+                                          "#{precision_format(opts,1)}%%" % (v.to_f*100.0)},
                                         :yes_no=>lambda {|v,f,opts| v ? "Yes" : "No"}
                                         )
       end
 
-
+      private
       def precision_format(opts,default_precision=nil)
         precision = opts[:precision] || default_precision
         "%#{precision ? "." + precision.to_s : default_precision}f"
       end
 
-    end
 
+      def to_currency( val, pre_symbol='$', thousands=',', decimal='.', precision_format='%.2f', post_symbol=nil )
+        "#{pre_symbol}#{( precision_format % val ).gsub(/(\d)(?=(?:\d{3})+(?:$|\.))/,"\\1#{thousands}")}#{post_symbol}"
+      end
+
+    end
   end
 end
