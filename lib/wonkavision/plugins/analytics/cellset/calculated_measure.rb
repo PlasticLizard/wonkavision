@@ -1,13 +1,25 @@
 module Wonkavision
   module Analytics
     class CellSet
-      class CalculatedMeasure
-        attr_reader :name, :cell, :options
+      class CalculatedMeasure < Measure
+
+        attr_reader :name, :cell, :options, :calculation
+
         def initialize(name,cell,opts={})
-          @name = name
+          super(name,{},opts)
           @cell = cell
-          @options = opts
+          @data = {}
+          @calculation = options[:calculation]
         end
+
+        def value
+          cell.send(:instance_eval, &calculation)
+        end
+
+        def aggregate(data)
+          raise "A CalculatedMeasure cannot be aggregated"
+        end
+
       end
     end
   end

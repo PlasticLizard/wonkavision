@@ -7,6 +7,10 @@ class TestAggregation
   measure :weight, :default_to=>:average, :format=>:float,:precision=>2
   measure :cost, :default_to=>:sum, :format=>:float, :precision=>1
 
+  calc :cost_weight do
+    cost + weight.sum
+  end
+
   aggregate_by :color
   aggregate_by :size
   aggregate_by :shape

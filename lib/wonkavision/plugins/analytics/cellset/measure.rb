@@ -50,6 +50,10 @@ module Wonkavision
           @data["count"] = @data["count"].to_i + new_data["count"].to_i
         end
 
+        def method_missing(op,*args)
+          value.send(op,*args)
+        end
+
       end
     end
   end

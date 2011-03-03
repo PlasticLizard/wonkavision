@@ -5,13 +5,13 @@ module Wonkavision
       include IndifferentAccess
 
       def initialize(context = nil)
-  @write_nils = true
+        @write_missing = true
         @context_stack = []
         @context_stack.push(context) if context
       end
 
       def execute(context,map_block,options={})
-        @write_nils = options[:write_nils].nil? ? true : options[:write_nils]
+        @write_missing = options[:write_missing].nil? ? true : options[:write_missing]
         @context_stack.push(context)
         instance_eval(&map_block)
         @context_stack.clear
@@ -22,12 +22,12 @@ module Wonkavision
         @context_stack[-1]
       end
 
-      def ignore_nil!
-        @write_nils = false
+      def ignore_missing!
+        @write_missing = false
       end
 
-      def write_nil!
-        @write_nils = true
+      def write_missing!
+        @write_missing = true
       end
 
       def from (context,&block)
@@ -55,7 +55,7 @@ module Wonkavision
           field_name = source
           ctx = extract_value_from_context(context,field_name)
         end
-        if ctx
+        if ctx && ctx != KeyMissing
           if (map_name = options.delete(:map_name))
             child = MessageMapper.execute(map_name,ctx)
           else
@@ -75,6 +75,7 @@ module Wonkavision
         else
           field_name = source
           ctx = extract_value_from_context(context,field_name)
+          ctx = nil if ctx == KeyMissing
         end
         result = []
         ctx = [ctx].compact.flatten
@@ -242,16 +243,23 @@ module Wonkavision
 
       def extract_value_from_context(context,field_name,block=nil)
         value = nil
+        key_missing = false
         if context.respond_to?(:[])
           value = context[field_name]
           if value.nil? && field_name
             value = context[field_name.to_sym] || context[field_name.to_s]
           end
+          key_missing = !value && context.respond_to?(:keys) && 
+	     context.keys.respond_to?("&") &&
+             [] == context.keys & [field_name, field_name.to_sym, field_name.to_s]
         end
 
         if context.respond_to?(field_name.to_sym)
           value = context.instance_eval("self.#{field_name}")
+          key_missing = false
         end unless value
+
+	return KeyMissing if key_missing && !@write_missing
 
         value = value.instance_eval(&block) if block
         value
@@ -260,7 +268,7 @@ module Wonkavision
       def set_value(field_name,val,opts={})
         if prefix = opts[:prefix]; field_name = "#{prefix}#{field_name}"; end
         if suffix = opts[:suffix]; field_name = "#{field_name}#{suffix}"; end
-        unless val.nil? && !@write_nils
+        unless val == KeyMissing
           self[field_name] = format_value(val,opts)
         end
       end
@@ -271,6 +279,9 @@ module Wonkavision
       #  args << opts
       #  args
       #end
+    end
+
+    class KeyMissing
     end
   end
 end

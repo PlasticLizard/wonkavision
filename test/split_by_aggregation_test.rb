@@ -90,7 +90,7 @@ class SplitByAggregationTest < ActiveSupport::TestCase
           results.each do |result|
             assert_equal "add", result["action"]
             assert_equal @agg.name, result["aggregation"]
-            assert_equal( { "d" => 1.0, "e" => 2.0} , result["measures"] )
+            assert_equal( { "d" => 1.0, "e" => 2.0, "count" => 1} , result["measures"] )
           end
         end
 

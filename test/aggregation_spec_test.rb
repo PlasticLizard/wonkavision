@@ -10,6 +10,11 @@ class AggregationSpecTest < ActiveSupport::TestCase
       assert_equal "MyAggregation", @aggregation_spec.name
     end
 
+    should "include a default :count measure upon initialization" do
+      assert_equal( {}, @aggregation_spec.measures[:count] )
+    end
+
+
     context "#dimension" do
       setup do
         @aggregation_spec.dimension :a, :b, :c=>"d"
@@ -30,8 +35,8 @@ class AggregationSpecTest < ActiveSupport::TestCase
         @aggregation_spec.measure :c, :d, :e => "f"
       end
 
-      should "add a measure for each provided value" do
-        assert_equal 2, @aggregation_spec.measures.length
+      should "add a measure for each provided value (plus the default :count)" do
+        assert_equal 3, @aggregation_spec.measures.length
       end
 
       should "add the attributes as hash elements" do
@@ -39,7 +44,8 @@ class AggregationSpecTest < ActiveSupport::TestCase
       end
 
       should "store the options to each measure" do
-        @aggregation_spec.measures.each_pair { |k,v| assert_equal({ "e" => "f"}, v)}
+        @aggregation_spec.measures.each_pair { |k,v| assert_equal({ "e" => "f"}, v) unless
+          k == "count"}
       end
     end
 

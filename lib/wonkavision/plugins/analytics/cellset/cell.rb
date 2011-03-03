@@ -25,8 +25,18 @@ module Wonkavision
           end
         end
 
+        def calculated_measures
+          cellset.aggregation.calculated_measures
+        end
+
         def [](measure_name)
-          measures[measure_name] || Measure.new(measure_name,{})
+          unless measures.keys.include?(measure_name.to_s)
+            calc = calculated_measures[measure_name]
+            measures[measure_name] = calc ? CalculatedMeasure.new(measure_name,self,calc) :
+              Measure.new(measure_name,{})
+          else
+            measures[measure_name]
+          end
         end
 
         def method_missing(method,*args)
