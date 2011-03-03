@@ -20,6 +20,7 @@ module Wonkavision
 
         #Don't bother to continue if the measures are all nil
         if measures.values.detect{|m|m}
+          measures["count"] ||= 1
           action.to_s == "add" ? aggregation[dimensions].add(measures) :
             aggregation[dimensions].reject(measures)
         end

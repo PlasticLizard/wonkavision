@@ -7,7 +7,8 @@ module Wonkavision
 
         def initialize(name)
           @name = name
-          @measures = HashWithIndifferentAccess.new
+          #count is the default measure of an aggregation
+          @measures = HashWithIndifferentAccess.new(:count => {})
           @calculated_measures = HashWithIndifferentAccess.new
           @aggregations = []
           @dimensions = HashWithIndifferentAccess.new
