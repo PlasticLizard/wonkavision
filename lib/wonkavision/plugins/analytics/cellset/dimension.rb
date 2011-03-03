@@ -14,6 +14,26 @@ module Wonkavision
           members.reject { |mem| key = parents.dup << mem.key; axis[key].empty? }
         end
 
+        def position
+          axis.dimensions.index(self)
+        end
+
+        def next_dimension
+          axis.dimensions[position+1]
+        end
+
+        def previous_dimension
+          axis.dimensions[position-1]
+        end
+
+        def root?
+          !previous_dimension
+        end
+
+        def leaf?
+          !next_dimension
+        end
+
       end
 
     end

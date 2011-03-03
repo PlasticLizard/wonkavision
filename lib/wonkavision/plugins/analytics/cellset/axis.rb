@@ -25,25 +25,7 @@ module Wonkavision
           dimensions.map{ |d|d.definition.name}
         end
 
-        #def append_to_totals(cell_key, measure_data)
-        #  (start_index..end_index).each do |idx|
-        #    totals_dims = dimension_names.slice(0..start_index-idx)
-        #    totals_key = cell_key.slice(start_index..idx)
-        #    append_to_cell( totals_dims, measure_data, totals_key )
-        #  end
-        #end
-
         private
-        #def append_to_cell(dimensions, measure_data, cell_key)
-        #  member_info = members[cell_key]
-        #  member_info ? member_info.totals.aggregate(measure_data) :
-        #    members[cell_key] = MemberInfo.new(self,
-        #                                       cell_key,
-        #                                       dimensions,
-        #                                       measure_data)
-        #end
-
-
 
         class MemberInfo
 
