@@ -43,6 +43,7 @@ dir = File.dirname(__FILE__)
  "plugins/analytics/cellset/member",
  "plugins/analytics/cellset/cell",
  "plugins/analytics/cellset/measure",
+ "plugins/analytics/cellset/calculated_measure",
  "plugins/analytics/cellset",
  "plugins/analytics/query",
  "acts_as_oompa_loompa",

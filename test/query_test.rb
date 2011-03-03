@@ -37,6 +37,14 @@ class QueryTest < ActiveSupport::TestCase
       end
     end
 
+    context "#select aliases" do
+      should "proxy to select with an appropriate axis specified" do
+        @query.columns :hi, :there
+        assert_equal [:hi, :there], @query.axes[0]
+      end
+
+    end
+
     context "#selected_dimensions" do
       should "collect dimensions from each axis" do
         @query.select :c, :d; @query.select :b, :a, :on => :rows
@@ -53,6 +61,16 @@ class QueryTest < ActiveSupport::TestCase
         @query.select(:c,:d).where(:e=>:f)
         assert_equal 3,  @query.referenced_dimensions.length
         assert_equal [], @query.referenced_dimensions - [:c, :d, :e]
+      end
+    end
+
+    context "#selected_measures" do
+      should "collect selected measures" do
+        @query.measures :a, :b, :c
+        assert_equal [:a, :b, :c], @query.selected_measures
+      end
+      should "default to count" do
+        assert_equal [:count], @query.selected_measures
       end
     end
 

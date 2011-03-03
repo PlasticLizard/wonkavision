@@ -7,6 +7,7 @@ module Wonkavision
         @axes = []
         @slicer = Set.new
         @filters = []
+        @measures = []
       end
 
       def select(*dimensions)
@@ -16,6 +17,15 @@ module Wonkavision
         @axes[axis_ordinal] = dimensions
         self
       end
+
+      [:columns,:rows,:pages,:chapters,:sections].each do |axis|
+        eval "def #{axis}(*args);args.add_options!(:axis=>#{axis.inspect});select(*args);end"
+      end
+
+      def measures(*measures)
+        @measures.concat measures.flatten
+      end
+
 
       def where(criteria_hash = {})
         criteria_hash.each_pair do |filter,value|
@@ -49,6 +59,10 @@ module Wonkavision
 
       def all_dimensions?
         axes.empty?
+      end
+
+      def selected_measures
+        @measures.blank? ? [:count] : @measures
       end
 
       def matches_filter?(aggregation, tuple)

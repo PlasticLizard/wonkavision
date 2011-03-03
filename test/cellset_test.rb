@@ -41,6 +41,11 @@ class CellSetTest < ActiveSupport::TestCase
         should "maintain a list of measure names used" do
           assert_equal [], ["cost","weight"] - @cellset.measure_names
         end
+
+        should "provide a list of selected meaures" do
+          assert_equal [:count], @cellset.selected_measures
+        end
+
       end
       context "#[]" do
         should "locate a cell based on its coordinates, specified in query order" do
@@ -230,6 +235,9 @@ class CellSetTest < ActiveSupport::TestCase
             assert_equal @cell.measures["cost"], @cell.cost
             assert_equal @cell.measures["weight"], @cell.weight
           end
+          should "provide named access to calculated measures" do
+            assert_equal @cell.cost.sum + @cell.weight.sum, @cell.cost_weight.value
+          end
           should "return an empty measure if no measure exists" do
             assert @cell.a_non_existent_member.empty?
           end
@@ -336,6 +344,16 @@ class CellSetTest < ActiveSupport::TestCase
               assert_equal @m1.value, @m1.inspect
             end
           end
+          context "operators" do
+            setup do
+              @m = @cellset[:large, :square, :red].weight
+            end
+
+            should "proxy calls to the default value of the measure" do
+              assert_equal @m + 2, @m.value + 2
+            end
+          end
+
 
         end
 

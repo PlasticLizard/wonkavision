@@ -34,6 +34,10 @@ module Wonkavision
         @measure_names.to_a
       end
 
+      def selected_measures
+        @query.selected_measures
+      end
+
       def inspect
         @cells.inspect
       end
