@@ -9,14 +9,14 @@ module Wonkavision
 
     class Context
       def initialize(storage = nil)
-        @storage = storage || ThreadContextStorage.new
+        @storage = storage || StaticContextStorage.new
       end
 
       def global_filters
         @storage[:_wonkavision_global_filters] ||= []
       end
 
-      class ThreadContextStorage
+      class StaticContextStorage
         def [](key)
           store[key]
         end
@@ -26,7 +26,7 @@ module Wonkavision
 
         private
         def store
-          Thread.current[:_wonkavision_context] ||= HashWithIndifferentAccess.new
+          @@storage ||= HashWithIndifferentAccess.new
         end
       end
 
