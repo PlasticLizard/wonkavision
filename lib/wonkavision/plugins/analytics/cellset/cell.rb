@@ -2,19 +2,26 @@ module Wonkavision
   module Analytics
     class CellSet
       class Cell
-        attr_reader :key, :measures, :dimensions, :cellset, :measure_data
+        attr_reader :key, :measures, :dimensions, :cellset
 
         def initialize(cellset,key,dims,measure_data)
           @cellset = cellset
           @key = key
           @dimensions = dims
-          @measure_data = measure_data
 
           @measures = HashWithIndifferentAccess.new
-          @measure_data.each_pair do |measure_name,measure|
+          measure_data.each_pair do |measure_name,measure|
             measure_opts = cellset.aggregation.measures[measure_name] || {}
             @measures[measure_name] = Measure.new(measure_name,measure,measure_opts)
           end
+        end
+
+        def measure_data
+          measure_data = {}
+          measures.each_pair do |key,value|
+            measure_data[key] = value.data
+          end
+          measure_data
         end
 
         def aggregate(measure_data)

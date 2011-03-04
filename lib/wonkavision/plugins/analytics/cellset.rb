@@ -61,11 +61,6 @@ module Wonkavision
       def calculate_totals(include_subtotals=false)
         cells.keys.each do |cell_key|
           measure_data = cells[cell_key].measure_data
-          #axes.each do |axis|
-          #  axis.append_to_totals(cell_key, measure_data) unless
-          #    cells[cell_key].empty?
-          #
-          #end
           append_to_subtotals(measure_data,cell_key)
           @totals ? @totals.aggregate(measure_data) : @totals = Cell.new(self,
                                                                          [],

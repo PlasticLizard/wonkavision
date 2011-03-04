@@ -58,6 +58,16 @@
   "measures"=>
    {"cost"=>{"count"=>10, "sum"=>200, "sum2"=>4000},
     "weight"=>{"count"=>10, "sum"=>22.0, "sum2"=>48.4}}},
+ {"_id"=>BSON::ObjectId('4d470fb0ca248815e73bd8b6'),
+  "dimension_keys"=>["black", "square", "small"],
+  "dimension_names"=>["color", "shape", "size"],
+  "dimensions"=>
+   {"size"=>{"size"=>"small"},
+    "shape"=>{"shape"=>"square"},
+    "color"=>{"color"=>"black"}},
+  "measures"=>
+   {"cost"=>{"count"=>10, "sum"=>200, "sum2"=>4000},
+    "weight"=>{"count"=>10, "sum"=>22.0, "sum2"=>48.4}}},
  {"_id"=>BSON::ObjectId('4d470fb0ca248815e73bd8b8'),
   "dimension_keys"=>["red", "circle", "large"],
   "dimension_names"=>["color", "shape", "size"],
