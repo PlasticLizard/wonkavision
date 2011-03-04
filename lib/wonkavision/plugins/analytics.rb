@@ -16,14 +16,6 @@ module Wonkavision
         @storage[:_wonkavision_global_filters] ||= []
       end
 
-      def filter(criteria_hash = {})
-        criteria_hash.each_pair do |filter, value|
-          global_filter = filter.kind_of?(MemberFilter) ? filter : MemberFilter.new(filter)
-          global_filter.value = value
-          global_filters << global_filter
-        end
-      end
-
       class ThreadContextStorage
         def [](key)
           store[key]

@@ -47,7 +47,7 @@ class StoreTest < ActiveSupport::TestCase
 
       context "#facts_for" do
         setup do
-          Wonkavision::Analytics.context.filter :a=>:b
+          Wonkavision::Analytics.context.global_filters <<  :dimensions.a.eq(:b)
         end
         teardown do
           Wonkavision::Analytics.context.global_filters.clear
@@ -75,7 +75,7 @@ class StoreTest < ActiveSupport::TestCase
         end
         context "when a global filter is applied" do
           setup do
-            Wonkavision::Analytics.context.filter :a=>:b
+            Wonkavision::Analytics.context.global_filters << :dimensions.a.eq(:b)
           end
           teardown do
             Wonkavision::Analytics.context.global_filters.clear

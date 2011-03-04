@@ -117,7 +117,7 @@ class MongoStoreTest < ActiveSupport::TestCase
         end
         should "respect the global filters" do
           filters = [:measures.simple.gt("a")]
-          Wonkavision::Analytics.context.filter :dimensions.less_simple => "seriously!"
+          Wonkavision::Analytics.context.global_filters << :dimensions.less_simple.eq("seriously!")
           assert_equal [@store[456]], @store.facts_for(@agg,filters)
           Wonkavision::Analytics.context.global_filters.clear
         end

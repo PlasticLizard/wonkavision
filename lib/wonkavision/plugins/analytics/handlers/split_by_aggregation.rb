@@ -45,6 +45,9 @@ module Wonkavision
         aggregation.aggregations.inject([]) do |aggregations,aggregate_by|
           aggregations << aggregate_by.inject({}) do |dimensions,dimension_name|
             dimension = aggregation.dimensions[dimension_name]
+
+            raise "You specified an aggregation containing a dimension that is not defined: #{dimension_name}" unless dimension
+
             dimensions[dimension_name.to_s] = dimension.extract(entity)
             dimensions
           end
