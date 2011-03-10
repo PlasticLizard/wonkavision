@@ -76,6 +76,16 @@ class FactsTest < ActiveSupport::TestCase
           @instance.expects(:reject_facts).with(:hi=>:there)
           @instance.accept_event({ :hi=>:there}, :action=>:reject)
         end
+        should "ignore facts that do not match the filter criteria" do
+          @facts.filter { |facts| facts[:hi] != :there }
+          @instance.expects(:add_facts).with(:hi=>:there).times(0)
+          @instance.accept_event({ :hi=>:there})
+        end
+        should "allow facts that do match the filter criteria" do
+          @facts.filter { |facts|facts[:hi] == :there}
+          @instance.expects(:add_facts).with(:hi=>:there).times(1)
+          @instance.accept_event({ :hi=>:there})
+        end
       end
       context "#update_facts" do
         should "fail unless a store is configured" do

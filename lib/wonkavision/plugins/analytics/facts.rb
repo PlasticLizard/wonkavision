@@ -38,6 +38,14 @@ module Wonkavision
           end
         end
 
+        def filter(&block)
+          if block
+            (facts_options[:filters] ||= []) << block
+          else
+            (facts_options[:filters] ||= [])
+          end
+        end
+
         def store(new_store=nil)
           if new_store
             store = new_store.kind_of?(Wonkavision::Analytics::Persistence::Store) ? store :
@@ -63,8 +71,11 @@ module Wonkavision
 
       module InstanceMethods
         def accept_event(event_data, options={})
-          action = options[:action] || :add
-          send "#{action}_facts", event_data
+          filter = self.class.filter
+          unless filter.length > 0 && filter.detect{ |f|!!(f.call(event_data)) == false}
+            action = options[:action] || :add
+            send "#{action}_facts", event_data
+          end
         end
 
         def update_facts(data)
