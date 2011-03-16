@@ -72,8 +72,8 @@ module Wonkavision
       module InstanceMethods
         def accept_event(event_data, options={})
           filter = self.class.filter
-          unless filter.length > 0 && filter.detect{ |f|!!(f.call(event_data)) == false}
-            action = options[:action] || :add
+          action = options[:action] || :add
+          unless filter.length > 0 && filter.detect{ |f|!!(f.call(event_data, action)) == false}
             send "#{action}_facts", event_data
           end
         end

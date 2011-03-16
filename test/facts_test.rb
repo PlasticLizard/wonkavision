@@ -77,12 +77,12 @@ class FactsTest < ActiveSupport::TestCase
           @instance.accept_event({ :hi=>:there}, :action=>:reject)
         end
         should "ignore facts that do not match the filter criteria" do
-          @facts.filter { |facts| facts[:hi] != :there }
+          @facts.filter { |facts, action| facts[:hi] != :there }
           @instance.expects(:add_facts).with(:hi=>:there).times(0)
           @instance.accept_event({ :hi=>:there})
         end
         should "allow facts that do match the filter criteria" do
-          @facts.filter { |facts|facts[:hi] == :there}
+          @facts.filter { |facts, action|facts[:hi] == :there}
           @instance.expects(:add_facts).with(:hi=>:there).times(1)
           @instance.accept_event({ :hi=>:there})
         end

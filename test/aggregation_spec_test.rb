@@ -118,13 +118,13 @@ class AggregationSpecTest < ActiveSupport::TestCase
     end
     context "#matches" do
       setup do
-        @aggregation_spec.filter { |msg| msg["a"] == "b"}
+        @aggregation_spec.filter { |msg,action| msg["a"] == "b"}
       end
       should "return true if a message matches the filter" do
-        assert @aggregation_spec.matches({ "a" => "b"})
+        assert @aggregation_spec.matches({ "a" => "b"},"hi")
       end
       should "return false if the message does not match the filter" do
-        assert !@aggregation_spec.matches({ "a" => "B"})
+        assert !@aggregation_spec.matches({ "a" => "B"},"ho")
       end
     end
 
