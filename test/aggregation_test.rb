@@ -136,20 +136,17 @@ class AggregationTest < ActiveSupport::TestCase
           @rejected = @instance.send(:measure_changes_for,"a", 1000, "reject")
         end
 
-        should "prepare a hash of measure components" do
-          assert_equal 3, @added.length
-        end
         should "prepare a count component" do
-          assert_equal 1, @added["measures.a.count"]
+          assert_equal 1, @added["measures"]["a"]["count"]
         end
         should "prepare a sum component" do
-          assert_equal 1000, @added["measures.a.sum"]
+          assert_equal 1000, @added["measures"]["a"]["sum"]
         end
         should "prepare a sum2 component" do
-          assert_equal 1000*1000, @added["measures.a.sum2"]
+          assert_equal 1000*1000, @added["measures"]["a"]["sum2"]
         end
         should "reverse the sign of the measures when the action is reject" do
-          @rejected.values.each { |val| assert val < 0}
+          @rejected["measures"]["a"].values.each { |val| assert val < 0}
         end
       end
 
@@ -159,9 +156,11 @@ class AggregationTest < ActiveSupport::TestCase
             :dimension_keys => [:b],
             :dimension_names => ["a"],
             :measures => {
-              "measures.d.count" => 1,
-              "measures.d.sum" => 1000,
-              "measures.d.sum2" => 1000*1000 },
+              "measures"=>{"d" =>{
+                  "count" => 1,
+                  "sum" => 1000,
+                  "sum2" => 1000*1000
+                }}},
             :dimensions => { "a" => { "a"=>:b}}
           }
 

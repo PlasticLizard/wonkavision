@@ -131,9 +131,15 @@ module Wonkavision
         def measure_changes_for(measure_name, measure_value, update_method)
           sign = update_method.to_s == "reject" ? -1 : 1
           {
-            "measures.#{measure_name}.count" => 1 * sign,
-            "measures.#{measure_name}.sum" => measure_value * sign,
-            "measures.#{measure_name}.sum2" => (measure_value * measure_value) * sign
+            "measures" =>
+            {
+              "#{measure_name}"=>
+              {
+                "count" => 1 * sign,
+                "sum" => measure_value * sign,
+                "sum2" => (measure_value * measure_value) * sign
+              }
+            }
           }
         end
 
