@@ -196,6 +196,9 @@ module Wonkavision
       def duration(*args, &block)
         opts = args.extract_options! || {}
 
+        return nil if (opts.has_key?(:from) && !opts[:from])
+        return nil if (opts.has_key?(:to) && !opts[:to])
+
         from = opts.delete(:from)
         to = opts.delete(:to)
 

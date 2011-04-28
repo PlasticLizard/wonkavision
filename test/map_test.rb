@@ -330,6 +330,13 @@ class MapTest < ActiveSupport::TestCase
         m.duration :a_duration, :from => m.a
         assert m.a_duration > 0
       end
+      should "return nil if from and to are supplied, but to is nil" do
+        m = Wonkavision::MessageMapper::Map.new({ :a=>"1/1/2001", :b=>nil})
+        m.time :a
+        m.time :b
+        m.duration :a_duration, :from => m.a, :to => m.b
+        assert_nil m.a_duration
+      end
       should "convert the duration to the desired time unit" do
         m = Wonkavision::MessageMapper::Map.new
         m.expects(:convert_seconds).with(1,:months)
