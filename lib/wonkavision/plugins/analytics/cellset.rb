@@ -113,7 +113,7 @@ module Wonkavision
         dims.each_with_index do |dim_name, idx|
           dim_name = dim_name.to_s
           dim_ordinal = record["dimension_names"].index(dim_name)
-          key << record["dimension_keys"][dim_ordinal]
+          key << record["dimension_keys"][dim_ordinal].to_s
         end
         key
       end

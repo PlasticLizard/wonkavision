@@ -28,6 +28,10 @@ module Wonkavision
           key.to_s
         end
 
+        def to_key
+          key
+        end
+
       end
 
     end
