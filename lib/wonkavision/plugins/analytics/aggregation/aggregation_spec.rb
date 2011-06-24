@@ -65,12 +65,11 @@ module Wonkavision
           @filter = block
         end
 
-        def matches(message, action)
+        def matches(message)
           return true unless filter
           case filter.arity
           when 0 then filter.call
-          when 1 then filter.call(message)
-          else filter.call(message,action)
+          else filter.call(message)
           end
         end
 

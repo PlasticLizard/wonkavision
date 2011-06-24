@@ -104,16 +104,13 @@ module Wonkavision
           self.class.store
         end
 
-        #It is unnecessary to accept multiple actions - this should be removed
-        def process_facts(event_data, *actions)
-          actions.each do |action|
-            self.class.aggregations.each do |aggregation|
-              submit self.class.output_event_path, {
-                "action" => action,
-                "aggregation" => aggregation.name,
-                "data" => event_data
-              }
-            end
+        def process_facts(event_data, action)
+          self.class.aggregations.each do |aggregation|
+            submit self.class.output_event_path, {
+              "action" => action,
+              "aggregation" => aggregation.name,
+              "data" => event_data
+            }
           end
         end
 
