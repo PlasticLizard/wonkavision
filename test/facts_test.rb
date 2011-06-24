@@ -139,11 +139,11 @@ class FactsTest < ActiveSupport::TestCase
 
       end
       context "#process_facts" do
-        should "submit a copy of the message once for each action * each aggregation" do
+        should "submit a copy of the message once for each aggregation" do
           @facts.aggregations << String
           @facts.aggregations << Hash
-          @instance.expects(:submit).times(4)
-          @instance.send(:process_facts,{ :hi=>:there}, "add", "reject")
+          @instance.expects(:submit).times(2)
+          @instance.send(:process_facts,{ :hi=>:there}, "add")
         end
         should "submit each event using the output event path, action and message" do
           @facts.aggregations << String
