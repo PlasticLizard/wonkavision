@@ -27,7 +27,7 @@ module Wonkavision
       end
 
       def aggregation_for(aggregation_name)
-        Wonkavision::Aggregation.all[aggregation_name]
+        Wonkavision::Analytics::Aggregation.all[aggregation_name]
       end
 
     end

@@ -5,13 +5,13 @@ class AggregationTest < ActiveSupport::TestCase
     setup do
       @facts = Class.new
       @facts.class_eval do
-        include Wonkavision::Facts
+        include Wonkavision::Analytics::Facts
       end
 
       @agg = Class.new
       @agg.class_eval do
         def self.name; "MyAggregation"; end
-        include Wonkavision::Aggregation
+        include Wonkavision::Analytics::Aggregation
         dimension :a, :b, :c
 
         dimension :complex do
@@ -43,7 +43,7 @@ class AggregationTest < ActiveSupport::TestCase
     end
 
     should "register itself with the module" do
-      assert_equal @agg, Wonkavision::Aggregation.all[@agg.name]
+      assert_equal @agg, Wonkavision::Analytics::Aggregation.all[@agg.name]
     end
 
     should "set the aggregates property" do

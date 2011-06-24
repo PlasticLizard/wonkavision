@@ -1,20 +1,21 @@
 module Wonkavision
-  module Plugins
+  module Analytics
     module Aggregation
+      extend ActiveSupport::Concern
 
       def self.all
         @@all ||= {}
       end
 
-      def self.configure(aggregation,options={})
-        aggregation.write_inheritable_attribute :aggregation_options, options
-        aggregation.class_inheritable_reader :aggregation_options
+      included do
+        write_inheritable_attribute :aggregation_options, {}
+        class_inheritable_reader :aggregation_options
 
-        aggregation.write_inheritable_attribute( :aggregation_spec,
-                                                 AggregationSpec.new(aggregation.name) )
-        aggregation.class_inheritable_reader :aggregation_spec
+        write_inheritable_attribute( :aggregation_spec,
+                                                 AggregationSpec.new(name) )
+        class_inheritable_reader :aggregation_spec
 
-        Aggregation.all[aggregation.name] = aggregation
+        Aggregation.all[name] = self
       end
 
       module ClassMethods

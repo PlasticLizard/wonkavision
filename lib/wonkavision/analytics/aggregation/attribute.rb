@@ -1,7 +1,7 @@
 require "set"
 
 module Wonkavision
-  module Plugins
+  module Analytics
     module Aggregation
       class Attribute
         attr_reader :name, :options

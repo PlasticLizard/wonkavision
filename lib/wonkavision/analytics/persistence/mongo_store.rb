@@ -36,7 +36,7 @@ module Wonkavision
         end
 
         def collection
-          owner.kind_of?(Wonkavision::Aggregation) ? aggregations_collection :
+          owner.kind_of?(Wonkavision::Analytics::Aggregation) ? aggregations_collection :
             facts_collection
         end
 

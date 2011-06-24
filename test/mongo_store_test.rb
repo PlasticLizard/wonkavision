@@ -8,7 +8,7 @@ class MongoStoreTest < ActiveSupport::TestCase
       @facts = Class.new
       @facts.class_eval do
         def self.name; "TestFacts"; end
-        include Wonkavision::Facts
+        include Wonkavision::Analytics::Facts
         record_id :tada
       end
       @store = MongoStore.new(@facts)
@@ -76,7 +76,7 @@ class MongoStoreTest < ActiveSupport::TestCase
         setup do
           @agg = Class.new
           @agg.class_eval do
-            include Wonkavision::Aggregation
+            include Wonkavision::Analytics::Aggregation
             dimension :simple
             dimension :less_simple, :from=>:russia
             dimension :with_love do

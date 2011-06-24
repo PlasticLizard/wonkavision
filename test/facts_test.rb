@@ -6,7 +6,7 @@ class FactsTest < ActiveSupport::TestCase
       @facts = Class.new
       @facts.class_eval do
         def self.name; "MyFacts" end
-        include Wonkavision::Facts
+        include Wonkavision::Analytics::Facts
         record_id :_id
         accept 'some/event/path'
         accept 'another/event/path/rejected', :action => :reject do

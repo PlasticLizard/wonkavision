@@ -1,15 +1,17 @@
 require "set"
 
 module Wonkavision
-  module Plugins
+  module Analytics
     module Facts
+      extend ActiveSupport::Concern
+      include Wonkavision::EventHandler
 
-      def self.configure(facts, options ={})
-        facts.write_inheritable_attribute :facts_options, options
-        facts.class_inheritable_reader :facts_options
+      included do
+        write_inheritable_attribute :facts_options, {}
+        class_inheritable_reader :facts_options
 
-        facts.write_inheritable_attribute :aggregations, []
-        facts.class_inheritable_reader :aggregations
+        write_inheritable_attribute :aggregations, []
+        class_inheritable_reader :aggregations
       end
 
       module ClassMethods

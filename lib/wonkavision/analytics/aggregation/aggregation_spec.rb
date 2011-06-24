@@ -1,5 +1,5 @@
 module Wonkavision
-  module Plugins
+  module Analytics
     module Aggregation
       class AggregationSpec
 

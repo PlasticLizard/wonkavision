@@ -6,8 +6,6 @@ module Wonkavision
 
     def initialize
       @root_namespace = Wonkavision::EventNamespace.new
-      #@lock = Mutex.new
-      #@event_cache = {}
 
       @incoming_event_filters = []
     end
@@ -35,7 +33,6 @@ module Wonkavision
     end
 
     def receive_event(event_path, event_data)
-      #@lock.synchronize do
         #If process_incoming_event returns nil or false, it means a filter chose to abort
         #the event processing, in which case we'll break for lunch.
         return unless event_data = process_incoming_event(event_path,event_data)
@@ -45,7 +42,6 @@ module Wonkavision
         #If the event wasn't matched, maybe someone is subscribing to '/*' ?
         targets = [root_namespace] if targets.blank?
         targets.each{|target|target.notify_subscribers(event_data,event_path)}
-      #end
     end
 
     def publish(event_path, event_data)

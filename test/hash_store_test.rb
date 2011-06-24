@@ -7,7 +7,7 @@ class HashStoreTest < ActiveSupport::TestCase
     setup do
       @facts = Class.new
       @facts.class_eval do
-        include Wonkavision::Facts
+        include Wonkavision::Analytics::Facts
         record_id :tada
       end
       @store = HashStore.new(@facts)
@@ -65,7 +65,7 @@ class HashStoreTest < ActiveSupport::TestCase
         setup do
           @agg = Class.new
           @agg.class_eval do
-            include Wonkavision::Aggregation
+            include Wonkavision::Analytics::Aggregation
             dimension :simple
             dimension :less_simple, :from=>:russia
             dimension :with_love do
@@ -143,7 +143,7 @@ class HashStoreTest < ActiveSupport::TestCase
       context "update_tuple" do
         setup do
           @update = @store.send(:fetch_tuples,[:a,:b])[0].dup
-          @update[:measures].merge!("one" => 2.5)
+          @update[:measures] = @update[:measures].merge("one" => 2.5)
         end
 
         should "aggregate an existing tuple if present" do

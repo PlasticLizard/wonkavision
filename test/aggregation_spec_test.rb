@@ -3,7 +3,7 @@ require "test_helper"
 class AggregationSpecTest < ActiveSupport::TestCase
   context "AggregationSpec" do
     setup do
-      @aggregation_spec = Wonkavision::Plugins::Aggregation::AggregationSpec.new("MyAggregation")
+      @aggregation_spec = Wonkavision::Analytics::Aggregation::AggregationSpec.new("MyAggregation")
     end
 
     should "take its name from the constructor" do

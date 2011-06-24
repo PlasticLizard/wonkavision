@@ -1,22 +1,8 @@
-# The note you see below, 'Almost all of this callback stuff...', along with all the code adapted from ActiveSupport,
-# is in turn adapted from MongoMapper, and for the same reasons.
-# encoding: UTF-8
-# Almost all of this callback stuff is pulled directly from ActiveSupport
-# in the interest of support rails 2 and 3 at the same time and is the
-# same copyright as rails.
 module Wonkavision
-  module Plugins
     module Callbacks
-      def self.configure(handler,options)
-        handler.define_wonkavision_callbacks :before_event,
-                                 :after_event
-        
-        handler.alias_method_chain :handle_event, :callbacks
-      end
+      extend ActiveSupport::Concern
 
       module ClassMethods
-        #The ODM library may already have taken care of mixing in callback functioanlity,
-        #in which case we'll just use that
         def define_wonkavision_callbacks(*callbacks)
           callbacks.each do |callback|
             class_eval <<-"end_eval"
@@ -177,6 +163,5 @@ module Wonkavision
                   ![options[:unless]].flatten.compact.any? { |a| evaluate_method(a, *args) }
         end
       end
-    end
   end
 end

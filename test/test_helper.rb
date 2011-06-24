@@ -3,16 +3,18 @@ $LOAD_PATH.unshift(File.dirname(__FILE__))
 require "rubygems"
 require 'bundler'
 Bundler.setup
-require "mongoid"
 require "erb"
 require 'active_support/test_case'
 require "shoulda"
 require "mocha"
 
 
+
 dir = File.dirname(__FILE__)
 require File.join(dir,"..","lib","wonkavision")
-require File.join(dir,"..","lib","wonkavision","plugins","analytics","mongo")
+
+require "test_event_handler"
+
 
 dir = File.expand_path(File.dirname(__FILE__))
 logdir = File.join(dir,'log')
@@ -21,22 +23,18 @@ Dir.mkdir(logdir) unless File.directory?(logdir)
 mcfg_file = File.join(dir,'config','database.yml')
 msettings = YAML.load(ERB.new(File.new(mcfg_file).read).result)
 
-Mongoid.configure do |config|
-  config.from_hash(msettings["test"])
-  config.logger = Logger.new(File.join(logdir,'test.log'))
-end
-
 Wonkavision::Mongo.setup(msettings, "test")
 
 $test_dir = dir
 
 module ActiveSupport
   class TestCase
+    
     def setup
-
     end
+
     def teardown
-      Mongoid.master.collections.each do |coll|
+      Wonkavision::Mongo.database.collections.each do |coll|
         coll.drop unless coll.name =~ /(.*\.)?system\..*/
       end
       Time.reset #Return Time.now to its original state

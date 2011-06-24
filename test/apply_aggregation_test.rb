@@ -6,7 +6,7 @@ class ApplyAggregationTest < ActiveSupport::TestCase
       @agg = Class.new
       @agg.class_eval do
         def self.name; "MyAggregation" end
-        include Wonkavision::Aggregation
+        include Wonkavision::Analytics::Aggregation
         dimension :a, :b, :c
         measure :d, :e
         aggregate_by :a, :b

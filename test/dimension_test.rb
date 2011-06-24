@@ -2,7 +2,7 @@ require "test_helper"
 
 class DimensionTest < ActiveSupport::TestCase
 
-  Dimension = Wonkavision::Plugins::Aggregation::Dimension
+  Dimension = Wonkavision::Analytics::Aggregation::Dimension
 
   context "Dimension" do
     context "Basic Initialization" do

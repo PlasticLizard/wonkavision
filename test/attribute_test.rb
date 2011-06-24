@@ -3,7 +3,7 @@ require "test_helper"
 class AttributeTest < ActiveSupport::TestCase
   context "Attribute" do
     setup do
-      @attribute = Wonkavision::Plugins::Aggregation::Attribute.new(:my_attribute,:an_option=>true)
+      @attribute = Wonkavision::Analytics::Aggregation::Attribute.new(:my_attribute,:an_option=>true)
     end
 
     should "take its name from the constructor" do

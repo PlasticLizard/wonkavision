@@ -6,14 +6,14 @@ class SplitByAggregationTest < ActiveSupport::TestCase
       @agg = Class.new
       @agg.class_eval do
         def self.name; "MyAggregation" end
-        include Wonkavision::Aggregation
+        include Wonkavision::Analytics::Aggregation
         dimension :a, :b, :c
         measure :d, :e
         aggregate_by :a, :b
         aggregate_by :a, :b, :c
         store :hash_store
       end
-      @handler = Wonkavision::Analytics::SplitByAggregation.new
+      @handler = Wonkavision::Analytics::Handlers::SplitByAggregation.new
     end
 
     should "initialize with the appropriate namespace" do
@@ -103,7 +103,7 @@ class SplitByAggregationTest < ActiveSupport::TestCase
       end
       context "will listen for entity updated messages" do
         should "respond to entity updated messages" do
-          Wonkavision::Analytics::SplitByAggregation.any_instance.expects(:process_event)
+          Wonkavision::Analytics::Handlers::SplitByAggregation.any_instance.expects(:process_event)
           Wonkavision.event_coordinator.receive_event("wv/analytics/facts/updated",{ :a=>:b})
         end
       end

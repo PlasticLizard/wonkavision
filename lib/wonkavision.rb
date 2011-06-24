@@ -2,54 +2,46 @@ require "rubygems"
 require "active_support"
 require "active_support/hash_with_indifferent_access" unless defined?(HashWithIndifferentAccess)
 require "active_support/core_ext"
+require "active_support/concern"
 
 dir = File.dirname(__FILE__)
-["support",
- "plugins",
+[
  "string_formatter",
  "event_path_segment",
  "event",
- "event_context",
  "event_namespace",
  "local_job_queue",
  "event_coordinator",
  "event_binding",
+ "callbacks",
  "event_handler",
- "facts",
- "aggregation",
  "message_mapper/indifferent_access",
  "message_mapper/map",
  "message_mapper",
- "plugins/callbacks",
- "plugins/event_handling",
- "plugins/business_activity/event_binding",
- "plugins/business_activity",
- "plugins/timeline",
+ "event_handler",
  "extensions/string",
  "extensions/symbol",
  "extensions/array",
- "plugins/analytics",
- "plugins/analytics/paginated.rb",
- "plugins/analytics/member_filter",
- "plugins/analytics/persistence/store",
- "plugins/analytics/persistence/hash_store",
- "plugins/analytics/facts",
- "plugins/analytics/aggregation/aggregation_spec",
- "plugins/analytics/aggregation/attribute",
- "plugins/analytics/aggregation/dimension",
- "plugins/analytics/aggregation",
- "plugins/analytics/cellset/axis",
- "plugins/analytics/cellset/dimension",
- "plugins/analytics/cellset/member",
- "plugins/analytics/cellset/cell",
- "plugins/analytics/cellset/measure",
- "plugins/analytics/cellset/calculated_measure",
- "plugins/analytics/cellset",
- "plugins/analytics/query",
- "acts_as_oompa_loompa",
- "persistence/mongo_mapper_adapter",
- "persistence/mongoid_adapter",
- "plugins/analytics/mongo"
+ "analytics",
+ "analytics/paginated",
+ "analytics/member_filter",
+ "analytics/persistence/store",
+ "analytics/persistence/hash_store",
+ "analytics/facts",
+ "analytics/aggregation/aggregation_spec",
+ "analytics/aggregation/attribute",
+ "analytics/aggregation/dimension",
+ "analytics/aggregation",
+ "analytics/cellset/axis",
+ "analytics/cellset/dimension",
+ "analytics/cellset/member",
+ "analytics/cellset/cell",
+ "analytics/cellset/measure",
+ "analytics/cellset/calculated_measure",
+ "analytics/cellset",
+ "analytics/query",
+ "analytics/persistence/mongo",
+ "analytics/persistence/mongo_store"
 ].each {|lib|require File.join(dir,'wonkavision',lib)}
 
 
@@ -109,4 +101,4 @@ end
 
 #Load event handlers for analytics
 # dir = File.dirname(__FILE__)
-Dir[File.join(dir,"wonkavision","plugins/analytics/handlers/**/*.rb")].each {|lib|require lib}
+Dir[File.join(dir,"wonkavision","analytics/handlers/**/*.rb")].each {|lib|require lib}

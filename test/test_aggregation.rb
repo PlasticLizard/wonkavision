@@ -1,5 +1,5 @@
 class TestAggregation
-  include Wonkavision::Aggregation
+  include Wonkavision::Analytics::Aggregation
 
   store :hash_store
 

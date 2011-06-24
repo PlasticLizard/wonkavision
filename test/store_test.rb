@@ -7,7 +7,7 @@ class StoreTest < ActiveSupport::TestCase
     setup do
       @facts = Class.new
       @facts.class_eval do
-        include Wonkavision::Facts
+        include Wonkavision::Analytics::Facts
         record_id :tada
       end
       @store = Store.new(@facts)
