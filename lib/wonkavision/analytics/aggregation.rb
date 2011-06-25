@@ -41,13 +41,22 @@ module Wonkavision
           @instances[key] ||= self.new(dimensions)
         end
 
-        def aggregates(facts_class = nil)
+        def aggregates(facts_class = nil, transformation_name=nil)
           return aggregation_options[:facts_class] unless facts_class
 
           facts_class.aggregations << self
           aggregation_options[:facts_class] = facts_class
+          transformation(transformation_name) if transformation_name
         end
         alias facts aggregates
+
+        def transformation(transformation_name = nil)
+          if transformation_name
+            aggregation_options[:transformation_name] = transformation_name
+          else
+            aggregation_options[:transformation_name]
+          end
+        end
 
         def dimension_names(dimensions)
           dimensions.keys.sort

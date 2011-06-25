@@ -27,6 +27,7 @@ dir = File.dirname(__FILE__)
  "analytics/member_filter",
  "analytics/persistence/store",
  "analytics/persistence/hash_store",
+ "analytics/transformation",
  "analytics/facts",
  "analytics/aggregation/aggregation_spec",
  "analytics/aggregation/attribute",

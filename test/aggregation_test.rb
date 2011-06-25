@@ -21,7 +21,7 @@ class AggregationTest < ActiveSupport::TestCase
         measure :d
         store :hash_store
       end
-      @agg.aggregates @facts
+      @agg.aggregates @facts, :some_transform
 
     end
 
@@ -48,6 +48,10 @@ class AggregationTest < ActiveSupport::TestCase
 
     should "set the aggregates property" do
       assert_equal @facts, @agg.aggregates
+    end
+
+    should "set the transformation name" do
+      assert_equal :some_transform, @agg.transformation
     end
 
     should "register itself with its associated Facts class" do

@@ -48,6 +48,14 @@ module Wonkavision
           end
         end
 
+        def transformation(name,&block)
+          transformations << Wonkavision::Analytics::Transformation.new(name,&block)
+        end
+
+        def transformations
+          facts_options[:transformations] ||= []
+        end
+
         def store(new_store=nil)
           if new_store
             store = new_store.kind_of?(Wonkavision::Analytics::Persistence::Store) ? store :
@@ -76,43 +84,56 @@ module Wonkavision
           filter = self.class.filter
           action = options[:action] || :add
           unless filter.length > 0 && filter.detect{ |f|!!(f.call(event_data, action)) == false}
-            send "#{action}_facts", event_data
+            process_message( event_data, action )
+            process_transformations( event_data, action )
           end
         end
 
-        def update_facts(data)
+        def update_facts(data, transformation = nil)
           raise "A persistent store must be configured in order to update facts" unless store
 
           previous_facts, current_facts = store.update_facts(data)
           unless previous_facts == current_facts
-            process_facts previous_facts, "reject" unless previous_facts.blank?
-            process_facts current_facts, "add" unless current_facts.blank?
+            process_facts previous_facts, "reject", transformation unless previous_facts.blank?
+            process_facts current_facts, "add", transformation unless current_facts.blank?
           end
         end
 
-        def add_facts(data)
+        def add_facts(data, transformation = nil)
           current_facts = store ? store.add_facts(data) : data
-          process_facts current_facts, "add" if current_facts
+          process_facts current_facts, "add", transformation if current_facts
         end
 
-        def reject_facts(data)
+        def reject_facts(data, transformation = nil)
           previous_facts = store ? store.remove_facts(data) : data
-          process_facts previous_facts, "reject" if previous_facts
+          process_facts previous_facts, "reject", transformation if previous_facts
         end
 
         protected
+
+        def process_transformations(event_data, action)
+          self.class.transformations.each do |tx|
+            [tx.apply(event_data)].flatten.compact.each do |msg|
+              process_message( msg, action, tx.name )
+            end
+          end
+        end
+
+        def process_message(event_data,action,transformation=nil)
+          send "#{action}_facts", event_data, transformation
+        end
 
         def store
           self.class.store
         end
 
-        def process_facts(event_data, action)
-          self.class.aggregations.each do |aggregation|
-            submit self.class.output_event_path, {
+        def process_facts(event_data, action, transformation = nil)
+          self.class.aggregations.each do |aggregation| 
+            submit( self.class.output_event_path, {
               "action" => action,
               "aggregation" => aggregation.name,
               "data" => event_data
-            }
+            } ) if aggregation.transformation == transformation
           end
         end
 

@@ -8,9 +8,15 @@ class FactsTest < ActiveSupport::TestCase
         def self.name; "MyFacts" end
         include Wonkavision::Analytics::Facts
         record_id :_id
+        
         accept 'some/event/path'
+        
         accept 'another/event/path/rejected', :action => :reject do
           float :mapped
+        end
+
+        transformation :warped do |facts|
+          [1,2].map {|num| facts.merge(:hi=>num)}
         end
 
       end
@@ -69,21 +75,27 @@ class FactsTest < ActiveSupport::TestCase
       end
       context "#accept_event" do
         should "defer to add_fact by default" do
-          @instance.expects(:add_facts).with(:hi=>:there)
+          @instance.expects(:add_facts).with({:hi=>:there}, nil)
+          @instance.expects(:add_facts).with({:hi=>1}, :warped)
+          @instance.expects(:add_facts).with({:hi=>2}, :warped)
           @instance.accept_event(:hi=>:there)
         end
         should "defer to the appropriate method based on the action option" do
-          @instance.expects(:reject_facts).with(:hi=>:there)
+          @instance.expects(:reject_facts).with({:hi=>:there}, nil)
+          @instance.expects(:reject_facts).with({:hi=>1}, :warped)
+          @instance.expects(:reject_facts).with({:hi=>2}, :warped)
           @instance.accept_event({ :hi=>:there}, :action=>:reject)
         end
         should "ignore facts that do not match the filter criteria" do
           @facts.filter { |facts, action| facts[:hi] != :there }
-          @instance.expects(:add_facts).with(:hi=>:there).times(0)
+          @instance.expects(:add_facts).with({:hi=>:there}, nil).times(0)
           @instance.accept_event({ :hi=>:there})
         end
         should "allow facts that do match the filter criteria" do
           @facts.filter { |facts, action|facts[:hi] == :there}
-          @instance.expects(:add_facts).with(:hi=>:there).times(1)
+          @instance.expects(:add_facts).with({:hi=>:there}, nil).times(1)
+          @instance.expects(:add_facts).with({:hi=>1}, :warped)
+          @instance.expects(:add_facts).with({:hi=>2}, :warped)
           @instance.accept_event({ :hi=>:there})
         end
       end
@@ -99,14 +111,14 @@ class FactsTest < ActiveSupport::TestCase
           store = {}
           @instance.expects(:store).times(2).returns(store)
           store.expects(:update_facts).returns([{ "_id"=>123},nil])
-          @instance.expects(:process_facts).with({ "_id"=>123}, "reject")
+          @instance.expects(:process_facts).with({ "_id"=>123}, "reject", nil)
           @instance.update_facts({ "_id"=>123})
         end
         should "process an addition of current_facts are returned" do
           store = {}
           @instance.expects(:store).times(2).returns(store)
           store.expects(:update_facts).returns([nil,{ "_id"=>123}])
-          @instance.expects(:process_facts).with({ "_id"=>123}, "add")
+          @instance.expects(:process_facts).with({ "_id"=>123}, "add", nil)
           @instance.update_facts({ "_id"=>123})
         end
 
@@ -114,7 +126,7 @@ class FactsTest < ActiveSupport::TestCase
 
       context "#add_facts" do
         should "call #process_facts with the correct action" do
-          @instance.expects(:process_facts).with({ :hi=>:there}, "add")
+          @instance.expects(:process_facts).with({ :hi=>:there}, "add", nil)
           @instance.add_facts(:hi=>:there)
         end
         should "add the facts to a store if configured" do
@@ -127,7 +139,7 @@ class FactsTest < ActiveSupport::TestCase
       end
       context "#reject_facts" do
         should "call #process_facts with the correct action" do
-          @instance.expects(:process_facts).with({ :hi=>:there}, "reject")
+          @instance.expects(:process_facts).with({ :hi=>:there}, "reject", nil)
           @instance.reject_facts(:hi=>:there)
         end
         should "remove the facts from a store if configured" do
@@ -138,24 +150,49 @@ class FactsTest < ActiveSupport::TestCase
         end
 
       end
+
+      context "#process_transformations" do
+        should "call process_facts once for each xform" do
+          @instance.expects(:process_message).with({:hi=>1}, "add", :warped)
+          @instance.expects(:process_message).with({:hi=>2}, "add", :warped)
+          @instance.send(:process_transformations, {:hi=>:there}, "add")
+        end
+      end
+
       context "#process_facts" do
         should "submit a copy of the message once for each aggregation" do
-          @facts.aggregations << String
-          @facts.aggregations << Hash
+          @facts.aggregations << stub(:name=>"Hi",:transformation=>nil)
+          @facts.aggregations << stub(:name=>"Ho",:transformation=>nil)
           @instance.expects(:submit).times(2)
           @instance.send(:process_facts,{ :hi=>:there}, "add")
         end
         should "submit each event using the output event path, action and message" do
-          @facts.aggregations << String
+          @facts.aggregations <<  stub(:name=>"Hi",:transformation=>nil)
           @instance.expects(:submit).with(@facts.output_event_path,{
                                             "action" => "add",
-                                            "aggregation" => "String",
+                                            "aggregation" => "Hi",
                                             "data" => { "hi" => "there"}
                                           })
           @instance.send(:process_facts, { "hi"=>"there"}, "add")
         end
-
-
+        should "not submit an event to an aggregation that doesn't match the transformation" do
+          @facts.aggregations << stub(:name=>"hi",:transformation=>:a)
+          @instance.expects(:submit).with(@facts.output_event_path,{
+            "action" => "add",
+            "aggregation" => "hi",
+            "data" => {"hi" => "there"}
+          }).times(0)
+          @instance.send(:process_facts, {"hi"=>"there"}, "add")
+        end
+        should "submit an event to an aggregation that matches the transformation" do
+          @facts.aggregations << stub(:name=>"hi",:transformation=>:a)
+          @instance.expects(:submit).with(@facts.output_event_path,{
+            "action" => "add",
+            "aggregation" => "hi",
+            "data" => {"hi" => "there"}
+          })
+          @instance.send(:process_facts, {"hi"=>"there"}, "add", :a)
+        end
       end
 
     end
