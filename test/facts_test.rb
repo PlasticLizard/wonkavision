@@ -75,15 +75,11 @@ class FactsTest < ActiveSupport::TestCase
       end
       context "#accept_event" do
         should "defer to add_fact by default" do
-          @instance.expects(:add_facts).with({:hi=>:there}, nil)
-          @instance.expects(:add_facts).with({:hi=>1}, :warped)
-          @instance.expects(:add_facts).with({:hi=>2}, :warped)
+          @instance.expects(:add_facts).with({:hi=>:there})
           @instance.accept_event(:hi=>:there)
         end
         should "defer to the appropriate method based on the action option" do
-          @instance.expects(:reject_facts).with({:hi=>:there}, nil)
-          @instance.expects(:reject_facts).with({:hi=>1}, :warped)
-          @instance.expects(:reject_facts).with({:hi=>2}, :warped)
+          @instance.expects(:reject_facts).with({:hi=>:there})
           @instance.accept_event({ :hi=>:there}, :action=>:reject)
         end
         should "ignore facts that do not match the filter criteria" do
@@ -93,9 +89,7 @@ class FactsTest < ActiveSupport::TestCase
         end
         should "allow facts that do match the filter criteria" do
           @facts.filter { |facts, action|facts[:hi] == :there}
-          @instance.expects(:add_facts).with({:hi=>:there}, nil).times(1)
-          @instance.expects(:add_facts).with({:hi=>1}, :warped)
-          @instance.expects(:add_facts).with({:hi=>2}, :warped)
+          @instance.expects(:add_facts).with({:hi=>:there}).times(1)
           @instance.accept_event({ :hi=>:there})
         end
       end
@@ -153,8 +147,8 @@ class FactsTest < ActiveSupport::TestCase
 
       context "#process_transformations" do
         should "call process_facts once for each xform" do
-          @instance.expects(:process_message).with({:hi=>1}, "add", :warped)
-          @instance.expects(:process_message).with({:hi=>2}, "add", :warped)
+          @instance.expects(:process_facts).with({:hi=>1}, "add", :warped)
+          @instance.expects(:process_facts).with({:hi=>2}, "add", :warped)
           @instance.send(:process_transformations, {:hi=>:there}, "add")
         end
       end
@@ -192,6 +186,14 @@ class FactsTest < ActiveSupport::TestCase
             "data" => {"hi" => "there"}
           })
           @instance.send(:process_facts, {"hi"=>"there"}, "add", :a)
+        end
+        should "call process_transformations if no transformation is provided" do
+          @instance.expects(:process_transformations).with({"hi"=>"there"},"add")
+          @instance.send(:process_facts, {"hi"=>"there"},"add")
+        end
+        should "not call process transformations if a transformation is provided" do
+          @instance.expects(:process_transformations).with({"hi"=>"there"},"add").times(0)
+          @instance.send(:process_facts, {"hi"=>"there"},"add",:a)
         end
       end
 

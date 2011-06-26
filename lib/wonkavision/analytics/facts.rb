@@ -84,29 +84,32 @@ module Wonkavision
           filter = self.class.filter
           action = options[:action] || :add
           unless filter.length > 0 && filter.detect{ |f|!!(f.call(event_data, action)) == false}
-            process_message( event_data, action )
-            process_transformations( event_data, action )
+            send "#{action}_facts", event_data
           end
         end
 
-        def update_facts(data, transformation = nil)
+        def update_facts(data)
           raise "A persistent store must be configured in order to update facts" unless store
 
           previous_facts, current_facts = store.update_facts(data)
           unless previous_facts == current_facts
-            process_facts previous_facts, "reject", transformation unless previous_facts.blank?
-            process_facts current_facts, "add", transformation unless current_facts.blank?
+            process_facts previous_facts, "reject" unless previous_facts.blank?
+            process_facts current_facts, "add" unless current_facts.blank?
           end
         end
 
-        def add_facts(data, transformation = nil)
+        def add_facts(data)
           current_facts = store ? store.add_facts(data) : data
-          process_facts current_facts, "add", transformation if current_facts
+          if current_facts
+            process_facts current_facts, "add"
+          end
         end
 
-        def reject_facts(data, transformation = nil)
+        def reject_facts(data)
           previous_facts = store ? store.remove_facts(data) : data
-          process_facts previous_facts, "reject", transformation if previous_facts
+          if previous_facts
+            process_facts previous_facts, "reject"
+          end
         end
 
         protected
@@ -114,13 +117,9 @@ module Wonkavision
         def process_transformations(event_data, action)
           self.class.transformations.each do |tx|
             [tx.apply(event_data)].flatten.compact.each do |msg|
-              process_message( msg, action, tx.name )
+              process_facts msg, action, tx.name
             end
           end
-        end
-
-        def process_message(event_data,action,transformation=nil)
-          send "#{action}_facts", event_data, transformation
         end
 
         def store
@@ -129,12 +128,15 @@ module Wonkavision
 
         def process_facts(event_data, action, transformation = nil)
           self.class.aggregations.each do |aggregation| 
-            submit( self.class.output_event_path, {
-              "action" => action,
-              "aggregation" => aggregation.name,
-              "data" => event_data
-            } ) if aggregation.transformation == transformation
+            if aggregation.transformation == transformation
+              submit( self.class.output_event_path, {
+                "action" => action,
+                "aggregation" => aggregation.name,
+                "data" => event_data
+              } ) 
+            end
           end
+          process_transformations(event_data, action) unless transformation
         end
 
       end
