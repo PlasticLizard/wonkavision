@@ -18,7 +18,7 @@ module Wonkavision
         raise "Events cannot have children. The path  you requested is not valid" if child.is_a?(Wonkavision::Event)
         child.find_or_create(path,final_segment_type)
       else
-        path = Wonkavision.normalize_event_path(path)
+        #path = Wonkavision.normalize_event_path(path)
         source_ns = self
         if (Wonkavision.is_absolute_path(path)) #indicates an absolute path, because it begins with a '/'
           source_ns = root_namespace
@@ -61,8 +61,8 @@ module Wonkavision
     end
 
     def event(*args)
-      name, opts  = args.shift, args.extract_options!
-      opts[:source_events] = (opts[:source_events] || []).concat(args) unless args.blank?
+      name, opts  = args.shift.to_s, args.extract_options!
+      opts[:source_events] = (opts[:source_events] || []).concat(args.map(&:to_s)) unless args.blank?
       evt = @children[name] || Wonkavision::Event.new(name,self,opts)
       yield evt if block_given?
       @children[evt.name] = evt

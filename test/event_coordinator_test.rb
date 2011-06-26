@@ -10,16 +10,9 @@ class EventCoordinatorTest < ActiveSupport::TestCase
     should "Ignore nil elements in the arguments" do
       assert_equal "one/two/three", Wonkavision.join('',nil,'one',nil,'two','','three')
     end
-    should "Normalize all path segments" do
-      assert_equal "one_two/three_four/five_six_id", Wonkavision.join("OneTwo","three_four","FiveSixID")
-    end
+   
   end
-  context "EventCoordinator.normalize_event_path" do
-    should "underscore any camel cased path segments" do
-      assert_equal "one_two/three/four_five_id/six_seven/eightnine",
-                   Wonkavision.normalize_event_path("OneTwo/Three/four_FiveID/sixSeven/Eightnine")
-    end
-  end
+  
   context "EventCoordinator#map" do
     should "yield the root namespace for configuration" do
       evt = nil

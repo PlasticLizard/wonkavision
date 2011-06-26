@@ -26,7 +26,7 @@ class EventTest < ActiveSupport::TestCase
     end
     should "correctly match based on nested source events" do
       ns1 = Wonkavision::EventNamespace.new :ns1
-      evt1 = ns1.event :evt1, ns1
+      evt1 = ns1.event :evt1
       evt2 = ns1.event :evt2, evt1.name
       evt3 = ns1.event :evt3, evt2.name
 

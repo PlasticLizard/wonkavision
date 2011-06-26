@@ -79,12 +79,12 @@ module Wonkavision
       path.to_s[0..0] == event_path_separator
     end
 
-    def normalize_event_path(event_path)
-      event_path.to_s.split(event_path_separator).map{|s|s.underscore}.join(event_path_separator)
-    end
+    #def normalize_event_path(event_path)
+    #  event_path.to_s.split(event_path_separator).map{|s|s.underscore}.join(event_path_separator)
+    #end
 
     def join (*args)
-      args.map!{|segment|normalize_event_path(segment)}
+      #args.map!{|segment|normalize_event_path(segment)}
       args.reject{|segment|segment.blank?}.join(event_path_separator)
     end
 

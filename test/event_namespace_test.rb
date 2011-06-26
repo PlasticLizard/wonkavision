@@ -64,12 +64,12 @@ class EventNamespaceTest < ActiveSupport::TestCase
     end
     should "create a top level child event if not found" do
       ns1 = Wonkavision::EventNamespace.new :ns1
-      evt = ns1.find_or_create("TheNewEvent")
+      evt = ns1.find_or_create("the_new_event")
       assert_equal "ns1/the_new_event", evt.path
     end
     should "create a top level child namespace if not found" do
       ns1 = Wonkavision::EventNamespace.new :ns1
-      ns2 = ns1.find_or_create("TheNewNamespace",:namespace)
+      ns2 = ns1.find_or_create("the_new_namespace",:namespace)
       assert_equal "ns1/the_new_namespace",ns2.path
     end
     should "create a nested event if namespace exits but event not found" do

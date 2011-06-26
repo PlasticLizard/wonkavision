@@ -37,7 +37,7 @@ module Wonkavision
         #the event processing, in which case we'll break for lunch.
         return unless event_data = process_incoming_event(event_path,event_data)
 
-        event_path = Wonkavision.normalize_event_path(event_path)
+        #event_path = Wonkavision.normalize_event_path(event_path)
         targets = root_namespace.find_matching_segments(event_path).values
         #If the event wasn't matched, maybe someone is subscribing to '/*' ?
         targets = [root_namespace] if targets.blank?

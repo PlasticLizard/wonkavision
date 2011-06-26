@@ -10,7 +10,7 @@ module Wonkavision
     end
 
     def path
-      Wonkavision.join(namespace.blank? ? nil : namespace.path,name)
+      @path ||= Wonkavision.join(namespace.blank? ? nil : namespace.path,name)
     end
     
     def subscribe(&block)
