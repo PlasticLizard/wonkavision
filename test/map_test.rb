@@ -95,7 +95,7 @@ class MapTest < ActiveSupport::TestCase
     should "convert underlying dates into an iso 8601 string" do
       m = Wonkavision::MessageMapper::Map.new({:a=>Time.parse("02/01/2001 01:00 PM")})
       m.iso8601 :a
-      assert_equal "2001-02-01T13:00:00", m.a
+      assert_equal Time.parse("02/01/2001 01:00 PM").iso8601[0..-7], m.a
     end
   end
   context "Map.date" do

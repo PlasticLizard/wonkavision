@@ -45,14 +45,6 @@ class EventHandlerTest < ActiveSupport::TestCase
       assert_equal 1, TestEventHandler.knids.length
     end
 
-    should "process any defined callbacks" do
-      TestEventHandler.reset
-
-      Wonkavision.event_coordinator.receive_event("vermicious/knid",1)
-      #3 execs of each kind of callback, one for event subscription, one for namespace sub and global sub
-      assert_equal 3 * 2, TestEventHandler.callbacks.length
-    end
-
   end
 
 end

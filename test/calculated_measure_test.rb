@@ -8,7 +8,7 @@ class CalculatedMeasureTest < ActiveSupport::TestCase
                                                                       Time.now,
                                                                       :format=>:dollars,
                                                                       :calculation=>
-                                                                      lambda{ day*month})
+                                                                      Proc.new{ day * month })
 
     end
     should "calculate a value based on the cell" do

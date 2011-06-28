@@ -67,7 +67,7 @@ module Wonkavision
       end
 
       def inspect
-        ":#{member_type}s['#{name}'].#{attribute_name}.#{operator}(#{delimited_value(true)})"
+        to_s
       end
 
       def qualified_name

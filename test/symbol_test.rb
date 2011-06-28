@@ -26,20 +26,14 @@ class SymbolTest < ActiveSupport::TestCase
       end
     end
 
-    context "#[]" do
-      should "produce a MemberFilter with the attribute name specified by the indexer" do
-        filter = @symbol[:an_attribute]
-        assert_equal @symbol, filter.name
-        assert_equal :an_attribute, filter.attribute_name
-      end
-    end
-    context "method_missing" do
-      should "produce a MemberFilter with an attribute name of the method called" do
-        filter = @symbol.an_attribute
-        assert_equal @symbol, filter.name
-        assert_equal :an_attribute, filter.attribute_name
-      end
-    end
+    # context "#[]" do
+    #   should "produce a MemberFilter with the attribute name specified by the indexer" do
+    #     filter = @symbol[:an_attribute]
+    #     assert_equal @symbol, filter.name
+    #     assert_equal :an_attribute, filter.attribute_name
+    #   end
+    # end
+   
     context "when the symbol is ':dimensions'" do
       should "produce a MemberFilter with a dimension name as specified and a default attribute name" do
         filter = :dimensions.a_dimension

@@ -13,7 +13,6 @@ dir = File.dirname(__FILE__)
  "local_job_queue",
  "event_coordinator",
  "event_binding",
- "callbacks",
  "event_handler",
  "message_mapper/indifferent_access",
  "message_mapper/map",

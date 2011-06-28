@@ -292,10 +292,10 @@ class CellSetTest < ActiveSupport::TestCase
                 @query.where :dimensions.another.caption.gt => 5
               end
               should "include one filter for each component of the cell" do
-                expected = [:dimensions["size"].key.eq('large'),
-                            :dimensions["shape"].key.eq('square'),
-                            :dimensions["color"].key.eq('red'),
-                            :dimensions["another"].caption.gt(5)]
+                expected = [Wonkavision::Analytics::MemberFilter.new('size').eq('large'),
+                            :dimensions.shape.key.eq('square'),
+                            :dimensions.color.key.eq('red'),
+                            :dimensions.another.caption.gt(5)]
                 assert_equal expected, @cell.filters
               end
             end

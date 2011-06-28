@@ -119,10 +119,10 @@ module Wonkavision
 
       def iso8601(*args)
         value(*args) do
-          if respond_to?(:strftime)
+          if respond_to?(:iso_8601)
+            iso8601()
+          elsif respond_to?(:strftime)
             strftime("%Y-%m-%dT%H:%M:%S")
-          elsif respond_to?(:ToString)
-            ToString("yyyy-MM-ddTHH:mm:ss")
           else
             self
           end
@@ -247,7 +247,7 @@ module Wonkavision
       def extract_value_from_context(context,field_name,block=nil)
         value = nil
         key_missing = false
-        if context.respond_to?(:[])
+        if context.respond_to?(:[]) && !context.is_a?(String)
           value = context[field_name]
           if value.nil? && field_name
             value = context[field_name.to_sym] || context[field_name.to_s]

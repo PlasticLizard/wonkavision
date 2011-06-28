@@ -17,12 +17,12 @@ module Wonkavision
         end unless method_defined?(measure_attribute)
       end
 
-      def[](name)
-        _filter(name)
-      end
+      # def[](name)
+      #   _filter(name)
+      # end
 
       def method_missing(name,*args)
-        _filter(name)
+        _filter(name) if _is_member_filter?
       end
 
       private
@@ -30,13 +30,13 @@ module Wonkavision
         self == :measures ? :measure : :dimension
       end
 
-      def _is_member_name?
-        [:dimensions,:measures].include?(self) == false
+      def _is_member_filter?
+        [:dimensions,:measures].include?(self)
       end
 
        def _filter(name, options={})
         options[:member_type] ||= _member_type
-        if _is_member_name?
+        if !_is_member_filter?
           member_name = self
           options[:attribute_name] = name
         else

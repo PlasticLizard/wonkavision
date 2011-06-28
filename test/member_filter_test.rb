@@ -139,31 +139,6 @@ class MemberFilterTest < ActiveSupport::TestCase
       end
     end
 
-    context "#inspect" do
-      should "should be 'eval'able to reproduce the filter" do
-        filter = Wonkavision::Analytics::MemberFilter.new(:hi).eq(3)
-        filter2 = eval(filter.inspect)
-        assert_equal filter, filter2
-      end
-      should "represent nil value with an unquoted string 'nil'" do
-        filter = Wonkavision::Analytics::MemberFilter.new(:hi)
-        assert_equal ":dimensions['hi'].key.eq(nil)", filter.inspect
-      end
-      should "wrap strings in a single quote" do
-        filter = Wonkavision::Analytics::MemberFilter.new(:hi).ne("whatever")
-        assert_equal ":dimensions['hi'].key.ne('whatever')", filter.inspect
-      end
-      should "prefix member filters with :members" do
-        filter = :measures.a_measure.gt(3)
-        assert_equal ":measures['a_measure'].count.gt(3)", filter.inspect
-      end
-      should "produce 'eval'able measure filter" do
-        filter = :measures.a_measure.average.lt(5)
-        filter2 = eval(filter.inspect)
-        assert_equal filter, filter2
-      end
-    end
-
      context "#to_s" do
       should "produce a canonical string representation of a member filter" do
         filter = Wonkavision::Analytics::MemberFilter.new(:hi).eq(3)

@@ -15,15 +15,6 @@ unless defined?(::TestEventHandler)
       @@callbacks = []
     end
 
-    before_event :before
-    def before
-      TestEventHandler.callbacks << {:kind=>"before_event",:path=>event_context.path}
-    end
-
-    after_event do |handler|
-      TestEventHandler.callbacks << {:kind=>"after_event", :path=>handler.event_context.path}
-    end
-
     event_namespace :vermicious
 
     handle :knid do |data,path|

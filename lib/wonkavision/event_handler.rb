@@ -1,14 +1,10 @@
 module Wonkavision
     module EventHandler
       extend ActiveSupport::Concern
-      include Wonkavision::Callbacks
 
       EventContext = Struct.new(:data,:path,:binding,:callback)
 
       included do
-        define_wonkavision_callbacks :before_event, :after_event
-        alias_method_chain :handle_event, :callbacks
-
         write_inheritable_attribute :event_handler_options, {}
         class_inheritable_reader :event_handler_options
 
