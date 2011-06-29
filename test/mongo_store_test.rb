@@ -11,6 +11,7 @@ class MongoStoreTest < ActiveSupport::TestCase
         include Wonkavision::Analytics::Facts
         record_id :tada
       end
+
       @store = MongoStore.new(@facts)
     end
 
@@ -25,6 +26,7 @@ class MongoStoreTest < ActiveSupport::TestCase
 
     context "Facts persistence" do
       setup do
+        @store = MongoStore.new(@facts)
         @doc_id = 123
         @store.facts_collection.insert( {"_id" => @doc_id,
                                     "tada" => @doc_id,
@@ -190,6 +192,7 @@ class MongoStoreTest < ActiveSupport::TestCase
     end
     context "Aggregations persistence" do
       setup do
+        @store = MongoStore.new(TestAggregation)
         @tuple  = { :dimension_keys=>[1,2,3],
           :dimension_names=>[:a,:b,:c],
           :dimensions=>{"dims"=>"doms"},
