@@ -39,7 +39,7 @@ module Wonkavision
         case value
         when nil then "nil"
         when String, Symbol then "'#{value}'"
-        when Time  then for_eval ? "Time.parse('#{value}')" : "time(#{value})"
+        when Time then for_eval ? "Time.parse('#{value}')" : "time(#{value})"
         else value.inspect
         end
       end

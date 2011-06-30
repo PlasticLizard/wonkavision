@@ -1,7 +1,7 @@
 # encoding: UTF-8
 # Taken almost verbatim from https://github.com/jnunemaker/mongomapper/blob/master/lib/mongo_mapper/connection.rb
 require 'uri'
-require "wonkavision/analytics/persistence/store/mongo_store"
+require "wonkavision/analytics/persistence/store/mongo_store_common"
 
 
 module Wonkavision
@@ -22,6 +22,7 @@ module Wonkavision
         end
         
         def connect(options={})
+          options = options.dup
           host = options.delete(:host) || '127.0.0.1'
           port = options.delete(:port) || 27017
           username = options.delete(:username)
@@ -33,7 +34,8 @@ module Wonkavision
 
           if username && password && database
             authenticate_connection(username, password)
-          end                   
+          end   
+          @connection                
         end
 
         protected

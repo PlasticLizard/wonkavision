@@ -76,6 +76,10 @@ module Wonkavision
 
           return query if options[:defer]
 
+          execute_query(query)
+        end
+
+        def execute_query(query)
           tuples = store.execute_query(query)
           Wonkavision::Analytics::CellSet.new( self,
                                                query,

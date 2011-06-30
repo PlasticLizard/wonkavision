@@ -1,4 +1,6 @@
 require "wonkavision/analytics/persistence/mongo_common"
+require "wonkavision/analytics/persistence/store/mongo_store"
+
 
 begin
   require "mongo"

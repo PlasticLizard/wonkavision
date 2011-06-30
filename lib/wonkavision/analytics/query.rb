@@ -26,16 +26,20 @@ module Wonkavision
         @measures.concat measures.flatten
       end
 
-
       def where(criteria_hash = {})
         criteria_hash.each_pair do |filter,value|
           member_filter = filter.kind_of?(MemberFilter) ? filter :
             MemberFilter.new(filter)
           member_filter.value = value
-          @filters << member_filter
-          @slicer << member_filter if member_filter.dimension? &&
-            !selected_dimensions.include?(member_filter.name)
+          add_filter(member_filter)
         end
+        self
+      end
+
+      def add_filter(member_filter)
+        @filters << member_filter
+        @slicer << member_filter if member_filter.dimension? &&
+          !selected_dimensions.include?(member_filter.name)
         self
       end
 

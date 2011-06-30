@@ -39,7 +39,8 @@ dir = File.dirname(__FILE__)
  "analytics/cellset/measure",
  "analytics/cellset/calculated_measure",
  "analytics/cellset",
- "analytics/query"
+ "analytics/query",
+ "analytics/api_utils"
  
 ].each {|lib|require File.join(dir,'wonkavision',lib)}
 

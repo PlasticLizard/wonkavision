@@ -18,7 +18,22 @@ module Wonkavision
   module Analytics
     module Persistence
       class EMMongo
-        extend MongoCommon         
+        extend MongoCommon
+        
+        def self.connection=(connection)
+          @connection=connection
+        end      
+
+        #em-mongo does not internally pool connections,
+        #so self.connection might be a em-syncrhony
+        #collection pool.
+        #For that reason, we are not caching the database
+        #in the adapter as, unlike with the mongo-ruby driver,
+        #it will not nessarily be associated with the 
+        #current connection        
+        def self.database
+          database_name ? connection.db(database_name) : nil
+        end   
 
         protected
 

@@ -1,7 +1,8 @@
 module Wonkavision
   module Analytics
     module Persistence
-      class EMMongoStore < MongoStore
+      class EMMongoStore < Store
+        include MongoStoreCommon
 
         def database
           EMMongo.database

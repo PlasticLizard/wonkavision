@@ -1,5 +1,6 @@
 require "test_helper"
-require "test_helper/em_mongo"
+require "wonkavision/analytics/persistence/em_mongo"
+
 
 class EMMongoStoreTest < ActiveSupport::TestCase
   EMMongoStore = Wonkavision::Analytics::Persistence::EMMongoStore
