@@ -1,0 +1,52 @@
+# encoding: UTF-8
+# Taken almost verbatim from https://github.com/jnunemaker/mongomapper/blob/master/lib/mongo_mapper/connection.rb
+require 'uri'
+require "wonkavision/analytics/persistence/store/mongo_store"
+
+
+module Wonkavision
+  module Analytics
+    module Persistence
+      module MongoCommon
+
+        attr_reader :connection, :database_name
+
+        def database_name=(database_name)
+          @database_name = database_name
+          @database = nil
+        end
+             
+        # @api public
+        def database
+          @database ||= database_name ? connection.db(database_name) : nil
+        end
+        
+        def connect(options={})
+          host = options.delete(:host) || '127.0.0.1'
+          port = options.delete(:port) || 27017
+          username = options.delete(:username)
+          password = options.delete(:password)
+          database_name = options.delete(:database) || 'wonkavision'
+          
+          @connection = create_connection(host, port, options)
+          self.database_name = database_name
+
+          if username && password && database
+            authenticate_connection(username, password)
+          end                   
+        end
+
+        protected
+
+        def authenticate_database(username, password)
+          database.authenticate(username, password)
+        end
+
+        def create_connection(host, port, options)
+          raise "Create Connection must be implmeneted by a subclass"
+        end     
+
+      end
+    end
+  end
+end

@@ -7,10 +7,14 @@ module Wonkavision
       @context ||= Context.new
     end
 
+    def self.default_store
+      @default_store ||= Wonkavision::Analytics::Persistence::HashStore
+    end
+
     class Context
       def initialize(storage = nil)
         @storage = storage || ThreadContextStorage.new
-      end
+      end    
 
       def global_filters
         @storage[:_wonkavision_global_filters] ||= []

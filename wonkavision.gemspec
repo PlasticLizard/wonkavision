@@ -13,9 +13,7 @@ Gem::Specification.new do |s|
   s.files = Dir.glob("{lib,test}/**/*") + %w[LICENSE.txt README.rdoc CHANGELOG.rdoc]
 
   s.add_dependency 'activesupport', '>= 2.3'
-
-  s.add_development_dependency 'rake'
-  s.add_development_dependency 'shoulda',           '~> 2.11'
-  s.add_development_dependency 'mocha'
+  s.add_dependency 'i18n'
+ 
 end
 

@@ -1,4 +1,5 @@
 require "test_helper"
+require "test_helper/mongo"
 
 class MongoStoreTest < ActiveSupport::TestCase
   MongoStore = Wonkavision::Analytics::Persistence::MongoStore

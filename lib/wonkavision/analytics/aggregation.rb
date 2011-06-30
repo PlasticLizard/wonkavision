@@ -30,7 +30,7 @@ module Wonkavision
 
             aggregation_options[:store] = store
           else
-            aggregation_options[:store]
+            aggregation_options[:store] ||= Wonkavision::Analytics.default_store
           end
         end
 

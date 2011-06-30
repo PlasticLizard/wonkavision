@@ -10,9 +10,9 @@ module Wonkavision
         def facts_collection_name
           "wv.#{owner.name.underscore.gsub("::",".")}.facts"
         end
-
+        
         def facts_collection
-          Wonkavision::Mongo.database.collection(facts_collection_name)
+          database.collection(facts_collection_name)
         end
 
         def aggregations_collection_name
@@ -20,7 +20,7 @@ module Wonkavision
         end
 
         def aggregations_collection
-          Wonkavision::Mongo.database.collection(aggregations_collection_name)
+          database.collection(aggregations_collection_name)
         end
 
         def[](document_id)
@@ -41,12 +41,29 @@ module Wonkavision
         end
 
         protected
+
+        def database
+          Mongo.database
+        end
+
+        def find(criteria, options={})
+          collection.find(criteria,options).to_a
+        end
+
+        def find_and_modify(opts)
+          collection.find_and_modify(opts)
+        end
+
+        def update(selector,update,opts={})
+          collection.update(selector,update,opts)
+        end
+
         def fetch_facts(aggregation,filters,options={})
           criteria = {}
           append_facts_filters(aggregation,criteria,filters)
           pagination = paginate(criteria,options)
 
-          collection.find(criteria,options).to_a.tap do |facts|
+          find(criteria,options).tap do |facts|
             if pagination
               class << facts;include(Wonkavision::Analytics::Paginated);end
               facts.initialize_pagination(pagination[:total],
@@ -75,34 +92,34 @@ module Wonkavision
         def update_facts_record(record_id, data)
           query = { :_id => record_id }
           update = { "$set" => data }
-          previous_facts = collection.find_and_modify :query=>query, :update=>update, :upsert=>true
+          previous_facts = find_and_modify :query=>query, :update=>update, :upsert=>true
           current_facts = (previous_facts || {}).merge(data)
           remove_mongo_id(previous_facts, current_facts)
         end
 
         def insert_facts_record(record_id, data)
           query = { :_id => record_id }
-          collection.update(query, data.merge(:_id=>record_id), :upsert=>true)
+          update(query, data.merge(:_id=>record_id), :upsert=>true)
           data
         end
 
         def delete_facts_record(record_id, data)
           query = { :_id => record_id }
-          remove_mongo_id(collection.find_and_modify(:query=>query, :remove=>true))
+          remove_mongo_id(find_and_modify(:query=>query, :remove=>true))
         end
 
         #Aggregation persistence
         def fetch_tuples(dimension_names, filters)
           criteria = dimension_names.blank? ? {} : { :dimension_names => dimension_names }
           append_aggregations_filters(criteria,filters)
-          collection.find(criteria).to_a
+          find(criteria).to_a
         end
 
         def update_tuple(data)
-          collection.update( aggregation_key(data),
-                                          {"$inc" => data[:measures],
-                                            "$set" => { :dimensions=>data[:dimensions]}},
-                                          :upsert => true, :safe => true )
+          update( aggregation_key(data),
+                      {"$inc" => data[:measures],
+                        "$set" => { :dimensions=>data[:dimensions]}},
+                      :upsert => true, :safe => true )
         end
 
         def remove_mongo_id(*documents)

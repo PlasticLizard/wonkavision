@@ -25,7 +25,7 @@ dir = File.dirname(__FILE__)
  "analytics/paginated",
  "analytics/member_filter",
  "analytics/persistence/store",
- "analytics/persistence/hash_store",
+ "analytics/persistence/store/hash_store",
  "analytics/transformation",
  "analytics/facts",
  "analytics/aggregation/aggregation_spec",
@@ -39,9 +39,8 @@ dir = File.dirname(__FILE__)
  "analytics/cellset/measure",
  "analytics/cellset/calculated_measure",
  "analytics/cellset",
- "analytics/query",
- "analytics/persistence/mongo",
- "analytics/persistence/mongo_store"
+ "analytics/query"
+ 
 ].each {|lib|require File.join(dir,'wonkavision',lib)}
 
 
