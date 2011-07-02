@@ -11,7 +11,12 @@ module Wonkavision
         end
 
         def non_empty(*parents)
-          members.reject { |mem| key = parents.dup << mem.key; axis[key].empty? }
+          members.reject { |mem| is_empty?(mem, *parents) }
+        end
+
+        def is_empty?(member, *parents)
+          key = parents.dup << member.key
+          axis[key].empty?
         end
 
         def position
@@ -32,6 +37,13 @@ module Wonkavision
 
         def leaf?
           !next_dimension
+        end
+
+        def serializable_hash(options={})
+          {
+            :name => name,
+            :members => members.map{ |m| m.serializable_hash( options ) }
+          }
         end
 
       end

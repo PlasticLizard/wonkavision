@@ -15,6 +15,28 @@ module Wonkavision
           formatted_value
         end
 
+        def calculated?
+          is_a?(CalculatedMeasure)
+        end
+
+        #options:
+        #@format_measures, default = true, include a formatted_value
+        #@all_measure_components, default = false, whether or not to include
+        #the measure data hash, which will enable average, stdev, etc. regardless
+        #of the default component.
+        def serializable_hash(options={})
+          hash = {
+            :name => name,
+            :value => value            
+          }
+          hash[:formatted_value] = formatted_value unless options[:format_measures] == false
+          hash.merge!( {
+            :data => data,
+            :default_component => default_component
+          }) if options[:all_measure_components] && calculated? == false 
+          hash
+        end
+
         def inspect
           value
         end

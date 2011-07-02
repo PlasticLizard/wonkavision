@@ -20,6 +20,10 @@ module Wonkavision
           raise "A CalculatedMeasure cannot be aggregated"
         end
 
+        def serializable_hash(options={})
+          super.merge!(:calculated=>true)
+        end
+        
       end
     end
   end

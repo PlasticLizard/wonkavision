@@ -80,7 +80,7 @@ module Wonkavision
 
       def validate!
         axes.each_with_index{|axis,index|raise "Axes must be selected from in consecutive order and contain at least one dimension. Axis #{index} is blank." if axis.blank?}
-      end
+      end     
 
       def self.axis_ordinal(axis_def)
         case axis_def.to_s.strip.downcase.to_s

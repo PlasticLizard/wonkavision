@@ -59,7 +59,7 @@ class CellSetTest < ActiveSupport::TestCase
           end
 
           should "maintain a list of measure names used" do
-            assert_equal [], ["cost","weight"] - @cellset.measure_names
+            assert_equal [], ["cost","weight","cost_weight"] - @cellset.measure_names
           end
 
           should "provide a list of selected meaures" do
@@ -94,6 +94,27 @@ class CellSetTest < ActiveSupport::TestCase
           should "return the number of total tuples in the set" do
             assert_equal @cellset.cells.length, @cellset.length #1 record filtered out (color = black)
           end
+        end
+      end
+      context "Serialization" do
+        setup do
+          @hash = @cellset.serializable_hash
+        end
+        should "include an array of axes" do
+          assert_equal @cellset.axes.length, @hash[:axes].length
+        end
+        should "include an array of cells" do
+          assert_equal @cellset.cells.length, @hash[:cells].length
+        end
+        should "include totals" do
+          assert_equal @cellset.totals.serializable_hash, @hash[:totals]
+        end
+        should "include the aggregation name" do
+          assert_equal @cellset.aggregation.name, @hash[:aggregation]
+        end
+        should "include the query slicer and filters" do
+          assert_equal @cellset.query.slicer.map{|f|f.to_s}, @hash[:slicer]
+          assert_equal @cellset.query.filters.map{|f|f.to_s}, @hash[:filters]
         end
       end
       context "Implementation" do
@@ -197,7 +218,21 @@ class CellSetTest < ActiveSupport::TestCase
                     assert_equal 2, @cellset.rows[:square].descendent_count
                   end
                 end
-
+              end
+              context "Serialization" do
+                setup do
+                  @hash = @axis.serializable_hash
+                end
+                should "prepare a hash of its state" do
+                  assert @hash.is_a?(Hash)
+                end
+                should "include a list of dimensions" do
+                  assert_equal @axis.dimensions.length, @hash[:dimensions].length
+                end
+                should "include the axis indices" do
+                  assert_equal @axis.start_index, @hash[:start_index]
+                  assert_equal @axis.end_index, @hash[:end_index]
+                end
               end
             end
 
@@ -228,6 +263,21 @@ class CellSetTest < ActiveSupport::TestCase
               end
 
             end
+            context "Serialization" do
+              setup do
+                @hash = @dimension.serializable_hash
+              end
+              should "provide a hash of serializable state" do
+                assert @hash.is_a?(Hash)
+              end
+              should "include its name" do
+                assert_equal "size", @hash[:name]
+              end
+              should "include a list of members" do
+                assert_equal @dimension.members.length, @hash[:members].length
+              end
+
+            end
           end
           context "Member" do
             setup {  @member = @cellset.columns.dimensions[0].members[0]}
@@ -241,6 +291,22 @@ class CellSetTest < ActiveSupport::TestCase
             end
             should "provide access to the raw attribute hash" do
               assert_equal( { "size" => "large"}, @member.attributes )
+            end
+            context "Serialization" do
+              should "include the caption and no key if they match" do
+                hash = @member.serializable_hash
+                assert_equal @member.key, hash[:key]
+                assert_equal nil, hash[:caption]
+              end             
+              should "not include attributes by default" do
+                hash = @member.serializable_hash
+                assert hash.keys.include?(:attributes) == false
+              end
+              should "include attributes when requested" do
+                hash = @member.serializable_hash(:include_member_attributes => true)
+                assert_equal @member.attributes, hash[:attributes]
+              end
+
             end
           end
           context "Cell" do
@@ -297,6 +363,26 @@ class CellSetTest < ActiveSupport::TestCase
                             :dimensions.color.key.eq('red'),
                             :dimensions.another.caption.gt(5)]
                 assert_equal expected, @cell.filters
+              end
+            end
+            context "#serializable_hash" do
+              setup do
+                @hash = @cell.serializable_hash
+              end
+              should "serialize the cell to a hash" do
+                assert @hash.is_a?(Hash)
+              end
+              should "include the key" do
+                assert_equal ["large", "square", "red"], @hash[:key]
+              end
+              should "include the dimensions" do
+                assert_equal [:size, :shape, :color], @hash[:dimensions]
+              end
+              should "include measures" do
+                assert_equal 3, @hash[:measures].length
+              end
+              should "include calculated measures" do
+                assert @hash[:measures][2][:calculated]
               end
             end
           end
@@ -371,6 +457,26 @@ class CellSetTest < ActiveSupport::TestCase
 
               should "proxy calls to the default value of the measure" do
                 assert_equal @m + 2, @m.value + 2
+              end
+            end
+            context "serializable_hash" do
+              setup do
+                @measure = @cellset[:large, :square, :red].weight
+              end
+              should "serialize state into a hash using default options" do
+                hash = @measure.serializable_hash
+                assert_equal "weight", hash[:name]
+                assert_equal 1.0, hash[:value]
+                assert_equal "1.00", hash[:formatted_value]                
+              end
+              should "include data and component when requested" do
+                hash = @measure.serializable_hash(:all_measure_components => true)
+                assert_equal( {"sum" => 10.0, "count" => 10, "sum2" => 10.0}, hash[:data] )
+                assert_equal :average, hash[:default_component]
+              end
+              should "exclude formatted value when requested" do
+                hash = @measure.serializable_hash(:format_measures => false)
+                assert hash.keys.include?("formatted_value") != true
               end
             end
 

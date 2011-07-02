@@ -25,6 +25,14 @@ module Wonkavision
           dimensions.map{ |d|d.definition.name}
         end
 
+        def serializable_hash(options = {})
+          {
+            :start_index => start_index,
+            :end_index => end_index,
+            :dimensions => dimensions.map { |d| d.serializable_hash( options ) }
+          }
+        end
+
         private
 
         class MemberInfo

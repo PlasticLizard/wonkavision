@@ -16,6 +16,20 @@ module Wonkavision
           end
         end
 
+        def serializable_hash(options={})
+          #ensure calculated measures are added to the measures
+          #hash
+          calculated_measures.keys.each {|name|self[name]}
+          
+          {
+            :key => key,
+            :dimensions => dimensions,
+            :measures => measures.inject([]) do |output, (_ , measure)|
+              output << measure.serializable_hash(options); output
+            end
+          }
+        end
+
         def measure_data
           measure_data = {}
           measures.each_pair do |key,value|

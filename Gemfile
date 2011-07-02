@@ -5,8 +5,8 @@ gemspec
 
 group :test do
   gem 'rake'
-	gem 'shoulda','~> 2.11'
-	gem 'mocha'
+  gem 'shoulda','~> 2.11'
+  gem 'mocha'
 end
 
 group :mongo do

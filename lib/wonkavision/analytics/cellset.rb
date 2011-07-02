@@ -10,7 +10,6 @@ module Wonkavision
         @query = query
         @aggregation = aggregation
         @cells = {}
-        @measure_names = Set.new
 
         dimension_members = process_tuples(tuples)
 
@@ -31,7 +30,9 @@ module Wonkavision
       def sections; axes[4]; end
 
       def measure_names
-        @measure_names.to_a
+        @measure_names ||= query.measures.length > 0 ? 
+          query.measures : aggregation.measures.keys + 
+                           aggregation.calculated_measures.keys
       end
 
       def selected_measures
@@ -44,6 +45,19 @@ module Wonkavision
 
       def to_s
         @cells.to_s
+      end
+
+      def serializable_hash(options={})
+        {
+          :axes => @axes.map { |axis| axis.serializable_hash( options ) },
+          :cells =>
+            @cells.values.map{ |cell| cell.serializable_hash( options ) },
+          :totals => @totals ? @totals.serializable_hash( options ) : nil,
+          :measure_names => measure_names,
+          :aggregation => aggregation.name,
+          :slicer => @query.slicer.map{ |f| f.to_s },
+          :filters => @query.filters.map{ |f| f.to_s }
+        }
       end
 
       def [](*coordinates)
@@ -62,12 +76,7 @@ module Wonkavision
         cells.keys.each do |cell_key|
           measure_data = cells[cell_key].measure_data
           append_to_subtotals(measure_data,cell_key)
-          @totals ? @totals.aggregate(measure_data) : @totals = Cell.new(self,
-                                                                         [],
-                                                                         [],
-                                                                         measure_data)
-
-
+          @totals ? @totals.aggregate(measure_data) : @totals = Cell.new(self,[],[],measure_data)
         end
       end
 
@@ -121,7 +130,6 @@ module Wonkavision
       def update_cell(dimensions,record)
         cell_key ||= key_for(dimensions,record)
         measure_data = record["measures"]
-        @measure_names += measure_data.keys if measure_data
         append_to_cell(dimensions, measure_data, cell_key)
       end
 
