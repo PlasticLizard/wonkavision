@@ -8,7 +8,7 @@ module Wonkavision
 
 				    #dimensions
 				    ["columns","rows","pages","chapters","sections"].each do |axis|
-				      if dimensions = params[axis]
+				      if dimensions = parse_list(params[axis])
 				        query.select( *dimensions, :axis => axis )
 				      end
 				    end
@@ -24,6 +24,13 @@ module Wonkavision
 				      end
 				    end
 				    query
+				end
+
+				def parse_list(list_candidate)
+					return nil if list_candidate.blank?
+				    list_candidate.kind_of?(Array) ? 
+				    	list_candidate :
+				    	list_candidate.to_s.split(",").map{|item|item.strip}.compact
 				end
 
 			end
