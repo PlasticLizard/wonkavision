@@ -229,10 +229,6 @@ class CellSetTest < ActiveSupport::TestCase
                 should "include a list of dimensions" do
                   assert_equal @axis.dimensions.length, @hash[:dimensions].length
                 end
-                should "include the axis indices" do
-                  assert_equal @axis.start_index, @hash[:start_index]
-                  assert_equal @axis.end_index, @hash[:end_index]
-                end
               end
             end
 
