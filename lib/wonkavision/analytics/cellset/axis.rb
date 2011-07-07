@@ -22,7 +22,7 @@ module Wonkavision
         end
 
         def dimension_names
-          dimensions.map{ |d|d.definition.name}
+          dimensions.map { |d| d.definition.name }
         end
 
         def serializable_hash(options = {})

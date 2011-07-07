@@ -12,7 +12,7 @@ class ApiUtilsTest < ActiveSupport::TestCase
             "chapters" => ["g","h"],
             "sections" => ["i","j"],
             "measures" => ["k","l"],
-            "filters" => [:dimensions.a.caption.eq(2).to_s, :measures.k.ne("b").to_s]
+            "filters" => [:dimensions.a.caption.eq(2).to_s, :measures.k.ne("b").to_s].join(",")
           }
           @query = Wonkavision::Analytics::ApiUtils.query_from_params(@params)
 
@@ -53,6 +53,33 @@ class ApiUtilsTest < ActiveSupport::TestCase
         end
     end
 
+    context "facts_query_from_params" do
+      setup do
+        @params = {
+          "filters" => [:dimensions.a.caption.eq(2).to_s, :measures.k.ne("b").to_s].join(","),
+          "page" => "2",
+          "per_page" => "50",
+          "sort" => "a:1,b:-1"
+        }
+        @filters, @options = Wonkavision::Analytics::ApiUtils.facts_query_from_params(@params)
+      end
+      should "extract each filter" do
+        assert_equal 2, @filters.length
+      end
+
+      should "convert strings to MemberFitler" do
+        @filters.each do |f|
+          assert f.kind_of?(Wonkavision::Analytics::MemberFilter)
+        end
+      end
+
+      should "extract the options" do
+        assert_equal 2, @options[:page]
+        assert_equal 50, @options[:per_page]
+        assert_equal [["a",1],["b",-1]], @options[:sort]
+      end
+    end
+
     context "parse_list" do
       should "return nil if the input is blank" do
         assert_equal nil, Wonkavision::Analytics::ApiUtils.parse_list("")
@@ -65,6 +92,12 @@ class ApiUtilsTest < ActiveSupport::TestCase
       end
       should "split a string by commas if the input is a comma string" do
         assert_equal ["a","b","c"], Wonkavision::Analytics::ApiUtils.parse_list("a, b,   c   ")
+      end
+    end
+
+    context "parse_sort_list" do
+      should "parse a string representing a list of sort criteria into a two dimensional array" do
+        assert_equal [["a",1],["b",-1]], Wonkavision::Analytics::ApiUtils.parse_sort_list("a:1,b:-1")
       end
     end
 
