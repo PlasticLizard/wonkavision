@@ -24,7 +24,7 @@ class EMMongoStoreTest < ActiveSupport::TestCase
       EM.synchrony do
         Connection.connect :database => 'wonkavision_test'
         collection = @store.collection
-        collection.remove({})#nuke all keys
+        collection.remove({})
         
         collection.insert('hello' => 'world')
         found = @store.find('hello' => 'world')[0]
@@ -34,11 +34,26 @@ class EMMongoStoreTest < ActiveSupport::TestCase
       end 
     end 
 
+    should "finda and modify a record" do
+      EM.synchrony do
+        Connection.connect :database => 'wonkavision_test'
+        collection = @store.collection
+        collection.remove({})
+
+        collection.insert('hello' => 'world')
+        found = collection.find_and_modify(:query => {'hello' => 'world'}, :update => {"$set" => {'hello' => 'dlrow'}})
+        assert_equal 'world', found['hello']
+        assert_equal 'dlrow', collection.first['hello']
+
+        EM.stop
+      end
+    end
+
     should "update a record" do
       EM.synchrony do
         Connection.connect(:database => 'wonkavision_test')
         collection = @store.collection
-        collection.remove({})#nuke all keys in collection
+        collection.remove({})
 
         obj_id = collection.insert('hello' => 'world')
         @store.update({'hello' => 'world'}, {'hello' => 'newworld'})
