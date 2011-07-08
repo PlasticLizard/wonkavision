@@ -1,15 +1,14 @@
 module Wonkavision
   module Analytics
     class ApplyAggregation
-      include Wonkavision::EventHandler
-
-      event_namespace Wonkavision.join('wv', 'analytics')
-
-      handle Wonkavision.join('aggregation', 'updated') do
-        process_event(event_context.data)
+      
+      class << self
+        def process(message)
+          new.process_message message
+        end
       end
 
-      def process_event(event)
+      def process_message(event)
         return false unless
           (aggregation = aggregation_for(event["aggregation"])) &&
           (action = event["action"]) &&

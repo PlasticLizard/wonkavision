@@ -13,11 +13,7 @@ class SplitByAggregationTest < ActiveSupport::TestCase
         aggregate_by :a, :b, :c
         store :hash_store
       end
-      @handler = Wonkavision::Analytics::Handlers::SplitByAggregation.new
-    end
-
-    should "initialize with the appropriate namespace" do
-      assert_equal Wonkavision.join("wv", "analytics"), @handler.class.event_namespace
+      @handler = Wonkavision::Analytics::SplitByAggregation.new
     end
 
     context "#aggregation_for" do
@@ -42,21 +38,20 @@ class SplitByAggregationTest < ActiveSupport::TestCase
 
     context "#process_aggregations" do
       should "call process on each message in the batch" do
-        path = Wonkavision.join("wv", "analytics", "aggregation", "updated")
-        @handler.expects(:submit).with(path, { :hi => "there"})
+        Wonkavision::Analytics::ApplyAggregation.expects(:process).with({ :hi => "there"})
         @handler.process_aggregations [{ :hi => "there"}]
       end
     end
 
-    context "#process_event" do
+    context "#process_message" do
       should "return false unless all appropriate metadata is present and valid" do
-        assert_equal false, @handler.process_event({"aggregation"=>"ack",
+        assert_equal false, @handler.process_message({"aggregation"=>"ack",
                                                     "action"=>"add","data"=>{}})
 
-        assert_equal false, @handler.process_event( { "aggregation"=>@agg.name,
+        assert_equal false, @handler.process_message( { "aggregation"=>@agg.name,
                                                      "action"=>"add"})
 
-        assert_equal false, @handler.process_event( { "aggregation"=>@agg.name,
+        assert_equal false, @handler.process_message( { "aggregation"=>@agg.name,
                                                      "data"=>{}})
       end
       context "with a valid message" do
@@ -72,21 +67,21 @@ class SplitByAggregationTest < ActiveSupport::TestCase
         end
 
         should "prepare a message for each aggregation" do
-          assert_equal 2, @handler.process_event(@message).length
+          assert_equal 2, @handler.process_message(@message).length
         end
 
         should "submit each message for processing" do
-          @handler.expects(:submit).times(2)
-          @handler.process_event(@message)
+          Wonkavision::Analytics::ApplyAggregation.expects(:process).times(2)
+          @handler.process_message(@message)
         end
 
         should "not submit messages if the filter doesn't match" do
           @agg.filter { |m|m["a"] != :a}
-          assert_equal 0, @handler.process_event(@message).length
+          assert_equal 0, @handler.process_message(@message).length
         end
 
         should "copy the measures once for each aggregation" do
-          results =  @handler.process_event(@message)
+          results =  @handler.process_message(@message)
           results.each do |result|
             assert_equal "add", result["action"]
             assert_equal @agg.name, result["aggregation"]
@@ -95,18 +90,12 @@ class SplitByAggregationTest < ActiveSupport::TestCase
         end
 
         should "key each message with a unique aggregation" do
-          results = @handler.process_event(@message)
+          results = @handler.process_message(@message)
           results[0][:dimensions] = { "a" => :a, "b" => :b}
           results[1][:dimensions] = { "a" => :a, "b" => :b, "c" => :c}
         end
 
-      end
-      context "will listen for entity updated messages" do
-        should "respond to entity updated messages" do
-          Wonkavision::Analytics::Handlers::SplitByAggregation.any_instance.expects(:process_event)
-          Wonkavision.event_coordinator.receive_event("wv/analytics/facts/updated",{ :a=>:b})
-        end
-      end
+      end    
 
     end
   end

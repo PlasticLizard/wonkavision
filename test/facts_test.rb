@@ -26,15 +26,6 @@ class FactsTest < ActiveSupport::TestCase
       assert_not_nil @facts.aggregations
     end
 
-    should "set a default output event path based on class name" do
-      assert_equal "wv/analytics/facts/updated", @facts.output_event_path
-    end
-
-    should "accept an alternative output event path" do
-      @facts.output_event_path "something/else"
-      assert_equal "something/else", @facts.output_event_path
-    end
-
     should "present the configured record id" do
       assert_equal :_id, @facts.record_id
     end
@@ -157,21 +148,21 @@ class FactsTest < ActiveSupport::TestCase
         should "submit a copy of the message once for each aggregation" do
           @facts.aggregations << stub(:name=>"Hi",:transformation=>nil)
           @facts.aggregations << stub(:name=>"Ho",:transformation=>nil)
-          @instance.expects(:submit).times(2)
+          Wonkavision::Analytics::SplitByAggregation.expects(:process).times(2)
           @instance.send(:process_facts,{ :hi=>:there}, "add")
         end
         should "submit each event using the output event path, action and message" do
           @facts.aggregations <<  stub(:name=>"Hi",:transformation=>nil)
-          @instance.expects(:submit).with(@facts.output_event_path,{
-                                            "action" => "add",
-                                            "aggregation" => "Hi",
-                                            "data" => { "hi" => "there"}
-                                          })
+          Wonkavision::Analytics::SplitByAggregation.expects(:process).with({
+            "action" => "add",
+            "aggregation" => "Hi",
+            "data" => { "hi" => "there"}
+          })
           @instance.send(:process_facts, { "hi"=>"there"}, "add")
         end
         should "not submit an event to an aggregation that doesn't match the transformation" do
           @facts.aggregations << stub(:name=>"hi",:transformation=>:a)
-          @instance.expects(:submit).with(@facts.output_event_path,{
+          Wonkavision::Analytics::SplitByAggregation.expects(:proces).with({
             "action" => "add",
             "aggregation" => "hi",
             "data" => {"hi" => "there"}
@@ -180,11 +171,11 @@ class FactsTest < ActiveSupport::TestCase
         end
         should "submit an event to an aggregation that matches the transformation" do
           @facts.aggregations << stub(:name=>"hi",:transformation=>:a)
-          @instance.expects(:submit).with(@facts.output_event_path,{
+          Wonkavision::Analytics::SplitByAggregation.expects(:process).with({
             "action" => "add",
             "aggregation" => "hi",
             "data" => {"hi" => "there"}
-          })
+          })          
           @instance.send(:process_facts, {"hi"=>"there"}, "add", :a)
         end
         should "call process_transformations if no transformation is provided" do

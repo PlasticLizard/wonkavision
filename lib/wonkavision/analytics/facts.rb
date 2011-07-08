@@ -16,15 +16,6 @@ module Wonkavision
 
       module ClassMethods
 
-        def output_event_path(new_path=nil)
-          if new_path
-            facts_options[:output_event_path] = new_path
-          else
-            facts_options[:output_event_path] ||=
-              Wonkavision.join('wv','analytics','facts','updated')
-          end
-        end
-
         def accept(event_path, options={}, &mapping_block)
           map(event_path, &mapping_block) if mapping_block
           handle event_path do
@@ -129,7 +120,7 @@ module Wonkavision
         def process_facts(event_data, action, transformation = nil)
           self.class.aggregations.each do |aggregation| 
             if aggregation.transformation == transformation
-              submit( self.class.output_event_path, {
+              SplitByAggregation.process( {
                 "action" => action,
                 "aggregation" => aggregation.name,
                 "data" => event_data
