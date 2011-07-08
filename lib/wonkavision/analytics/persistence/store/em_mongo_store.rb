@@ -8,12 +8,8 @@ module Wonkavision
           EMMongo.database
         end
 
-        def afind(criteria, options={}, &block)
-          collection.afind(criteria,options,&block)
-        end
-        
         def find(criteria, options={})
-          collection.find(criteria,options)
+          collection.find(criteria,options).to_a
         end
 
         def find_and_modify(opts)

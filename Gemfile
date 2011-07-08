@@ -19,7 +19,7 @@ group :mongo_async do
 	gem "bson", "1.2.0"
 	gem "bson_ext", "1.2.0"
 	gem "eventmachine", ">= 1.0.0.beta.3"
-	gem "em-mongo"
-	gem "em-synchrony", :git => "https://github.com/igrigorik/em-synchrony.git"
+	gem "em-mongo", :git => "https://github.com/PlasticLizard/em-mongo.git"
+	gem "em-synchrony", :git => "https://github.com/PlasticLizard/em-synchrony.git"
 end
 

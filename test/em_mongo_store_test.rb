@@ -34,20 +34,6 @@ class EMMongoStoreTest < ActiveSupport::TestCase
       end 
     end 
 
-    should "find a record asynchronously" do
-      EM.synchrony do
-        Connection.connect :database => 'wonkavision_test'
-        collection = @store.collection
-        collection.remove({})#nuke all keys
-
-        collection.insert('hello' => 'world')
-        @store.afind('hello'=>'world') do |results|
-          assert_equal results[0]["hello"], "world"
-          EM.stop          
-        end
-      end
-    end
-
     should "update a record" do
       EM.synchrony do
         Connection.connect(:database => 'wonkavision_test')
