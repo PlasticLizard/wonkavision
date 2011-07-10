@@ -7,7 +7,7 @@ module Wonkavision
 	        end
 
 	        def facts_collection_name
-	          "wv.#{owner.name.underscore.gsub("::",".")}.facts"
+	          "wv.#{owner.name.gsub("::",".").underscore}.facts"
 	        end
 	        
 	        def facts_collection
@@ -15,7 +15,7 @@ module Wonkavision
 	        end
 
 	        def aggregations_collection_name
-	          "wv.#{owner.name.underscore.gsub("::",".")}.aggregations"
+	          "wv.#{owner.name.gsub("::",".").underscore}.aggregations"
 	        end
 
 	        def aggregations_collection
@@ -114,7 +114,7 @@ module Wonkavision
 	          update( aggregation_key(data),
 	                      {"$inc" => data[:measures],
 	                        "$set" => { :dimensions=>data[:dimensions]}},
-	                      :upsert => true, :safe => true )
+	                      :upsert => true)
 	        end
 
 	        def remove_mongo_id(*documents)
