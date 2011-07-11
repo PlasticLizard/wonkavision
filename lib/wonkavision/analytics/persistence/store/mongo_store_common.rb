@@ -39,6 +39,13 @@ module Wonkavision
 	            facts_collection
 	        end
 
+	        def ensure_indexes
+						if owner <=> Wonkavision::Analytics::Aggregation
+							create_index([[:dimension_keys,1]])
+							create_index([[:dimension_names,1]])	
+						end	        	
+	        end
+
 	        protected
 	        
 	        def find(criteria, options={})
@@ -51,6 +58,10 @@ module Wonkavision
 
 	        def update(selector,update,opts={})
 	          collection.update(selector,update,opts)
+	        end
+
+	        def create_index(index)
+	        	collection.create_index(index)
 	        end
 
 	        def fetch_facts(aggregation,filters,options={})

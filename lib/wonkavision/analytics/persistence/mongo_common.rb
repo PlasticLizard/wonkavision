@@ -38,6 +38,14 @@ module Wonkavision
           @connection                
         end
 
+        def ensure_indexes
+          Aggregation.all.values.each do |aggregation|
+            if aggregation.store && aggregation.store.respond_to?(:ensure_indexes)
+               aggregation.store.ensure_indexes
+             end
+          end
+        end
+
         protected
 
         def authenticate_database(username, password)

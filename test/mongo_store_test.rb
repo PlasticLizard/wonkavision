@@ -325,6 +325,16 @@ class MongoStoreTest < ActiveSupport::TestCase
             end
           end
         end
+        context "ensure_indexes" do
+          should "succesfully ensure indexes" do
+            @store.ensure_indexes
+          end
+          should "create indexes on underlying collection" do
+            @store.expects(:create_index).with([[:dimension_keys,1]])
+            @store.expects(:create_index).with([[:dimension_names,1]])
+            @store.ensure_indexes
+          end
+        end
 
       end
 
