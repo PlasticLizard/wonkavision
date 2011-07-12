@@ -34,7 +34,7 @@ module Wonkavision
           self.database_name = database_name
 
           if username && password && database
-            authenticate_connection(username, password)
+            authenticate_database(username, password)
           end   
           @connection                
         end
