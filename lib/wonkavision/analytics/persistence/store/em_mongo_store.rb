@@ -8,6 +8,10 @@ module Wonkavision
           EMMongo.database
         end
 
+        def safe
+          EMMongo.safe
+        end
+
         def find(criteria, options={})
           collection.find(criteria,options).to_a
         end
@@ -17,7 +21,7 @@ module Wonkavision
         end
 
         def update(selector,update,opts={})
-          collection.update(selector,update,opts)
+          collection.safe_update(selector,update,opts)
         end
 
       end

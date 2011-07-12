@@ -21,6 +21,10 @@ module Wonkavision
 
         protected
 
+        def purge!
+          @storage.clear
+        end
+
         def fetch_facts(aggregation,filters,options={})
           matches = []
           @storage.each_pair do |record_id,facts|

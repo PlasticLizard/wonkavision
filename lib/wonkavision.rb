@@ -39,7 +39,8 @@ dir = File.dirname(__FILE__)
  "analytics/cellset/measure",
  "analytics/cellset/calculated_measure",
  "analytics/cellset",
- "analytics/query"
+ "analytics/query",
+ "analytics/split_by_aggregation"
  
 ].each {|lib|require File.join(dir,'wonkavision',lib)}
 
@@ -98,6 +99,6 @@ module Wonkavision
 
 end
 
-#Load event handlers for analytics
-# dir = File.dirname(__FILE__)
-Dir[File.join(dir,"wonkavision","analytics/handlers/**/*.rb")].each {|lib|require lib}
+# #Load event handlers for analytics
+# # dir = File.dirname(__FILE__)
+# Dir[File.join(dir,"wonkavision","analytics/handlers/**/*.rb")].each {|lib|require lib}

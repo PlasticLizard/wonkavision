@@ -68,6 +68,13 @@ module Wonkavision
           store.facts_for(aggregation,filters,options)
         end
 
+        def purge!
+          store.purge! if store
+          self.aggregations.each do |agg|
+            agg.purge!
+          end
+        end
+
       end
 
       module InstanceMethods

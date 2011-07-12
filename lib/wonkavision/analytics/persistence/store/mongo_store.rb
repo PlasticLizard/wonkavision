@@ -8,6 +8,10 @@ module Wonkavision
           Mongo.database
         end
 
+        def safe
+          Mongo.safe
+        end
+
       end
     end
   end

@@ -38,8 +38,8 @@ class SplitByAggregationTest < ActiveSupport::TestCase
 
     context "#process_aggregations" do
       should "call process on each message in the batch" do
-        Wonkavision::Analytics::ApplyAggregation.expects(:process).with({ :hi => "there"})
-        @handler.process_aggregations [{ :hi => "there"}]
+        @handler.expects(:apply_aggregation).with(["a","b"])
+        @handler.process_aggregations [["a","b"]]
       end
     end
 
@@ -70,8 +70,8 @@ class SplitByAggregationTest < ActiveSupport::TestCase
           assert_equal 2, @handler.process_message(@message).length
         end
 
-        should "submit each message for processing" do
-          Wonkavision::Analytics::ApplyAggregation.expects(:process).times(2)
+        should "apply each aggregation" do
+          @handler.expects(:apply_aggregation).times(2)
           @handler.process_message(@message)
         end
 
@@ -83,9 +83,15 @@ class SplitByAggregationTest < ActiveSupport::TestCase
         should "copy the measures once for each aggregation" do
           results =  @handler.process_message(@message)
           results.each do |result|
-            assert_equal "add", result["action"]
-            assert_equal @agg.name, result["aggregation"]
-            assert_equal( { "d" => 1.0, "e" => 2.0, "count" => 1} , result["measures"] )
+            assert_equal( {"measures.count.count"=>1,
+                           "measures.count.sum"=>1,
+                           "measures.count.sum2"=>1,
+                           "measures.d.count"=>1,
+                           "measures.d.sum"=>1.0,
+                           "measures.d.sum2"=>1.0,
+                           "measures.e.count"=>1,
+                           "measures.e.sum"=>2.0,
+                           "measures.e.sum2"=>4.0} , result[:measures] )
           end
         end
 

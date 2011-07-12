@@ -96,6 +96,10 @@ module Wonkavision
         def method_missing(m,*args,&block)
           aggregation_spec.respond_to?(m) ? aggregation_spec.send(m,*args,&block) : super
         end
+
+        def purge!
+          store.purge!
+        end
       end
 
       module InstanceMethods
@@ -139,7 +143,6 @@ module Wonkavision
 
           end
           self.class.store.update_aggregation(aggregation)
-          self
         end
 
         def measure_changes_for(measure_name, measure_value, update_method)

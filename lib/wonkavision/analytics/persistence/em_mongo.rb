@@ -1,5 +1,6 @@
 require "wonkavision/analytics/persistence/mongo_common"
 require "wonkavision/analytics/persistence/store/em_mongo_store"
+require "wonkavision/analytics/em_split_by_aggregation"
 
 begin
   require "em-mongo"

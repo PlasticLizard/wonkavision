@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/PlasticLizard/em-mongo.git
-  revision: 029dac8902e000f46ed2ca92a63a667b2af7328a
+  revision: 68003ad4bce4249b03816e32a23dcbe9161e09bd
   specs:
     em-mongo (0.3.6)
       bson (>= 1.1.3)
@@ -9,7 +9,7 @@ GIT
 
 GIT
   remote: https://github.com/PlasticLizard/em-synchrony.git
-  revision: bb0fa2aaf949ec5d79a1dd81564da3164076563f
+  revision: 8e003696f134169445ce3fe08f7ecb67d25fa47f
   specs:
     em-synchrony (0.3.0.beta.1)
       eventmachine (>= 1.0.0.beta.1)

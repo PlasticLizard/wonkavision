@@ -10,33 +10,34 @@ module Wonkavision
 
       def process_message(event)
         return false unless
-          (aggregation = aggregation_for(event["aggregation"])) &&
-          (action = event["action"]) &&
-          (entity = event["data"])
+          (@aggregation = aggregation_for(event["aggregation"])) &&
+          (@action = event["action"]) &&
+          (@entity = event["data"])
 
-        return [] unless aggregation.matches entity
+        return [] unless @aggregation.matches @entity
 
-        entity["count"] ||= 1 #default fact count measure
-        measures = aggregation.measures.keys.inject({}) do |measures,measure|
-          measures[measure] = entity[measure.to_s]
+        @entity["count"] ||= 1 #default fact count measure
+        @measures = @aggregation.measures.keys.inject({}) do |measures,measure|
+          measures[measure] = @entity[measure.to_s]
           measures
         end
 
-        messages = split_dimensions_by_aggregation(aggregation,entity).map do |dimensions|
-          {
-            "action" => action,
-            "aggregation" => aggregation.name,
-            "dimensions" => dimensions,
-            "measures" => measures
-          }
-        end
-        process_aggregations messages
+        #Don't bother to continue if the measures are all nil
+        return false unless @measures.values.detect{|m|m}
+        
+        dims = split_dimensions_by_aggregation(@aggregation,@entity)
+        process_aggregations dims.compact
       end
 
-      def process_aggregations(messages)
-        messages = [messages].flatten
-        messages.each {  |message| ApplyAggregation.process(message) }
-        messages
+      def process_aggregations(dims)
+        dims.map do |dimensions| 
+          apply_aggregation dimensions
+        end
+      end
+
+      def apply_aggregation(dimensions)
+        @action.to_s == "add" ? @aggregation[dimensions].add(@measures) :
+            @aggregation[dimensions].reject(@measures)
       end
 
       def split_dimensions_by_aggregation(aggregation,entity)

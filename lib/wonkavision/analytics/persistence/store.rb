@@ -71,6 +71,12 @@ module Wonkavision
           fetch_facts(aggregation,filters,options)
         end
 
+        #abstract
+        def purge!
+        raise NotImplementedError
+        end
+
+
         protected
 
         def assert_record_id(data)
@@ -113,6 +119,7 @@ module Wonkavision
           raise NotImplementedError
         end
 
+       
       end
     end
   end

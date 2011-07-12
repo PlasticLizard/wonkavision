@@ -10,6 +10,7 @@ module Wonkavision
       module MongoCommon
 
         attr_reader :connection, :database_name
+        attr_accessor :safe
 
         def database_name=(database_name)
           @database_name = database_name

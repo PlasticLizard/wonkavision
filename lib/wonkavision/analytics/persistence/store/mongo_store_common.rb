@@ -46,6 +46,10 @@ module Wonkavision
 						end	        	
 	        end
 
+	        def purge!
+	        	collection.remove({})
+	        end
+
 	        protected
 	        
 	        def find(criteria, options={})
@@ -122,10 +126,11 @@ module Wonkavision
 	        end
 
 	        def update_tuple(data)
+	        	safe = self.respond_to?(:safe) ? self.safe : false
 	          update( aggregation_key(data),
 	                      {"$inc" => data[:measures],
 	                        "$set" => { :dimensions=>data[:dimensions]}},
-	                      :upsert => true)
+	                      :upsert => true, :safe => safe)
 	        end
 
 	        def remove_mongo_id(*documents)
