@@ -12,20 +12,17 @@ class SplitByAggregationTest < ActiveSupport::TestCase
         aggregate_by :a, :b
         aggregate_by :a, :b, :c
         store :hash_store
+        snapshot :daily do
+          measure :f
+        end
       end
-      @handler = Wonkavision::Analytics::SplitByAggregation.new
-    end
-
-    context "#aggregation_for" do
-      should "look up an aggregation for the provided name" do
-        assert_equal @agg, @handler.aggregation_for(@agg.name)
-      end
+      @handler = Wonkavision::Analytics::SplitByAggregation.new(@agg, "add")
     end
 
     context "#split_dimensions_by_aggregation" do
       setup do
         @entity = {"a" => :a, "b" => :b, "c" => :c, "d" => :d, "e" => :e}
-        @split = @handler.split_dimensions_by_aggregation(@agg,@entity)
+        @split = @handler.split_dimensions_by_aggregation(@entity)
       end
       should "create one entry per aggregate_by" do
         assert_equal 2, @split.length
@@ -43,45 +40,31 @@ class SplitByAggregationTest < ActiveSupport::TestCase
       end
     end
 
-    context "#process_message" do
-      should "return false unless all appropriate metadata is present and valid" do
-        assert_equal false, @handler.process_message({"aggregation"=>"ack",
-                                                    "action"=>"add","data"=>{}})
-
-        assert_equal false, @handler.process_message( { "aggregation"=>@agg.name,
-                                                     "action"=>"add"})
-
-        assert_equal false, @handler.process_message( { "aggregation"=>@agg.name,
-                                                     "data"=>{}})
-      end
+    context "#process" do
       context "with a valid message" do
         setup do
           @message = {
-            "aggregation" => @agg.name,
-            "action" => "add",
-            "data" => {
               "a" => :a, "b" => :b, "c" => :c,
               "d" => 1.0, "e" => 2.0
-            }
           }
         end
 
         should "prepare a message for each aggregation" do
-          assert_equal 2, @handler.process_message(@message).length
+          assert_equal 2, @handler.process(@message).length
         end
 
         should "apply each aggregation" do
           @handler.expects(:apply_aggregation).times(2)
-          @handler.process_message(@message)
+          @handler.process(@message)
         end
 
         should "not submit messages if the filter doesn't match" do
           @agg.filter { |m|m["a"] != :a}
-          assert_equal 0, @handler.process_message(@message).length
+          assert_equal 0, @handler.process(@message).length
         end
 
         should "copy the measures once for each aggregation" do
-          results =  @handler.process_message(@message)
+          results =  @handler.process(@message)
           results.each do |result|
             assert_equal( {"measures.count.count"=>1,
                            "measures.count.sum"=>1,
@@ -96,13 +79,33 @@ class SplitByAggregationTest < ActiveSupport::TestCase
         end
 
         should "key each message with a unique aggregation" do
-          results = @handler.process_message(@message)
+          results = @handler.process(@message)
           results[0][:dimensions] = { "a" => :a, "b" => :b}
           results[1][:dimensions] = { "a" => :a, "b" => :b, "c" => :c}
         end
 
       end    
 
+    end
+
+    context "With a snapshot" do
+      setup do
+        @snap = Wonkavision::Analytics::Snapshot.new(nil, :daily, :event_name=>"")
+        @snap_handler = Wonkavision::Analytics::SplitByAggregation.new(@agg, "add", @snap)
+      end
+      should "include snapshot dims in aggregations" do
+        assert_equal [[:a,:b,:snapshot_time],[:a,:b,:c,:snapshot_time]],
+                      @snap_handler.aggregations
+      end
+      should "include snapshot measures in measures" do
+        assert_equal ["count","d","e","f"], @snap_handler.measures.keys.sort
+      end
+      should "return the snapshot from the aggregation" do
+        assert @snap_handler.snapshot
+      end
+      should "return snapshot dimensions" do
+        assert @snap_handler.dimensions[:snapshot_time]  
+      end
     end
   end
 

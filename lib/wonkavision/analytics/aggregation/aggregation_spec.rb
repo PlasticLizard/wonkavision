@@ -3,7 +3,7 @@ module Wonkavision
     module Aggregation
       class AggregationSpec
 
-        attr_reader :name, :dimensions, :measures, :calculated_measures, :aggregations, :filter
+        attr_reader :name, :dimensions, :measures, :calculated_measures, :aggregations, :filter, :snapshots
 
         def initialize(name)
           @name = name
@@ -12,6 +12,7 @@ module Wonkavision
           @calculated_measures = HashWithIndifferentAccess.new
           @aggregations = []
           @dimensions = HashWithIndifferentAccess.new
+          @snapshots = {}
         end
 
         def dimension(*dimension_names,&block)
@@ -47,6 +48,15 @@ module Wonkavision
           calculated_measures[measure_name] = options
         end
         alias calculate calc
+
+        def snapshot(name, &block)
+          snap_spec = AggregationSpec.new(name)
+          snap_spec.dimension :snapshot_time do
+            key :timestamp
+          end
+          snap_spec.instance_eval(&block) if block_given?
+          @snapshots[name] = snap_spec
+        end
 
         def aggregate_by(*aggregation_list)
           self.aggregations << aggregation_list.flatten

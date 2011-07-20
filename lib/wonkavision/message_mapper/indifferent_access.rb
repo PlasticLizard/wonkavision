@@ -23,8 +23,18 @@ module Wonkavision
         return self[sym] if self.keys.include?(sym.to_s)
         nil
       end
-    end
-  end
 
+      def self.make_indifferent(hash)
+        class << hash;include IndifferentAccess; end
+      end
+    end
+
+    class IndifferentHash < Hash
+      include IndifferentAccess
+    end
+    
+  end
 end
+
+
 

@@ -12,6 +12,9 @@ module Wonkavision
 
         write_inheritable_attribute :aggregations, []
         class_inheritable_reader :aggregations
+
+        write_inheritable_attribute :snapshots, {}
+        class_inheritable_reader :snapshots
       end
 
       module ClassMethods
@@ -19,7 +22,17 @@ module Wonkavision
         def accept(event_path, options={}, &mapping_block)
           map(event_path, &mapping_block) if mapping_block
           handle event_path do
-            accept_event(event_context.data, options)
+            facts = apply_dynamic(event_context.data, :context_time => Time.now.utc)
+            accept_event facts, options
+          end
+        end
+
+        def snapshot(name, options={}, &blk)
+          snap = Snapshot.new(self, name, options, &blk)
+          snapshots[name] = snap
+          handle snap.event_name do
+            accept_event event_context.data, :action => :snapshot,
+                                             :snapshot => snap
           end
         end
 
@@ -39,15 +52,7 @@ module Wonkavision
           end
         end
 
-        def transformation(name,&block)
-          transformations << Wonkavision::Analytics::Transformation.new(name,&block)
-        end
-
-        def transformations
-          facts_options[:transformations] ||= []
-        end
-
-        def store(new_store=nil)
+       def store(new_store=nil)
           if new_store
             store = new_store.kind_of?(Wonkavision::Analytics::Persistence::Store) ? store :
               Wonkavision::Analytics::Persistence::Store[new_store]
@@ -59,6 +64,14 @@ module Wonkavision
             facts_options[:store] = store
           else
             facts_options[:store]
+          end
+        end
+
+        def dynamic(map_name = nil, &mapping_block)
+          unless map_name || block_given?
+            facts_options[:dynamic_map]
+          else
+            facts_options[:dynamic_map] = map_name || mapping_block
           end
         end
 
@@ -75,14 +88,25 @@ module Wonkavision
           end
         end
 
+        def apply_dynamic(facts, options={})
+          if map = dynamic
+            facts.merge Wonkavision::MessageMapper.execute(map, facts, options)
+          else
+            facts
+          end
+        end
+
       end
 
       module InstanceMethods
-        def accept_event(event_data, options={})
+
+        def accept_event(event_data, options = {})
           filter = self.class.filter
           action = options[:action] || :add
+          snapshot = options[:snapshot]
           unless filter.length > 0 && filter.detect{ |f|!!(f.call(event_data, action)) == false}
-            send "#{action}_facts", event_data
+            snapshot ? snapshot_facts(event_data, snapshot) : 
+                       send( "#{action}_facts", event_data )
           end
         end
 
@@ -110,32 +134,24 @@ module Wonkavision
           end
         end
 
-        protected
-
-        def process_transformations(event_data, action)
-          self.class.transformations.each do |tx|
-            [tx.apply(event_data)].flatten.compact.each do |msg|
-              process_facts msg, action, tx.name
-            end
-          end
+        def snapshot_facts(snapshot_data, snapshot)
+          raise "A snapshot must be passed in the options to call snapshot_facts" unless snapshot
+          process_facts snapshot_data, "add", snapshot
         end
+             
+        protected
 
         def store
           self.class.store
         end
 
-        def process_facts(event_data, action, transformation = nil)
-          self.class.aggregations.each do |aggregation| 
-            if aggregation.transformation == transformation
-              SplitByAggregation.process( {
-                "action" => action,
-                "aggregation" => aggregation.name,
-                "data" => event_data
-              } ) 
+        def process_facts(event_data, action, snapshot = nil)
+          self.class.aggregations.each do |aggregation|
+            if snapshot.nil? || aggregation.snapshots[snapshot.name]
+              aggregation.aggregate!(event_data, action, snapshot)
             end
           end
-          process_transformations(event_data, action) unless transformation
-        end
+        end       
 
       end
     end

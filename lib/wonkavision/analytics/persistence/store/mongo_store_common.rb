@@ -30,6 +30,10 @@ module Wonkavision
 	          collection.find(criteria).to_a
 	        end
 
+	        def each(criteria, &block)
+	        	collection.find(criteria).each(&block)
+	        end
+
 	        def count(criteria={})
 	          collection.find(criteria).count
 	        end

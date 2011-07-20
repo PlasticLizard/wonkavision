@@ -1,16 +1,19 @@
 module Wonkavision
 
   module MessageMapper
-    class Map < Hash
-      include IndifferentAccess
+    class Map < IndifferentHash
 
-      def initialize(context = nil)
+      attr_reader :options
+
+      def initialize(context = nil, options = {})
+        @options = IndifferentHash.new.merge(options)
         @write_missing = true
         @context_stack = []
         @context_stack.push(context) if context
       end
 
       def execute(context,map_block,options={})
+        @options.merge(options)
         @write_missing = options[:write_missing].nil? ? true : options[:write_missing]
         @context_stack.push(context)
         instance_eval(&map_block)
@@ -40,7 +43,7 @@ module Wonkavision
       end
 
       def exec(map_name,exec_context=self.context)
-        mapped = MessageMapper.execute(map_name,exec_context)
+        mapped = MessageMapper.execute(map_name,exec_context, @options)
         self.merge!(mapped) if mapped
       end
       alias import exec
@@ -57,7 +60,7 @@ module Wonkavision
         end
         if ctx && ctx != KeyMissing
           if (map_name = options.delete(:map_name))
-            child = MessageMapper.execute(map_name,ctx)
+            child = MessageMapper.execute(map_name,ctx, @options)
           else
             child = Map.new(ctx)
             child.instance_eval(&block)
@@ -82,7 +85,7 @@ module Wonkavision
         map_name = options.delete(:map_name)
         ctx.each do |item|
           if (map_name)
-            child = MessageMapper.execute(map_name,item)
+            child = MessageMapper.execute(map_name,item,@options)
           else
             child = Map.new(item)
             child.instance_eval(&block)

@@ -3,30 +3,33 @@ module Wonkavision
     class SplitByAggregation
 
       class << self
-        def process(message)
-          new.process_message message
+        def process(aggregation, action, facts, snapshot = nil)
+          new(aggregation, action, snapshot).process facts
         end
       end
 
-      def process_message(event)
+      def initialize(aggregation, action, snapshot = nil)
+        @aggregation = aggregation
+        @action = action
+        @snapshot = snapshot
+      end
+
+      def process(facts)
         return false unless
-          (@aggregation = aggregation_for(event["aggregation"])) &&
-          (@action = event["action"]) &&
-          (@entity = event["data"])
+          @aggregation && @action && facts
 
-        return [] unless @aggregation.matches @entity
+        return [] unless @aggregation.matches facts
 
-        @entity["count"] ||= 1 #default fact count measure
-        @measures = @aggregation.measures.keys.inject({}) do |measures,measure|
-          measures[measure] = @entity[measure.to_s]
+        facts["count"] ||= 1 #default fact count measure
+        @measures = self.measures.keys.inject({}) do |measures,measure|
+          measures[measure] = facts[measure.to_s]
           measures
         end
 
         #Don't bother to continue if the measures are all nil
         return false unless @measures.values.detect{|m|m}
-        
-        dims = split_dimensions_by_aggregation(@aggregation,@entity)
-        process_aggregations dims.compact
+        dims = split_dimensions_by_aggregation(facts).compact
+        process_aggregations dims
       end
 
       def process_aggregations(dims)
@@ -40,22 +43,40 @@ module Wonkavision
             @aggregation[dimensions].reject(@measures)
       end
 
-      def split_dimensions_by_aggregation(aggregation,entity)
-        aggregation.aggregations.inject([]) do |aggregations,aggregate_by|
-          aggregations << aggregate_by.inject({}) do |dimensions,dimension_name|
-            dimension = aggregation.dimensions[dimension_name]
-
-            raise "You specified an aggregation containing a dimension that is not defined: #{dimension_name}" unless dimension
-
-            dimensions[dimension_name.to_s] = dimension.extract(entity)
-            dimensions
-          end
-          aggregations
+      def aggregations
+        return @aggregation.aggregations unless snapshot
+        @aggregation.aggregations.map do |agg|
+          agg + snapshot.dimensions.keys.map(&:to_sym)
         end
       end
 
-      def aggregation_for(aggregation_name)
-        Wonkavision::Analytics::Aggregation.all[aggregation_name]
+      def snapshot
+        @aggregation.snapshots[@snapshot.name] if @snapshot
+      end
+
+      def dimensions
+        snapshot ? @aggregation.dimensions.merge(snapshot.dimensions) : 
+                   @aggregation.dimensions
+      end
+
+      def measures
+        snapshot ? @aggregation.measures.merge(snapshot.measures) :
+                   @aggregation.measures
+      end
+
+      def split_dimensions_by_aggregation(facts)
+        dimensions = self.dimensions
+        self.aggregations.inject([]) do |aggs,aggregate_by|
+          aggs << aggregate_by.inject({}) do |dims,dimension_name|
+            dimension = dimensions[dimension_name]
+
+            raise "You specified an aggregation containing a dimension that is not defined: #{dimension_name}" unless dimension
+
+            dims[dimension_name.to_s] = dimension.extract(facts)
+            dims
+          end
+          aggs
+        end
       end
     end
   end

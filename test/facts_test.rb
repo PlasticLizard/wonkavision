@@ -15,8 +15,15 @@ class FactsTest < ActiveSupport::TestCase
           float :mapped
         end
 
-        transformation :warped do |facts|
-          [1,2].map {|num| facts.merge(:hi=>num)}
+        snapshot :daily, :every => "1h" do
+          key_name "hi"
+        end
+
+        dynamic do
+          context_time = options.context_time || Date.today.to_utc_time
+          integer :huh => context_time
+          time :now => Time.now
+          integer :hi
         end
 
       end
@@ -39,7 +46,7 @@ class FactsTest < ActiveSupport::TestCase
     context "#accept" do
 
       should "configure a binding for each 'accept' directive" do
-        assert_equal 2, @facts.bindings.length
+        assert_equal 3, @facts.bindings.length
         assert_equal 'some/event/path', @facts.bindings[0].events[0]
         assert_equal 'another/event/path/rejected', @facts.bindings[1].events[0]
       end
@@ -51,6 +58,20 @@ class FactsTest < ActiveSupport::TestCase
 
     end
 
+    context "#snapshot" do
+      should "configure a binding for the snapshot" do
+        assert_equal "wv.my_facts.snapshot.daily", @facts.bindings[2].events[0]
+      end
+      should "intantiate and store a snapshot" do
+        assert_equal 1, @facts.snapshots.length
+        assert_equal :daily, @facts.snapshots[:daily].name
+        assert_equal "1h", @facts.snapshots[:daily].options[:every]
+      end
+      should "accept config from the block" do
+        assert_equal "hi", @facts.snapshots[:daily].key_name
+      end
+    end
+
     context "#facts_for" do
       should "pass arguments to underlying storage" do
         @facts.store :hash_store
@@ -59,6 +80,31 @@ class FactsTest < ActiveSupport::TestCase
       end
     end
 
+    context "#dynamic" do
+      should "store the mapping block in the dynamic fields property" do
+        assert @facts.dynamic.kind_of?(Proc)
+      end
+      should "store a map name instead if provided" do
+        @facts.dynamic :other_dynamic do
+        end
+        assert_equal :other_dynamic, @facts.dynamic
+      end
+    end
+
+    context "#apply_dynamic" do
+      should "execute the dynamic map against the facts according to the options" do
+        context_time = Date.today.to_utc_time
+        result = @facts.apply_dynamic({:hi => "3", :ho=>"hum"},
+                                      :context_time => context_time)
+        assert_equal 3, result["hi"]
+        assert_equal "hum", result[:ho]
+        assert result["now"] <= Time.now
+        assert_equal context_time.to_i, result["huh"]
+      end
+    end
+
+    context "#apply_dynamic_fields" do
+    end
 
     context "instance methods" do
       setup do
@@ -136,55 +182,25 @@ class FactsTest < ActiveSupport::TestCase
 
       end
 
-      context "#process_transformations" do
-        should "call process_facts once for each xform" do
-          @instance.expects(:process_facts).with({:hi=>1}, "add", :warped)
-          @instance.expects(:process_facts).with({:hi=>2}, "add", :warped)
-          @instance.send(:process_transformations, {:hi=>:there}, "add")
+      context "#snapshot_facts" do
+        should "call #process_facts with the correct action and the snapshot" do
+          @instance.expects(:process_facts).with({:hi=>:there}, "add", :snappy)
+          @instance.snapshot_facts({:hi=>:there}, :snappy)
         end
       end
 
       context "#process_facts" do
         should "submit a copy of the message once for each aggregation" do
-          @facts.aggregations << stub(:name=>"Hi",:transformation=>nil)
-          @facts.aggregations << stub(:name=>"Ho",:transformation=>nil)
-          Wonkavision::Analytics::SplitByAggregation.expects(:process).times(2)
+          aggs = [stub(:aggregation), stub(:aggregation)]
+          aggs.each { |a| a.expects(:aggregate!) }
+          @facts.aggregations.concat aggs
           @instance.send(:process_facts,{ :hi=>:there}, "add")
         end
         should "submit each event using the output event path, action and message" do
-          @facts.aggregations <<  stub(:name=>"Hi",:transformation=>nil)
-          Wonkavision::Analytics::SplitByAggregation.expects(:process).with({
-            "action" => "add",
-            "aggregation" => "Hi",
-            "data" => { "hi" => "there"}
-          })
+          agg = stub(:aggregation)
+          @facts.aggregations << agg
+          agg.expects(:aggregate!).with({"hi"=>"there"},"add",nil)
           @instance.send(:process_facts, { "hi"=>"there"}, "add")
-        end
-        should "not submit an event to an aggregation that doesn't match the transformation" do
-          @facts.aggregations << stub(:name=>"hi",:transformation=>:a)
-          Wonkavision::Analytics::SplitByAggregation.expects(:proces).with({
-            "action" => "add",
-            "aggregation" => "hi",
-            "data" => {"hi" => "there"}
-          }).times(0)
-          @instance.send(:process_facts, {"hi"=>"there"}, "add")
-        end
-        should "submit an event to an aggregation that matches the transformation" do
-          @facts.aggregations << stub(:name=>"hi",:transformation=>:a)
-          Wonkavision::Analytics::SplitByAggregation.expects(:process).with({
-            "action" => "add",
-            "aggregation" => "hi",
-            "data" => {"hi" => "there"}
-          })          
-          @instance.send(:process_facts, {"hi"=>"there"}, "add", :a)
-        end
-        should "call process_transformations if no transformation is provided" do
-          @instance.expects(:process_transformations).with({"hi"=>"there"},"add")
-          @instance.send(:process_facts, {"hi"=>"there"},"add")
-        end
-        should "not call process transformations if a transformation is provided" do
-          @instance.expects(:process_transformations).with({"hi"=>"there"},"add").times(0)
-          @instance.send(:process_facts, {"hi"=>"there"},"add",:a)
         end
       end
 

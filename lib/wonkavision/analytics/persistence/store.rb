@@ -53,9 +53,9 @@ module Wonkavision
         def execute_query(query)
           dimension_names = query.all_dimensions? ? [] :
             query.referenced_dimensions.dup.
-            concat(Wonkavision::Analytics.context.global_filters.
-            select{ |f| f.dimension?}.map{ |dim_filter| dim_filter.name }).uniq.
-            sort{ |a,b| a.to_s <=> b.to_s }
+              concat(Wonkavision::Analytics.context.global_filters.
+              select{ |f| f.dimension?}.map{ |dim_filter| dim_filter.name }).uniq.
+              sort{ |a,b| a.to_s <=> b.to_s }
 
           filters = (query.filters + Wonkavision::Analytics.context.global_filters).compact.uniq
 
@@ -73,7 +73,15 @@ module Wonkavision
 
         #abstract
         def purge!
-        raise NotImplementedError
+          raise NotImplementedError
+        end
+
+        def where(query)
+          raise NotImplementedError
+        end
+
+        def each(query, &block)
+          raise NotImplementedError
         end
 
 
