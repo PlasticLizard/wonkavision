@@ -5,7 +5,9 @@ class AggregationTest < ActiveSupport::TestCase
     setup do
       @facts = Class.new
       @facts.class_eval do
+        def self.name; "MyFacts"; end
         include Wonkavision::Analytics::Facts
+        snapshot :daily
       end
 
       @agg = Class.new
@@ -70,6 +72,30 @@ class AggregationTest < ActiveSupport::TestCase
     should "store the dimension list with the instance" do
       instance = @agg[{ "a" => { "a"=>:b}}]
       assert_equal( { "a" => { "a"=>:b}}, instance.dimensions )
+    end
+
+    context "#snapshot" do
+      setup do
+        @agg.snapshot :daily do
+          dimension :hi, :ho
+          measure   :a, :b
+        end
+        @snap = @agg.snapshots[:daily]
+      end
+      should "create a snapshot" do
+        assert_equal 1, @agg.snapshots.length
+      end
+      should "have the specified dimensions" do
+        assert_equal 3, @snap.dimensions.count
+        assert @snap.dimensions[:hi]
+        assert @snap.dimensions[:ho]
+        assert @snap.dimensions[:snapshot_day]
+        assert @snap.dimensions[:snapshot_day].key == :day_key
+      end
+      should "have the specified measures" do
+        assert @snap.measures[:a]
+        assert @snap.measures[:b]
+      end
     end
 
     context "#query" do

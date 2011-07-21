@@ -65,31 +65,7 @@ class AggregationSpecTest < ActiveSupport::TestCase
         assert @aggregation_spec.calculated_measures[:calculated][:calculation].kind_of?(Proc)
       end
     end
-
-    context "#snapshot" do
-      setup do
-        @aggregation_spec.snapshot :daily do
-          dimension :hi, :ho
-          measure   :a, :b
-        end
-        @snap = @aggregation_spec.snapshots[:daily]
-      end
-      should "create a snapshot" do
-        assert_equal 1, @aggregation_spec.snapshots.length
-      end
-      should "have the specified dimensions" do
-        assert_equal 3, @snap.dimensions.count
-        assert @snap.dimensions[:hi]
-        assert @snap.dimensions[:ho]
-        assert @snap.dimensions[:snapshot_time]
-        assert @snap.dimensions[:snapshot_time].key == :timestamp
-      end
-      should "have the specified measures" do
-        assert @snap.measures[:a]
-        assert @snap.measures[:b]
-      end
-    end
-
+    
     context "measure aliases" do
       should "call measure with an appropriate default component specified" do
         [:average,:sum,:count].each do |m_alias|

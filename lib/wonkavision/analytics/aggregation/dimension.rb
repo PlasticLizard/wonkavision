@@ -15,7 +15,9 @@ module Wonkavision
           key options[:key] if options[:key]
           sort options[:sort] if options[:sort]
           caption options[:caption] if options[:caption]
-          self.instance_eval(&block) if block
+          if block
+            block.arity == 1 ? block.call(self) : self.instance_eval(&block)
+          end
           key name unless key
         end
 
@@ -55,8 +57,8 @@ module Wonkavision
           end
         end
 
-        def from
-          @from || name
+        def from(from=nil)
+          from ? @from = from : ( @from || name )
         end
 
         def complex?

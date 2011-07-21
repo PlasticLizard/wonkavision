@@ -27,6 +27,18 @@ module Wonkavision
       def self.make_indifferent(hash)
         class << hash;include IndifferentAccess; end
       end
+
+      def merge!(other)
+        other.stringify_keys!
+        super(other)
+      end
+
+      def merge(other)
+        out = IndifferentHash.new
+        out.merge!(self)
+        out.merge!(other)
+        out
+      end
     end
 
     class IndifferentHash < Hash

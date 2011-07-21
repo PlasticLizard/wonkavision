@@ -2,7 +2,7 @@ module Wonkavision
   module Analytics
     class Snapshot
 
-      attr_reader :facts, :name, :options, :query, :event_name
+      attr_reader :facts, :name, :options
 
       def initialize(facts, name, options = {}, &blk)
         @facts = facts
@@ -10,7 +10,9 @@ module Wonkavision
         @options = options
         @query = options[:query] || {}
         @event_name = options[:event_name] || "wv.#{@facts.name.gsub("::",".").underscore}.snapshot.#{name}"
-        @key_name = options[:key_name] || "snapshot_time"
+        @key_name = options[:key_name]
+        @key = options[:key]
+        @resolution = options[:resolution]
         instance_eval &blk if blk
       end
 
@@ -23,17 +25,48 @@ module Wonkavision
       end
 
       def key_name(key_name = nil)
-        key_name ? @key_name = key_name : @key_name
+        return @key_name = key_name if key_name
+        @key_name ||= "snapshot_#{resolution}".to_sym
+      end
+
+      def key(key = nil)
+        return @key = key if key
+        @key ||= case @resolution.to_s
+                 when "day" then :day_key
+                 when "month" then :month_key
+                 when "year" then :year_key
+                 else :timestamp
+                 end
+      end
+
+      def resolution(resolution=nil)
+        return @resolution = resolution if resolution
+        @resolution ||= case @name.to_s
+                        when /daily/ then :day
+                        when /monthly/ then :month
+                        when /yearly|annual/ then :year
+                        else :day
+                        end
       end
 
       def take!(snapshot_time, calc_options = {})
-        raise "A snapshot time must be provided to Snapshot.take!" unless snapshot_time
-
         snapshot_time = snapshot_time.to_time unless snapshot_time.kind_of?(Time)
+        purge!(snapshot_time)
         @facts.store.each(query) do |facts|
           submit_snapshot(facts, snapshot_time, calc_options) if facts
         end
-      end  
+      end 
+      
+      def purge!(snapshot_time)
+        @facts.aggregations.each do |agg|
+          if agg_ss = agg.snapshots[@name]
+            snapshot_key_name = agg_ss.snapshot_key_dimension.key
+            snapshot_key_value = snapshot_key(snapshot_time)[snapshot_key_name.to_s]
+
+            agg_ss.purge!(snapshot_key_value)
+          end
+        end
+      end 
 
       private
 
@@ -44,7 +77,7 @@ module Wonkavision
       
       def prepare_snapshot(facts, snapshot_time, calc_options)
         calc_options[:context_time] = snapshot_time
-        facts[key_name] = snapshot_key(snapshot_time)
+        facts[key_name.to_s] = snapshot_key(snapshot_time)
         facts = @facts.apply_dynamic(facts, calc_options)
         facts
       end

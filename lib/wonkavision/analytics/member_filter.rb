@@ -66,6 +66,10 @@ module Wonkavision
         self
       end
 
+      def to_ary
+        nil
+      end
+
       def inspect
         to_s
       end
@@ -134,7 +138,7 @@ module Wonkavision
         #If the attribute name is key, caption or sort, we need to find the real name of the underling
         # attribute
         if dimension?
-          dimension = aggregation.dimensions[name]
+          dimension = aggregation.find_dimension(name)
           raise "Error applying a member filter: Dimension #{name} does not exist" unless dimension
           attribute_key = dimension.send(attribute_name).to_s if dimension.respond_to?(attribute_name)
         end

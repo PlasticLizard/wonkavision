@@ -22,7 +22,7 @@ module Wonkavision
         def accept(event_path, options={}, &mapping_block)
           map(event_path, &mapping_block) if mapping_block
           handle event_path do
-            facts = apply_dynamic(event_context.data, :context_time => Time.now.utc)
+            facts = self.class.apply_dynamic(event_context.data, :context_time => Time.now.utc)
             accept_event facts, options
           end
         end

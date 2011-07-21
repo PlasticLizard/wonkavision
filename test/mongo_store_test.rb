@@ -24,7 +24,7 @@ class MongoStoreTest < ActiveSupport::TestCase
       assert_equal "wv.test_facts.facts", @store.facts_collection_name
     end
 
-
+   
     context "Facts persistence" do
       setup do
         @store = MongoStore.new(@facts)
@@ -204,6 +204,17 @@ class MongoStoreTest < ActiveSupport::TestCase
           assert_equal @tuple.merge({:measures=>{ "one" => 1}}).stringify_keys!, added
         end
       end
+      context "#delete_aggregations" do
+        should "delete aggregations according to provided filters" do
+          expected = {"dimensions.color.color" => "red"}
+          collection = @store.collection
+          @store.expects(:collection).returns collection
+          collection.expects(:remove).with(expected)
+          filter = :dimensions.color.eq("red")
+          @store.delete_aggregations(filter)
+        end
+      end
+      
       context "#append_aggregations_filters" do
         setup do
           @dim_filter = Wonkavision::Analytics::MemberFilter.new("tada",:value=>[1,2,3])

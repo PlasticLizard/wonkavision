@@ -8,10 +8,10 @@ module Wonkavision
           @cellset = cellset
           @key = key
           @dimensions = dims
-
+          snapshot = @cellset.query.snapshot
           @measures = HashWithIndifferentAccess.new
           measure_data.each_pair do |measure_name,measure|
-            measure_opts = cellset.aggregation.measures[measure_name] || {}
+            measure_opts = cellset.aggregation.measures(snapshot)[measure_name] || {}
             @measures[measure_name] = Measure.new(measure_name,measure,measure_opts)
           end
         end

@@ -3,6 +3,12 @@ require "test_helper"
 class SplitByAggregationTest < ActiveSupport::TestCase
   context "SplitByAggregation" do
     setup do
+      @facts = Class.new
+      @facts.class_eval do
+        def self.name; "MyFacts" end
+        include Wonkavision::Analytics::Facts
+        snapshot :daily
+      end
       @agg = Class.new
       @agg.class_eval do
         def self.name; "MyAggregation" end
@@ -12,9 +18,10 @@ class SplitByAggregationTest < ActiveSupport::TestCase
         aggregate_by :a, :b
         aggregate_by :a, :b, :c
         store :hash_store
-        snapshot :daily do
-          measure :f
-        end
+      end
+      @agg.aggregates @facts
+      @agg.snapshot :daily do
+        measure :f
       end
       @handler = Wonkavision::Analytics::SplitByAggregation.new(@agg, "add")
     end
@@ -94,7 +101,7 @@ class SplitByAggregationTest < ActiveSupport::TestCase
         @snap_handler = Wonkavision::Analytics::SplitByAggregation.new(@agg, "add", @snap)
       end
       should "include snapshot dims in aggregations" do
-        assert_equal [[:a,:b,:snapshot_time],[:a,:b,:c,:snapshot_time]],
+        assert_equal [[:a,:b,:snapshot_day],[:a,:b,:c,:snapshot_day]],
                       @snap_handler.aggregations
       end
       should "include snapshot measures in measures" do
@@ -104,7 +111,7 @@ class SplitByAggregationTest < ActiveSupport::TestCase
         assert @snap_handler.snapshot
       end
       should "return snapshot dimensions" do
-        assert @snap_handler.dimensions[:snapshot_time]  
+        assert @snap_handler.dimensions[:snapshot_day]  
       end
     end
   end

@@ -15,6 +15,9 @@ module Wonkavision
                                                  AggregationSpec.new(name) )
         class_inheritable_reader :aggregation_spec
 
+        write_inheritable_attribute :snapshots, {}
+        class_inheritable_reader :snapshots
+
         Aggregation.all[name] = self
       end
 
@@ -35,10 +38,10 @@ module Wonkavision
         end
 
 
-        def [](dimensions)
-          key = [dimension_names(dimensions),dimension_keys(dimensions)]
+        def [](dimensions, snapshot = nil)
+          key = [dimension_names(dimensions),dimension_keys(dimensions, snapshot)]
           @instances ||= HashWithIndifferentAccess.new
-          @instances[key] ||= self.new(dimensions)
+          @instances[key] ||= self.new(dimensions, snapshot)
         end
 
         def aggregates(facts_class = nil)
@@ -49,13 +52,50 @@ module Wonkavision
         end
         alias facts aggregates
 
+        def snapshot(name, &block)
+          raise "This aggregation is not associated with any Facts, so no snapshot definition can be found" unless facts
+          snap = facts.snapshots[name.to_sym]
+          raise "#{name} is not a valid snapshot on #{facts.name}" unless snap
+          
+          snap_spec = SnapshotBinding.new(name, self, snap)
+          snap_spec.dimension snap.key_name do |dim|
+            dim.from snap.key_name
+            dim.key snap.key
+          end
+
+          if block_given?
+            block.arity == 1 ? block.call(snap_spec) : 
+                               snap_spec.instance_eval(&block)
+          end
+          snapshots[name] = snap_spec
+        end
+
+        def find_dimension(dimension_name)
+          unless dim = dimensions[dimension_name]
+            snapshots.values.each do |ss|
+              break if dim = ss.dimensions[dimension_name]
+            end
+          end
+          dim
+        end
+
+        def dimensions(snapshot = nil)
+          snapshot ? aggregation_spec.dimensions.merge(snapshots[snapshot.to_sym].dimensions) : aggregation_spec.dimensions
+        end
+
+        def measures(snapshot = nil)
+          snapshot ? aggregation_spec.measures.merge(snapshots[snapshot.to_sym].measures) : aggregation_spec.measures
+        end
+
         def dimension_names(dimensions)
           dimensions.keys.sort
         end
 
-        def dimension_keys(dimensions)
+        def dimension_keys(dimensions, snapshot = nil)
+          dims = self.dimensions
+          dims = dims.merge(snapshot.dimensions) if snapshot
           dimension_names(dimensions).map do |dim|
-            dimensions[dim][self.dimensions[dim].key.to_s]
+            dimensions[dim][dims[dim].key.to_s]
           end
         end
 
@@ -88,8 +128,9 @@ module Wonkavision
           aggregation_spec.respond_to?(m) ? aggregation_spec.send(m,*args,&block) : super
         end
 
-        def purge!
-          store.purge!
+        def purge!(purge_snapshots = false)
+          criteria = purge_snapshots ? {} : {"snapshot" => {"$exists"=>false}}
+          store.purge!(criteria)
         end
 
         def aggregate!(facts, action, snapshot = nil)
@@ -98,17 +139,18 @@ module Wonkavision
       end
 
       module InstanceMethods
-        attr_reader :dimensions, :measures
+        attr_reader :dimensions, :measures, :snapshot
 
-        def initialize(dimensions)
+        def initialize(dimensions, snapshot = nil)
           @dimensions = dimensions
+          @snapshot = snapshot
         end
 
-        def add(measures)
+        def add(measures, snapshot = nil)
           update(measures, :add)
         end
 
-        def reject(measures)
+        def reject(measures, snapshot = nil)
           update(measures, :reject)
         end
 
@@ -117,7 +159,7 @@ module Wonkavision
         end
 
         def dimension_keys
-          @dimension_keys ||= self.class.dimension_keys(@dimensions)
+          @dimension_keys ||= self.class.dimension_keys(@dimensions, @snapshot)
         end
 
         protected
@@ -128,6 +170,7 @@ module Wonkavision
             :measures => {},
             :dimensions => @dimensions
           }
+          aggregation[:snapshot] = @snapshot.name if @snapshot
 
           measures.keys.each do |measure|
             if val = measures[measure]

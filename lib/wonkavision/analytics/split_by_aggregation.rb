@@ -39,8 +39,8 @@ module Wonkavision
       end
 
       def apply_aggregation(dimensions)
-        @action.to_s == "add" ? @aggregation[dimensions].add(@measures) :
-            @aggregation[dimensions].reject(@measures)
+        @action.to_s == "add" ? @aggregation[dimensions, snapshot].add(@measures, snapshot) :
+            @aggregation[dimensions, snapshot].reject(@measures, snapshot)
       end
 
       def aggregations

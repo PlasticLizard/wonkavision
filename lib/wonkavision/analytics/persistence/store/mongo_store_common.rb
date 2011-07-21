@@ -38,6 +38,14 @@ module Wonkavision
 	          collection.find(criteria).count
 	        end
 
+	        def delete_aggregations(*filters)
+	        	filters = filters.flatten
+	        	raise "At least one filter must be provided to delete" if filters.empty?
+	        	selector = {}
+	        	append_aggregations_filters(selector, filters)
+	        	collection.remove(selector)
+	        end
+
 	        def collection
 	          owner <=> Wonkavision::Analytics::Aggregation ? aggregations_collection :
 	            facts_collection
@@ -50,8 +58,8 @@ module Wonkavision
 						end	        	
 	        end
 
-	        def purge!
-	        	collection.remove({})
+	        def purge!(criteria={})
+	        	collection.remove(criteria)
 	        end
 
 	        protected
@@ -131,10 +139,9 @@ module Wonkavision
 
 	        def update_tuple(data)
 	        	safe = self.respond_to?(:safe) ? self.safe : false
-	          update( aggregation_key(data),
-	                      {"$inc" => data[:measures],
-	                        "$set" => { :dimensions=>data[:dimensions]}},
-	                      :upsert => true, :safe => safe)
+	        	agg = {"$inc" => data[:measures],"$set" => { :dimensions=>data[:dimensions]}}
+	          agg["$set"][:snapshot] = data[:snapshot] if data[:snapshot]
+	          update( aggregation_key(data), agg, :upsert => true, :safe => safe)
 	        end
 
 	        def remove_mongo_id(*documents)

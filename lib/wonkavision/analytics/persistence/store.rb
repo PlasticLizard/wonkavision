@@ -72,7 +72,7 @@ module Wonkavision
         end
 
         #abstract
-        def purge!
+        def purge!(criteria=nil)
           raise NotImplementedError
         end
 
@@ -84,6 +84,9 @@ module Wonkavision
           raise NotImplementedError
         end
 
+        def delete_aggregations(*filters)
+          raise NotImplementedError
+        end
 
         protected
 

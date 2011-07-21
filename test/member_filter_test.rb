@@ -97,7 +97,7 @@ class MemberFilterTest < ActiveSupport::TestCase
       context "for a dimension filter" do
         setup do
           @filter = Wonkavision::Analytics::MemberFilter.new(:a_dimension)
-          @aggregation.expects(:dimensions).returns( { :a_dimension => @dimension } )
+          @aggregation.expects(:find_dimension).with(:a_dimension).returns( @dimension )
         end
         should "extract a dimension value from a tuple message" do
           @dimension.expects(:key).returns(:akey)

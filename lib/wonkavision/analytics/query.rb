@@ -8,6 +8,7 @@ module Wonkavision
         @slicer = Set.new
         @filters = []
         @measures = []
+        @snapshot = nil
       end
 
       def select(*dimensions)
@@ -34,6 +35,10 @@ module Wonkavision
           add_filter(member_filter)
         end
         self
+      end
+
+      def snapshot(snapshot_name = nil)
+        snapshot_name ? @snapshot = snapshot_name : @snapshot
       end
 
       def add_filter(member_filter)

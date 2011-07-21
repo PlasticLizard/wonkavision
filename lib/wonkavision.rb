@@ -30,6 +30,7 @@ dir = File.dirname(__FILE__)
  "analytics/snapshot",
  "analytics/facts",
  "analytics/aggregation/aggregation_spec",
+ "analytics/aggregation/snapshot_binding",
  "analytics/aggregation/attribute",
  "analytics/aggregation/dimension",
  "analytics/aggregation",

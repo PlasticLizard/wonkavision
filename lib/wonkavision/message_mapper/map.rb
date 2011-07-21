@@ -13,7 +13,7 @@ module Wonkavision
       end
 
       def execute(context,map_block,options={})
-        @options.merge(options)
+        @options.merge!(options)
         @write_missing = options[:write_missing].nil? ? true : options[:write_missing]
         @context_stack.push(context)
         instance_eval(&map_block)
