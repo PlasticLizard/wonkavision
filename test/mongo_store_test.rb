@@ -206,7 +206,7 @@ class MongoStoreTest < ActiveSupport::TestCase
       end
       context "#delete_aggregations" do
         should "delete aggregations according to provided filters" do
-          expected = {"dimensions.color.color" => "red"}
+          expected = {"dimensions.color.color" => "red", "$atomic" => true}
           collection = @store.collection
           @store.expects(:collection).returns collection
           collection.expects(:remove).with(expected)

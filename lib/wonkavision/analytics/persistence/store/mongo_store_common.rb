@@ -43,7 +43,7 @@ module Wonkavision
 	        	raise "At least one filter must be provided to delete" if filters.empty?
 	        	selector = {}
 	        	append_aggregations_filters(selector, filters)
-	        	collection.remove(selector)
+	        	collection.remove(selector.merge("$atomic"=>true))
 	        end
 
 	        def collection
@@ -59,7 +59,7 @@ module Wonkavision
 	        end
 
 	        def purge!(criteria={})
-	        	collection.remove(criteria)
+	        	collection.remove(criteria.merge("$atomic"=>true))
 	        end
 
 	        protected

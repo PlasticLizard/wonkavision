@@ -80,10 +80,10 @@ module Wonkavision
           store.facts_for(aggregation,filters,options)
         end
 
-        def purge!
+        def purge!(purge_snapshots = false)
           store.purge! if store
           self.aggregations.each do |agg|
-            agg.purge!
+            agg.purge!(purge_snapshots)
           end
         end
 
