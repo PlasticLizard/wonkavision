@@ -149,11 +149,18 @@ module Wonkavision
 
       def parse_value(value_string)
         case value_string
-        when /^\'.*\'$/ then value_string[1..-2]
+        when /^(\'|\").*(\'|\")$/ then value_string[1..-2]
         when /^time\(.*\)$/ then Time.parse(value_string[5..-2])
+        when /^\[.*\]$/ then parse_array(value_string)
         when String then value_string.is_numeric? ? eval(value_string) : value_string
         else value_string
         end
+      end
+
+      def parse_array(array_string)
+        base = array_string[1..-2]
+        parts = base.split(/\s*,\s*/)
+        parts.map { |p| parse_value(p) }
       end
 
       # TODO: This is smelly - we should have a Tuple class that knows its aggregation

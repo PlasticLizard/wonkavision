@@ -77,7 +77,6 @@ module Wonkavision
 
         def facts_for(aggregation,filters,options={})
           raise "Please configure a storage for your Facts class before attempting to use #facts_for" unless store
-
           store.facts_for(aggregation,filters,options)
         end
 
