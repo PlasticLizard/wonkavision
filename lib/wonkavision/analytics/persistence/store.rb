@@ -5,7 +5,11 @@ module Wonkavision
 
         def self.[](store_name)
           @stores ||= {}
-          @stores[store_name.to_s]
+          if store_name.to_s == "default"
+            @stores["default"] ||= Wonkavision::Analytics.default_store          
+          else
+            @stores[store_name.to_s]
+          end
         end
 
         def self.[]=(store_name,store)
@@ -14,8 +18,11 @@ module Wonkavision
         end
 
         def self.inherited(store)
-          store_name = store.name.split("::").pop.underscore
-          self[store_name] = store
+          self[store.store_name] = store
+        end
+
+        def self.store_name
+          name.split("::").pop.underscore
         end
 
         attr_reader :owner

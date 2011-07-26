@@ -11,6 +11,14 @@ module Wonkavision
       @default_store ||= Wonkavision::Analytics::Persistence::HashStore
     end
 
+    def self.default_store=(store)
+      if store.kind_of?(Wonkavision::Analytics::Persistence::Store)
+        @default_store = store
+      else
+        @default_store = Wonkavision::Analytics::Persistence::Store[store.to_s]
+      end
+    end
+
     class Context
       def initialize(storage = nil)
         @storage = storage || ThreadContextStorage.new

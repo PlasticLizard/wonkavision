@@ -24,16 +24,18 @@ module Wonkavision
       module ClassMethods
         def store(new_store=nil)
           if new_store
-            store = new_store.kind_of?(Wonkavision::Analytics::Persistence::Store) ? store :
-              Wonkavision::Analytics::Persistence::Store[new_store]
-
-            raise "Could not find a storage type of #{new_store}" unless store
-
+            store = new_store.kind_of?(Wonkavision::Analytics::Persistence::Store) ?
+              store.store_name : new_store
+            
+            
             store = store.new(self) if store.respond_to?(:new)
 
             aggregation_options[:store] = store
           else
-            aggregation_options[:store] ||= Wonkavision::Analytics.default_store
+            store_name = aggregation_options[:store] || :default
+            klass = Wonkavision::Analytics::Persistence::Store[store_name]
+            raise "Wonkavision could not find a store of type #{store_name}" unless klass
+            @store ||= klass.new(self)
           end
         end
 

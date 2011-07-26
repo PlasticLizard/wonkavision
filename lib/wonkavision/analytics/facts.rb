@@ -52,18 +52,19 @@ module Wonkavision
           end
         end
 
-       def store(new_store=nil)
+        def store(new_store=nil)
           if new_store
-            store = new_store.kind_of?(Wonkavision::Analytics::Persistence::Store) ? store :
-              Wonkavision::Analytics::Persistence::Store[new_store]
-
-            raise "Could not find a storage type of #{new_store}" unless store
-
-            store = store.new(self) if store.respond_to?(:new)
-
+            store = new_store.kind_of?(Wonkavision::Analytics::Persistence::Store) ?
+              store.store_name : new_store
+            
             facts_options[:store] = store
           else
-            facts_options[:store]
+            store_name = facts_options[:store] || :default
+            if store_name.to_s != "none"
+              klass = Wonkavision::Analytics::Persistence::Store[store_name]
+              raise "Wonkavision could not find a store of type #{store_name}" unless klass
+              @store ||= klass.new(self)
+            end
           end
         end
 

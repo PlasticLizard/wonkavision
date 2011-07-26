@@ -26,6 +26,8 @@ class FactsTest < ActiveSupport::TestCase
           integer :hi
         end
 
+        store :none
+
       end
     end
 
