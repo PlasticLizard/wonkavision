@@ -180,7 +180,7 @@ module Wonkavision
 
 	        def filter_prefix_for(aggregation,filter)
 	          if filter.dimension?
-	            dimension = aggregation.dimensions[filter.name]
+	            dimension = aggregation.find_dimension(filter.name)
 	            dimension.complex? ? dimension.from : nil
 	          end
 	        end
