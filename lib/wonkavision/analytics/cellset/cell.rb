@@ -14,6 +14,9 @@ module Wonkavision
             measure_opts = cellset.aggregation.measures(snapshot)[measure_name] || {}
             @measures[measure_name] = Measure.new(measure_name,measure,measure_opts)
           end
+          calculated_measures.each_pair do |measure_name, calc|
+            @measures[measure_name] = CalculatedMeasure.new(measure_name,self,calc)
+          end
         end
 
         def serializable_hash(options={})
@@ -52,9 +55,7 @@ module Wonkavision
 
         def [](measure_name)
           unless measures.keys.include?(measure_name.to_s)
-            calc = calculated_measures[measure_name]
-            measures[measure_name] = calc ? CalculatedMeasure.new(measure_name,self,calc) :
-              Measure.new(measure_name,{})
+            measures[measure_name] = Measure.new(measure_name,{})
           else
             measures[measure_name]
           end

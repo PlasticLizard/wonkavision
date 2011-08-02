@@ -17,7 +17,7 @@ module Wonkavision
         end
 
         def aggregate(data)
-          raise "A CalculatedMeasure cannot be aggregated"
+          #noop
         end
 
         def serializable_hash(options={})
