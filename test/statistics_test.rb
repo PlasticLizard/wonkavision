@@ -101,7 +101,7 @@ class StatisticsTest < ActiveSupport::TestCase
       should "filter the date range as defined by the time window" do
         sf = :dimensions.snapshot_month.gte
         assert_equal :now, @filter[:dimensions.snapshot_month.gte]
-        assert_equal :later, @filter[:dimensions.snapshot_month.lte]
+        assert_equal :later, @filter[:dimensions.snapshot_month.lt]
       end
     end
 
@@ -114,7 +114,7 @@ class StatisticsTest < ActiveSupport::TestCase
         assert_equal "2011-06", @start
       end
       should "resolve the end key" do
-        assert_equal "2011-07", @end
+        assert_equal "2011-08", @end
       end
     end
 

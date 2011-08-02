@@ -11,7 +11,7 @@ class TimeWindowTest < ActiveSupport::TestCase
       assert_equal 3, @time_window.num_periods
       assert_equal :days, @time_window.time_unit
       assert_equal "2011-07-01".to_time, @time_window.start_time
-      assert_equal "2011-07-03".to_time, @time_window.end_time
+      assert_equal "2011-07-04".to_time, @time_window.end_time
     end
 
     should "detect if a date is included" do

@@ -36,7 +36,7 @@ class AlgorithmTest < ActiveSupport::TestCase
       end
 
       should "should return false when a record is not in the time window" do
-        assert !@algorithm.matches?(Time.now + 1000,[])
+        assert !@algorithm.matches?(Time.now + 86400,[])
       end
     end
     
