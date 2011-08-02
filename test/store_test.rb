@@ -66,7 +66,7 @@ class StoreTest < ActiveSupport::TestCase
           @query.where :d=>:e
         end
         should "delegate to fetch tuples, passing the selected dimensions" do
-          @store.expects(:fetch_tuples).with([:a,:b,:c, :d],@query.filters)
+          @store.expects(:fetch_tuples).with(['a','b','c', 'd'],@query.filters)
           @store.execute_query(@query)
         end
         should "pass an empty array of dimensions when nothing is selected" do
@@ -82,7 +82,7 @@ class StoreTest < ActiveSupport::TestCase
           end
           should "append global filters" do
             filters = @query.filters + [:dimensions.a.eq(:b)]
-            @store.expects(:fetch_tuples).with([:a,:b,:c,:d],filters)
+            @store.expects(:fetch_tuples).with(['a','b','c','d'],filters)
             @store.execute_query(@query)
           end
         end

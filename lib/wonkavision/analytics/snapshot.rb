@@ -55,38 +55,26 @@ module Wonkavision
         @facts.store.each(query) do |facts|
           submit_snapshot(facts, snapshot_time, calc_options) if facts
         end
+      end
+      
+      def calculate_statistics!(snapshot_time)
+        snapshot_time = snapshot_time.to_time unless snapshot_time.kind_of?(Time)
+        @facts.aggregations.each do |agg|
+          if agg_ss = agg.snapshots[@name]
+            agg_ss.calculate_statistics!(snapshot_time)
+          end
+        end
       end 
       
       def purge!(snapshot_time)
         @facts.aggregations.each do |agg|
           if agg_ss = agg.snapshots[@name]
-            snapshot_key_name = agg_ss.snapshot_key_dimension.key
-            snapshot_key_value = snapshot_key(snapshot_time)[snapshot_key_name.to_s]
-
-            agg_ss.purge!(snapshot_key_value)
+            agg_ss.purge!(snapshot_time)
           end
         end
       end 
 
-      private
-
-      def submit_snapshot(facts, snapshot_time, calc_options)
-        snapshot_data = prepare_snapshot(facts, snapshot_time, calc_options)
-        publish snapshot_data
-      end
-      
-      def prepare_snapshot(facts, snapshot_time, calc_options)
-        calc_options[:context_time] = snapshot_time
-        facts[key_name.to_s] = snapshot_key(snapshot_time)
-        facts = @facts.apply_dynamic(facts, calc_options)
-        facts
-      end
-
-      def publish(snapshot_data)
-        Wonkavision.event_coordinator.submit_job( event_name, snapshot_data )
-      end
-
-      def snapshot_key(snapshot_time)
+      def self.snapshot_key(snapshot_time)
         {
           "timestamp" => snapshot_time,
           "day_key" => snapshot_time.iso8601[0..9],
@@ -97,6 +85,24 @@ module Wonkavision
           "month" => snapshot_time.month
         }
       end
+
+      private
+
+      def submit_snapshot(facts, snapshot_time, calc_options)
+        snapshot_data = prepare_snapshot(facts, snapshot_time, calc_options)
+        publish snapshot_data
+      end
+      
+      def prepare_snapshot(facts, snapshot_time, calc_options)
+        calc_options[:context_time] = snapshot_time
+        facts[key_name.to_s] = self.class.snapshot_key(snapshot_time)
+        facts = @facts.apply_dynamic(facts, calc_options)
+        facts
+      end
+
+      def publish(snapshot_data)
+        Wonkavision.event_coordinator.submit_job( event_name, snapshot_data )
+      end      
     
     end
   end

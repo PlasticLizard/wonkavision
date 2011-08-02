@@ -85,6 +85,11 @@ module Wonkavision
       def ==(other)
         inspect == other.inspect
       end
+      alias :eql? :==
+
+      def hash
+        inspect.hash
+      end
 
       [:gt, :lt, :gte, :lte, :ne, :in, :nin, :eq].each do |operator|
         define_method(operator) do |*args|

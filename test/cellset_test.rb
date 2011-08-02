@@ -399,6 +399,10 @@ class CellSetTest < ActiveSupport::TestCase
             should "calculate an average" do
               assert_equal 5, @measure.average
             end
+            should "return the 'value' data point when present" do
+              measure = Wonkavision::Analytics::CellSet::Measure.new("test",{"value"=>1.2})
+              assert_equal 1.2, measure.value
+            end
             context "#aggregate" do
               setup do
                 @measure.aggregate(@measure.data.dup)

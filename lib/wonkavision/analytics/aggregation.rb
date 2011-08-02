@@ -81,6 +81,15 @@ module Wonkavision
           dim
         end
 
+        def find_measure(measure_name)
+          unless measure = measures[measure_name]
+            snapshots.values.each do |ss|
+              break if measure = ss.measures[measure_name]
+            end
+          end
+          measure
+        end
+
         def dimensions(snapshot = nil)
           snapshot ? aggregation_spec.dimensions.merge(snapshots[snapshot.to_sym].dimensions) : aggregation_spec.dimensions
         end

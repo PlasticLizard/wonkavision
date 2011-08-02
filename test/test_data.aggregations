@@ -1,0 +1,29 @@
+[
+  {"_id"=>BSON::ObjectId('4e312c188a3b7f4580c8e5ec'),
+  "dimension_keys"=>["2011-07", "4de3f6b30c7dea6e3c000103"],
+  "dimension_names"=>["snapshot_month", "team"],
+  "dimensions"=>
+   {"team"=>{"id"=>"4de3f6b30c7dea6e3c000103", "name"=>"Ground 1"},
+    "snapshot_month"=>{"month_key"=>"2011-07"}},
+  "measures"=>
+   {"count"=>{"count"=>397, "sum"=>397, "sum2"=>397},
+    "a"=>{"count"=>60, "sum"=>60, "sum2"=>60},
+    "b"=>{"count"=>26, "sum"=>26, "sum2"=>26},
+    "c"=>{"count"=>309, "sum"=>309, "sum2"=>309},
+    "d"=>{"count"=>397, "sum"=>397, "sum2"=>397}},
+  "snapshot"=>:daily},
+
+  {"_id"=>BSON::ObjectId('4e30a76e8a3b7f4580c8e50c'),
+  "dimension_keys"=>["2011-06", "4de3f6b30c7dea6e3c000103"],
+  "dimension_names"=>["snapshot_month", "team"],
+  "dimensions"=>
+   {"team"=>{"id"=>"4de3f6b30c7dea6e3c000103", "name"=>"Ground 1"},
+    "snapshot_month"=>{"month_key"=>"2011-07"}},
+  "measures"=>
+   {"count"=>{"count"=>318, "sum"=>318, "sum2"=>318},
+    "a"=>{"count"=>98, "sum"=>98, "sum2"=>98},
+    "b"=>{"count"=>31, "sum"=>31, "sum2"=>31},
+    "c"=>{"count"=>274, "sum"=>274, "sum2"=>274},
+    "d"=>{"count"=>318, "sum"=>318, "sum2"=>318}},
+  "snapshot"=>:daily}
+]

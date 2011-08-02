@@ -68,8 +68,15 @@ class SnapshotTest < ActiveSupport::TestCase
 
     context "purge!" do
       should "call purge! on each subscribed aggregation" do
-        @agg.snapshots[:daily].expects(:purge!).with("2011-07")
+        @agg.snapshots[:daily].expects(:purge!).with("2011-07-20".to_time)
         @snapshot.purge!("2011-07-20".to_time)
+      end
+    end
+
+    context "calculate_statistics" do
+      should "call calculate_statistics on each subscribed aggregation" do
+        @agg.snapshots[:daily].expects(:calculate_statistics!).with("2011-07-20".to_time)
+        @snapshot.calculate_statistics!("2011-07-20")
       end
     end
 
@@ -90,7 +97,7 @@ class SnapshotTest < ActiveSupport::TestCase
         @facts.expects(:apply_dynamic).with(msg, opts).returns(msg)
         expected = {
           "a"=>"b",
-          "snapshot_month" => @snapshot.send(:snapshot_key, Date.today.to_utc_time)
+          "snapshot_month" => @snapshot.class.snapshot_key( Date.today.to_utc_time)
         }
         assert_equal expected, @snapshot.send(:prepare_snapshot, msg, Date.today.to_utc_time, {})
       end
@@ -108,7 +115,7 @@ class SnapshotTest < ActiveSupport::TestCase
           "day_of_week" => 2,
           "month" => 7
         }
-        assert_equal expected, @snapshot.send(:snapshot_key, time)
+        assert_equal expected, @snapshot.class.snapshot_key(time)
       end
     end
   

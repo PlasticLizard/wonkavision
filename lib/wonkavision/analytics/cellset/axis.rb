@@ -9,7 +9,7 @@ module Wonkavision
           @dimensions = []
           snapshot = @cellset.query.snapshot
           dimensions.each do |dim_name|
-            definition = cellset.aggregation.dimensions(snapshot)[dim_name]
+            definition = cellset.aggregation.find_dimension(dim_name)
             members = dimension_members[dim_name.to_s]
             @dimensions << Dimension.new(self,dim_name,definition,members)
           end

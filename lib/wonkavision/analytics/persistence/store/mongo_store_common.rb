@@ -131,17 +131,22 @@ module Wonkavision
 	        end
 
 	        #Aggregation persistence
-	        def fetch_tuples(dimension_names, filters)
+	        def fetch_tuples(dimension_names, filters, &block)
 	          criteria = dimension_names.blank? ? {} : { :dimension_names => dimension_names }
 	          append_aggregations_filters(criteria,filters)
-	          find(criteria).to_a
+	          block ? each(criteria, &block) : find(criteria)
 	        end
 
-	        def update_tuple(data)
+	        def update_tuple(data, incremental = true)
 	        	safe = self.respond_to?(:safe) ? self.safe : false
-	        	agg = {"$inc" => data[:measures],"$set" => { :dimensions=>data[:dimensions]}}
-	          agg["$set"][:snapshot] = data[:snapshot] if data[:snapshot]
-	          update( aggregation_key(data), agg, :upsert => true, :safe => safe)
+	        	doc = {}
+	        	measure_op = incremental ? "$inc" : "$set"
+
+	        	doc[measure_op] = data[:measures] if data[:measures]
+	        	(doc["$set"] ||= {})[:dimensions] = data[:dimensions] if data[:dimensions]
+	          (doc["$set"] ||= {})[:snapshot] = data[:snapshot] if data[:snapshot]
+	          
+	          update( aggregation_key(data), doc, :upsert => true, :safe => safe)
 	        end
 
 	        def remove_mongo_id(*documents)

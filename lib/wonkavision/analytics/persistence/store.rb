@@ -57,20 +57,20 @@ module Wonkavision
         #
         # Takes a Wonkavision::Analytics::Query and returns an array of
         # matching tuples
-        def execute_query(query)
+        def execute_query(query, &block)
           dimension_names = query.all_dimensions? ? [] :
             query.referenced_dimensions.dup.
               concat(Wonkavision::Analytics.context.global_filters.
-              select{ |f| f.dimension?}.map{ |dim_filter| dim_filter.name }).uniq.
+              select{ |f| f.dimension?}.map{ |dim_filter| dim_filter.name.to_s }).uniq.
               sort{ |a,b| a.to_s <=> b.to_s }
 
           filters = (query.filters + Wonkavision::Analytics.context.global_filters).compact.uniq
 
-          fetch_tuples(dimension_names, filters)
+          fetch_tuples(dimension_names, filters, &block)
         end
 
-        def update_aggregation(aggregation_data)
-          update_tuple(aggregation_data)
+        def update_aggregation(aggregation_data, incremental = true)
+          update_tuple(aggregation_data, incremental)
         end
 
         def facts_for(aggregation,filters,options={})

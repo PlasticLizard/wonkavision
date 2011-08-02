@@ -15,7 +15,7 @@ module Wonkavision
         options = dimensions.extract_options!
         axis = options[:axis] || options[:on]
         axis_ordinal = self.class.axis_ordinal(axis)
-        @axes[axis_ordinal] = dimensions
+        @axes[axis_ordinal] = dimensions.flatten
         self
       end
 
@@ -57,7 +57,7 @@ module Wonkavision
       end
 
       def referenced_dimensions
-        ( [] + selected_dimensions + slicer.map{|f|f.name} ).compact
+        ( [] + selected_dimensions.map{|s|s.to_s} + slicer.map{|f|f.name.to_s} ).uniq.compact
       end
 
       def selected_dimensions

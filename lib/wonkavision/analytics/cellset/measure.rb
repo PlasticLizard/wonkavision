@@ -7,6 +7,7 @@ module Wonkavision
           @name = name
           @data = data ? data.dup : {}
           @options = opts
+          @has_value_field = @data.keys.include?("value")
           @default_component = options[:default_component] || options[:default_to] || :count
           @format = options[:format] || nil
         end
@@ -47,7 +48,7 @@ module Wonkavision
         end
 
         def value
-          send(@default_component)
+          @has_value_field ? data["value"] : send(@default_component)
         end
 
         def empty?
