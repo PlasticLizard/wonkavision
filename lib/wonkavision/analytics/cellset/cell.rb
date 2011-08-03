@@ -55,7 +55,7 @@ module Wonkavision
 
         def [](measure_name)
           unless measures.keys.include?(measure_name.to_s)
-            measures[measure_name] = Measure.new(measure_name,{})
+            Measure.new(measure_name,{})
           else
             measures[measure_name]
           end
