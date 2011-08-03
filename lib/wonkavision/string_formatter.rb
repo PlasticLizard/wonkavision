@@ -20,6 +20,7 @@ module Wonkavision
                                         :default=>lambda{|v,f,opts| v.respond_to?(:strftime) ?
                                           v.strftime(f.to_s) : f.to_s % v } ,
                                         :float =>lambda {|v,f,opts| precision_format(opts) % v },
+                                        :integer => lambda {|v,f,opts| precision_format(opts,0) % v },
                                         :dollars=>lambda {|v,f,opts|
                                           to_currency(v, '$', ',', '.', precision_format(opts,2))},
                                         :percent=>lambda {|v,f,opts|

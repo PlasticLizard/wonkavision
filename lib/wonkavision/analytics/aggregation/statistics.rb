@@ -71,7 +71,7 @@ module Wonkavision
           filter.delete(key_dim_name.to_s)
 
           start_filter = MemberFilter.new key_dim_name, :operator => :gte
-          end_filter = MemberFilter.new key_dim_name, :operator => :lte
+          end_filter = MemberFilter.new key_dim_name, :operator => :lt
 
           filter[start_filter] = start_time
           filter[end_filter] = end_time
