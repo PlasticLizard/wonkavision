@@ -17,6 +17,16 @@ module Wonkavision
                       statistics.aggregation.measures.keys].flatten
           @measures = @measures - [options.delete(:except)].flatten if options[:except]
           @algorithm_options = options
+          @windows.each do |window|
+            @measures.each do |measure|
+              measure_name = @algorithm.measure_name(measure, window, time_window_units)
+              aggregation.measure measure_name, options.slice(:format, :precision)
+            end
+          end
+        end
+
+        def aggregation
+          statistics.aggregation
         end
 
         def time_window_units

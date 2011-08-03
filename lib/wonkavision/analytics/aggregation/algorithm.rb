@@ -21,8 +21,8 @@ module Wonkavision
           name.split("::").pop.underscore.to_sym
         end
 
-        def self.measure_name(base_measure_name, time_window)
-          "#{base_measure_name}_#{time_window.num_periods}#{time_window.time_unit.to_s[0..0]}_#{algorithm_name}"
+        def self.measure_name(base_measure_name, num_periods, time_unit)
+          "#{base_measure_name}_#{num_periods}#{time_unit.to_s[0..0]}_#{algorithm_name}"
         end
 
         attr_reader :measure_names, :time_window, :context_time, :options

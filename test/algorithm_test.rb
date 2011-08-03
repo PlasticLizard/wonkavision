@@ -19,7 +19,7 @@ class AlgorithmTest < ActiveSupport::TestCase
       end
 
       should "generate a reasonable measure name" do
-        assert_equal "my_measure_2d_dummy_algorithm", DummyAlgorithm.measure_name("my_measure", @time_window)
+        assert_equal "my_measure_2d_dummy_algorithm", DummyAlgorithm.measure_name("my_measure", @time_window.num_periods, @time_window.time_unit)
       end
     end
 

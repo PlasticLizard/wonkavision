@@ -4,12 +4,18 @@ class StatDefTest < ActiveSupport::TestCase
   context "StatDef" do
     setup do
       @time_window = Wonkavision::Analytics::Aggregation::TimeWindow.new("2011-07-03", 3, :days)
-      @statistics = stub(:snapshot=>stub(:resolution=>:month))
+      @aggregation = Class.new
+      @aggregation.class_eval do
+        include Wonkavision::Analytics::Aggregation
+      end
+      @statistics = stub(:snapshot=>stub(:resolution=>:month),:aggregation => @aggregation)
       @stat_def = Wonkavision::Analytics::Aggregation::StatDef.new(@statistics, :rolling_average,
                                                                         :windows => [10,3],
                                                                         :measures => [:a,:b, :c],
                                                                         :except => [:b],
-                                                                        :algorithm => :rolling_average)
+                                                                        :algorithm => :rolling_average,
+                                                                        :format => :float, :precision => 1)
+    
     end
 
     should "initialize from constructor options" do
@@ -17,6 +23,14 @@ class StatDefTest < ActiveSupport::TestCase
       assert @stat_def.algorithm.name =~ /RollingAverage/
       assert_equal [3, 10], @stat_def.windows
       assert_equal [:a, :c], @stat_def.measures
+    end
+
+    should "add a measure to the aggregation for each derived measure" do
+      assert_equal 5, @aggregation.measures.count
+      [:a_3m_average, :a_10m_average, :c_3m_average, :c_10m_average].each do |measure|
+        assert_equal( {"format"=>:float, "precision"=>1}, @aggregation.measures[measure] )
+      end
+
     end
 
     should "deduce time window units from the snapshot resolution" do
@@ -48,3 +62,4 @@ class StatDefTest < ActiveSupport::TestCase
    
   end
 end
+

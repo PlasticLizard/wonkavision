@@ -8,7 +8,7 @@ module Wonkavision
                   
         def calculate
           measure_names.inject({}) do |accum, measure_name|
-            name = self.class.measure_name(measure_name, time_window) 
+            name = self.class.measure_name(measure_name, time_window.num_periods, time_window.time_unit) 
             accum[name] = @measures[measure_name][:sum]
             accum
           end
