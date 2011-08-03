@@ -1,6 +1,12 @@
+class TestFacts
+  include Wonkavision::Analytics::Facts
+end
+
 class TestAggregation
   include Wonkavision::Analytics::Aggregation
 
+  aggregates TestFacts
+  
   store :hash_store
 
   dimension :color, :size, :shape
@@ -43,5 +49,10 @@ class TestAggregation
       print @i % 100 == 0 ? @i : "."
     end
 
+  end
+end
+
+module Ns
+  class Aggregation < ::TestAggregation
   end
 end
