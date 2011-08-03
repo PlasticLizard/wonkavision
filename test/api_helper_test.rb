@@ -2,6 +2,15 @@ require "test_helper"
 require "wonkavision/api/helper"
 
 class ApiHelperTest < ActiveSupport::TestCase
+  setup do
+    @helper = Wonkavision::Api::Helper.new("Ns")
+  end
+
+  context "#constantize" do
+    should "prepend the namespace and constantize" do
+      assert_equal Ns::Aggregation, @helper.constantize("Aggregation")
+    end
+  end
 
   context "#query_from_params" do
     setup do
@@ -14,14 +23,14 @@ class ApiHelperTest < ActiveSupport::TestCase
         "measures" => ["k","l"],
         "filters" => [:dimensions.a.caption.eq(2).to_s, :measures.k.ne("b").to_s].join("|")
       }
-      @query = Wonkavision::Api::Helper.query_from_params(@params)
+      @query = @helper.query_from_params(@params)
 
     end
     
     should "extract dimensions into each named axis" do
       (0..4).each do |axis_ordinal|
         ["columns","rows","pages","chapters","sections"].each_with_index do |axis,idx|
-          assert_equal Wonkavision::Api::Helper.parse_list(@params[axis]), @query.axes[idx]
+          assert_equal @helper.parse_list(@params[axis]), @query.axes[idx]
         end
       end
     end
@@ -53,6 +62,28 @@ class ApiHelperTest < ActiveSupport::TestCase
     end
   end
 
+  context "facts_for" do
+    setup do
+      result = {:some=>:data}
+      class << result; include Wonkavision::Analytics::Paginated; end
+
+      @helper.expects(:facts_query_from_params).
+        with(:aggregation=>"Aggregation").
+        returns([:hi,{:ho=>:sailor}])
+       Ns::Aggregation.expects(:facts_for).with(:hi,{:ho=>:sailor}).returns(result)
+       @response = @helper.facts_for({:aggregation=>"Aggregation"})
+    end
+    should "set the facts class" do
+      assert_equal "TestFacts", @response[:facts_class]
+    end
+    should "return the data" do
+      assert_equal( {:some=>:data}, @response[:data] )
+    end
+    should "include pagination data" do
+      assert @response[:pagination]
+    end
+  end
+
   context "facts_query_from_params" do
     setup do
       @params = {
@@ -61,7 +92,7 @@ class ApiHelperTest < ActiveSupport::TestCase
         "per_page" => "50",
         "sort" => "a:1|b:-1"
       }
-      @filters, @options = Wonkavision::Api::Helper.facts_query_from_params(@params)
+      @filters, @options = @helper.facts_query_from_params(@params)
     end
     should "extract each filter" do
       assert_equal 2, @filters.length
@@ -82,22 +113,22 @@ class ApiHelperTest < ActiveSupport::TestCase
 
   context "parse_list" do
     should "should return nil if the input is blank" do
-      assert_equal nil, Wonkavision::Api::Helper.parse_list("")
+      assert_equal nil, @helper.parse_list("")
     end
     should "return an array if the input is an array" do
-      assert_equal [1,2,3], Wonkavision::Api::Helper.parse_list([1,2,3])
+      assert_equal [1,2,3], @helper.parse_list([1,2,3])
     end
     should "return a single element array if the input is a single string" do
-      assert_equal ["a"], Wonkavision::Api::Helper.parse_list("a")
+      assert_equal ["a"], @helper.parse_list("a")
     end
     should "split a string by commas if the input is a comma string" do
-      assert_equal ["a","b","c"], Wonkavision::Api::Helper.parse_list("a| b |   c   ")
+      assert_equal ["a","b","c"], @helper.parse_list("a| b |   c   ")
     end
   end
 
   context "parse_sort_list" do
     should "parse a string representing a list of sort criteria into a two dimensional array" do
-      assert_equal [["a",1],["b",-1]], Wonkavision::Api::Helper.parse_sort_list("a:1|b:-1")
+      assert_equal [["a",1],["b",-1]], @helper.parse_sort_list("a:1|b:-1")
     end
   end
 
