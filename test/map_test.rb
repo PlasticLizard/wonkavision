@@ -352,7 +352,7 @@ class MapTest < ActiveSupport::TestCase
       should "raise an exception for an invalid unit" do
         assert_raise(RuntimeError) { @m.send(:convert_seconds,1,:wakka)}
       end
-      should "should correctly calculate proper units" do
+      should "correctly calculate proper units" do
         assert_equal 100, @m.send(:convert_seconds,100,:seconds)
         assert_equal 1, @m.send(:convert_seconds,60,:minutes)
         assert_equal 1, @m.send(:convert_seconds,60*60,:hours)
@@ -362,6 +362,30 @@ class MapTest < ActiveSupport::TestCase
         assert_equal 1, @m.send(:convert_seconds,60*60*24*365,:years)
       end
 
+    end
+    context "Map.lookup" do
+      setup do
+        @m = Wonkavision::MessageMapper::Map.new(
+          {:my=>:data}, :lookup => proc { |from, id| {from => id} }
+        )
+      end
+      should "call the proc with the given args and return the result" do
+        assert_equal( {:this => :that}, @m.lookup(:this, :that) )
+      end
+      should "be able to compose child and lookup" do
+        @m.child :this_that => @m.lookup(:this, :that) do
+          string :this
+        end
+        assert_equal "that", @m.this_that["this"]
+      end
+      context "Map.lookup_child" do
+        should "create a child, using the result of the lookup as the child context" do
+          @m.lookup_child :this_that, :this, :that do
+            string :this
+          end
+          assert_equal "that", @m.this_that["this"]
+        end
+      end
     end
 
 

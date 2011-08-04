@@ -21,6 +21,10 @@ module Wonkavision
         self
       end
 
+      def lookup_handler
+        @lookup_handler ||= options[:lookup]
+      end
+
       def context
         @context_stack[-1]
       end
@@ -33,6 +37,11 @@ module Wonkavision
         @write_missing = true
       end
 
+      def lookup(*args)
+        raise "No lookup handler was registered with this map, eg MessageMapper.execute(:my_map,data_source,proc{|*lookup_args| ... }" unless lookup_handler
+        lookup_handler.call(*args)
+      end
+
       def from (context,&block)
         raise "No block ws provided to 'from'" unless block
         return if context.nil?
@@ -40,6 +49,10 @@ module Wonkavision
         @context_stack.push(context)
         instance_eval(&block)
         @context_stack.pop
+      end
+
+      def lookup_child(field_name, *lookup_args, &block)
+        child({ field_name => lookup(*lookup_args) }, &block)
       end
 
       def exec(map_name,exec_context=self.context)
