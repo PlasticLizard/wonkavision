@@ -52,7 +52,7 @@ class MapTest < ActiveSupport::TestCase
       assert_equal 1, m.a
     end
   end
-  context "Map.map" do
+  context "Map.child" do
     should "raise an exception if called without a block or map name" do
       m = Wonkavision::MessageMapper::Map.new({})
       assert_raise RuntimeError do
@@ -82,6 +82,17 @@ class MapTest < ActiveSupport::TestCase
         self.l = context
       end
       assert_equal 1,m["length"].l
+    end
+    should "provide access to the parent context" do
+      m = Wonkavision::MessageMapper::Map.new({:a=>:b})
+      m.child "length" do
+        int :times_two => context * 2
+        from context(-1) do
+          string :a
+        end
+      end
+      assert_equal 2, m["length"]["times_two"]
+      assert_equal( "b", m["length"]["a"] )
     end
   end
   context "Map.string" do
@@ -316,6 +327,15 @@ class MapTest < ActiveSupport::TestCase
         assert_equal 2, m.new_collection[0].b
         assert_equal "3", m.new_collection[1].a
         assert_equal 4, m.new_collection[1].b
+      end
+      should "provide access to the parent context" do
+        m = Wonkavision::MessageMapper::Map.new(:c => [1,2])
+        m.array :c2 => m.context[:c] do
+          int :a => context
+          value :c => context(-1)[:c]
+        end
+        assert_equal [{"a"=>1, "c"=>[1,2]},{"a"=>2, "c"=>[1,2]}], m.c2
+
       end
     end
 

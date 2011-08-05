@@ -8,17 +8,20 @@ module Wonkavision
       def initialize(context = nil, options = {})
         @options = IndifferentHash.new.merge(options)
         @write_missing = true
-        @context_stack = []
-        @context_stack.push(context) if context
+        context_stack.push(context) if context
       end
 
       def execute(context,map_block,options={})
         @options.merge!(options)
         @write_missing = options[:write_missing].nil? ? true : options[:write_missing]
-        @context_stack.push(context)
+        context_stack.push(context)
         instance_eval(&map_block)
-        @context_stack.clear
+        context_stack.clear
         self
+      end
+
+      def context_stack
+        @context_stack ||= @options[:parent_context] || []
       end
 
       def lookup_handler
@@ -32,7 +35,7 @@ module Wonkavision
         #position in the array is used for the 
         #current context.
         index -= 1 if index && index < 0
-        @context_stack[index || -1]
+        context_stack[index || -1]
       end
 
       def ignore_missing!
@@ -52,9 +55,9 @@ module Wonkavision
         raise "No block ws provided to 'from'" unless block
         return if context.nil?
 
-        @context_stack.push(context)
+        context_stack.push(context)
         instance_eval(&block)
-        @context_stack.pop
+        context_stack.pop
       end
 
       def lookup_child(field_name, *lookup_args, &block)
@@ -79,9 +82,9 @@ module Wonkavision
         end
         if ctx && ctx != KeyMissing
           if (map_name = options.delete(:map_name))
-            child = MessageMapper.execute(map_name,ctx, @options)
+            child = MessageMapper.execute(map_name,ctx, @options.merge(:parent_context => context_stack.dup))
           else
-            child = Map.new(ctx)
+            child = Map.new(ctx, :parent_context => context_stack.dup)
             child.instance_eval(&block)
           end
         else
@@ -104,9 +107,9 @@ module Wonkavision
         map_name = options.delete(:map_name)
         ctx.each do |item|
           if (map_name)
-            child = MessageMapper.execute(map_name,item,@options)
+            child = MessageMapper.execute(map_name,item,@options.merge(:parent_context=>context_stack.dup))
           else
-            child = Map.new(item)
+            child = Map.new(item, :parent_context => context_stack.dup)
             child.instance_eval(&block)
           end
           result << child
