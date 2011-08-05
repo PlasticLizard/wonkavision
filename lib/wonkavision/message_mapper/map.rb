@@ -65,7 +65,7 @@ module Wonkavision
       end
 
       def exec(map_name,exec_context=self.context)
-        mapped = MessageMapper.execute(map_name,exec_context, @options)
+        mapped = MessageMapper.execute(map_name,exec_context, @options.merge(:parent_context => context_stack.dup))
         self.merge!(mapped) if mapped
       end
       alias import exec
