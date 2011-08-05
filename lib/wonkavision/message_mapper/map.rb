@@ -25,8 +25,14 @@ module Wonkavision
         @lookup_handler ||= options[:lookup]
       end
 
-      def context
-        @context_stack[-1]
+      def context(index = nil)
+        #allows access to ancestor contexts
+        #the -1 bit is because context(-1) should
+        #represent the immediate parent, but -1
+        #position in the array is used for the 
+        #current context.
+        index -= 1 if index && index < 0
+        @context_stack[index || -1]
       end
 
       def ignore_missing!

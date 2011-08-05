@@ -44,6 +44,13 @@ class MapTest < ActiveSupport::TestCase
       assert_equal 1, m.context
       assert_equal 2, m.a
     end
+    should "provide access to the parent context" do
+      m = Wonkavision::MessageMapper::Map.new(1)
+      m.from(2) do
+        self.a = context(-1)  
+      end
+      assert_equal 1, m.a
+    end
   end
   context "Map.map" do
     should "raise an exception if called without a block or map name" do
