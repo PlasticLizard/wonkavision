@@ -240,6 +240,18 @@ module Wonkavision
       end
       alias :elapsed :duration
 
+      def date_dimension(*args)
+        child *args do
+          time :timestamp => context
+          string :day_key => timestamp.iso8601[0..9]
+          string :month_key => timestamp.iso8601[0..6]
+          string :year_key => timestamp.year
+          int :day_of_month => timestamp.day
+          int :day_of_week => timestamp.wday
+          int :month => timestamp.month
+        end
+      end
+
       private
 
       def convert_seconds(duration, unit)

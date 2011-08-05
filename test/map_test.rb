@@ -370,6 +370,26 @@ class MapTest < ActiveSupport::TestCase
       end
 
     end
+    
+    context "Map.date_dimension" do
+      setup do
+        @m = Wonkavision::MessageMapper::Map.new ({"date_field" => "2011-07-01"}) 
+      end
+      should "create a child with expanded date properties" do
+        @m.date_dimension :date_field
+        expected = {
+          "timestamp" => "2011-07-01".to_time,
+          "day_key" => "2011-07-01",
+          "month_key" => "2011-07",
+          "year_key" => "2011",
+          "day_of_month" => 1,
+          "day_of_week" => 5,
+          "month" => 7
+        }
+        assert_equal expected, @m.date_field
+      end
+    end
+    
     context "Map.lookup" do
       setup do
         @m = Wonkavision::MessageMapper::Map.new(

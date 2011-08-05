@@ -6,13 +6,13 @@ unless defined?(::TestEventHandler)
       @@knids ||= []
     end
 
-    def self.callbacks
-      @@callbacks ||= []
-    end
+    # def self.callbacks
+    #   @@callbacks ||= []
+    # end
 
     def self.reset
       @@knids = []
-      @@callbacks = []
+      #@@callbacks = []
     end
 
     event_namespace :vermicious
