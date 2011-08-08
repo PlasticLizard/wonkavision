@@ -64,6 +64,10 @@ module Wonkavision
         child({ field_name => lookup(*lookup_args) }, &block)
       end
 
+      def remove(field_name)
+        self.delete(field_name)
+      end
+
       def exec(map_name,exec_context=self.context)
         mapped = MessageMapper.execute(map_name,exec_context, @options.merge(:parent_context => context_stack.dup))
         self.merge!(mapped) if mapped
@@ -94,6 +98,9 @@ module Wonkavision
       end
 
       def array(source,options={},&block)
+        predicate = options.delete(:if)
+        raise "an :if predicate must be a proc or implement 'call'" if predicate && !predicate.respond_to?(:call)
+        
         if (source.is_a?(Hash))
           field_name = source.keys[0]
           ctx = source[field_name]
@@ -106,6 +113,7 @@ module Wonkavision
         ctx = [ctx].compact.flatten
         map_name = options.delete(:map_name)
         ctx.each do |item|
+          next if predicate && !predicate.call(item)
           if (map_name)
             child = MessageMapper.execute(map_name,item,@options.merge(:parent_context=>context_stack.dup))
           else

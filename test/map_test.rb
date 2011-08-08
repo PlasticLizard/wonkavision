@@ -95,6 +95,15 @@ class MapTest < ActiveSupport::TestCase
       assert_equal( "b", m["length"]["a"] )
     end
   end
+  context "Map.remove" do
+    should "Allow a key to be removed" do
+      m = Wonkavision::MessageMapper::Map.new({:a=>:b, :c=>:d})
+      m.string :a, :c
+      assert m.keys.include?("a")
+      m.remove(:a)
+      assert !m.keys.include?("a")
+    end
+  end
   context "Map.string" do
     should "convert the underlying value to a string" do
       m = Wonkavision::MessageMapper::Map.new({:a=>:b})
@@ -303,7 +312,7 @@ class MapTest < ActiveSupport::TestCase
         assert_equal "1", m.a
       end
     end
-    context "when mapping an array" do
+    context "Map.array" do
       should "apply the supplied block to each item in the array" do
         m = Wonkavision::MessageMapper::Map.new(:collection=>[{:a=>1,:b=>2},{:a=>3,:b=>4}])
         m.array :collection do
@@ -336,6 +345,13 @@ class MapTest < ActiveSupport::TestCase
         end
         assert_equal [{"a"=>1, "c"=>[1,2]},{"a"=>2, "c"=>[1,2]}], m.c2
 
+      end
+      should "respect a predicate" do
+        m = Wonkavision::MessageMapper::Map.new(:c => [1,2,3])
+        m.array :c, :if => proc { |item| item % 2 != 0 } do
+          int :me => context
+        end
+        assert_equal [{"me" => 1},{"me" => 3}], m.c
       end
     end
 
