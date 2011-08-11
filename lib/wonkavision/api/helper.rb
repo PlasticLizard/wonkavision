@@ -37,6 +37,12 @@ module Wonkavision
         query
       end
 
+      def execute_query(params)
+        aggregation = constantize(params[:aggregation])
+        query = query_from_params(params)
+        aggregation.execute_query(query).serializable_hash
+      end
+
       def facts_for(params)
         aggregation = constantize(params[:aggregation])
         filters, options = facts_query_from_params(params)
@@ -51,6 +57,26 @@ module Wonkavision
         response
       end
 
+      def purge(params)
+        facts = constantize(params[:facts])
+        purge_snapshots = !!params[:purge_snapshots]
+        facts.purge!(purge_snapshots)
+      end
+
+      def take_snapshot(params)
+        facts = constantize(params[:facts])
+        snap = facts.snapshots[params[:snapshot].to_sym]
+        time = Time.parse(params[:snapshot_time])
+        snap.take! time
+      end
+
+      def calculate_statistics(params)
+        facts = constantize(params[:facts])
+        snap = facts.snapshots[params[:snapshot].to_sym]
+        time = Time.parse(params[:snapshot_time])
+        snap.calculate_statistics! time
+      end
+     
       def facts_query_from_params(params)
         filters = parse_filters(params["filters"])
         options = {}

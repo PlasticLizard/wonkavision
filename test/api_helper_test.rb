@@ -62,6 +62,17 @@ class ApiHelperTest < ActiveSupport::TestCase
     end
   end
 
+  context "execute_query" do
+    setup do
+      cs = stub(:serializable_hash => :hash)
+      @helper.expects(:query_from_params).with({:aggregation=>"Aggregation"}).returns(:hi)
+      Ns::Aggregation.expects(:execute_query).with(:hi).returns(cs)
+    end
+    should "prepare and execute the query defined in the params" do
+      assert_equal :hash, @helper.execute_query({:aggregation=>"Aggregation"})
+    end
+  end
+
   context "facts_for" do
     setup do
       result = {:some=>:data}
@@ -81,6 +92,31 @@ class ApiHelperTest < ActiveSupport::TestCase
     end
     should "include pagination data" do
       assert @response[:pagination]
+    end
+  end
+
+  context "purge" do
+    should "call purge on the facts" do
+      Ns::TestFacts.expects(:purge!).with(true)
+      @helper.purge({:facts => "TestFacts", :purge_snapshots => true})
+    end
+  end
+
+  context "take_snapshot" do
+    should "fetch the snapshot and call take with the provided time" do
+      snap = {}
+      snap.expects(:take!).with(Time.parse("2011-07-01"))
+      Ns::TestFacts.snapshots.expects(:[]).with(:daily).returns(snap)
+      @helper.take_snapshot({:facts=>"TestFacts", :snapshot=>"daily", :snapshot_time=>"2011-07-01"})
+    end
+  end
+
+  context "calculate_stats" do
+    should "fetch the snapshot and call calculate_statistics! with the provided time" do
+      snap = {}
+      snap.expects(:calculate_statistics!).with(Time.parse("2011-07-01"))
+      Ns::TestFacts.snapshots.expects(:[]).with(:daily).returns(snap)
+      @helper.calculate_statistics({:facts=>"TestFacts", :snapshot=>"daily", :snapshot_time=>"2011-07-01"})
     end
   end
 

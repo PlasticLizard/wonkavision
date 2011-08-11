@@ -55,4 +55,7 @@ end
 module Ns
   class Aggregation < ::TestAggregation
   end
+
+  class TestFacts < ::TestFacts
+  end
 end
