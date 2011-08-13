@@ -76,6 +76,12 @@ module Wonkavision
         time = Time.parse(params[:snapshot_time])
         snap.calculate_statistics! time
       end
+
+      def submit_event(env, params)
+        event_message = env["rack.input"].read
+        event_path = params[:glob].join("/")
+        Wonkavision.event_coordinator.submit_job(event_path, event_message)
+      end
      
       def facts_query_from_params(params)
         filters = parse_filters(params["filters"])
