@@ -348,6 +348,14 @@ class CellSetTest < ActiveSupport::TestCase
               should "maintain a reference to the cell key" do
                 assert_equal ["large", "square", "red"], @cell.key
               end
+              should "aggregate properly given missing measures" do
+                cell = Wonkavision::Analytics::CellSet::Cell.new(@cellset, ["a","b"],["c","d"], {"a"=>{"sum"=>1}})
+                cell.aggregate({"a"=>{"sum"=>2}, "b"=>{"sum"=>1}})
+                cell.aggregate({"b"=>{"sum"=>2}})
+                cell.aggregate({"a"=>{"sum"=>7}, "b"=>{"sum"=>9}})
+                assert_equal 10, cell.a.data["sum"]
+                assert_equal 12, cell.b.data["sum"]
+              end
             end
             context "#filters" do
               setup do

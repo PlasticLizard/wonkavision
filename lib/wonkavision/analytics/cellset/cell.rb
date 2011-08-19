@@ -45,7 +45,7 @@ module Wonkavision
           measure_data.each_pair do |measure_name,measure_data|
             measure = @measures[measure_name]
             measure ? measure.aggregate(measure_data) :
-              @measures[measure_name] = Measure.new(measure_name,measure)
+              @measures[measure_name] = Measure.new(measure_name,measure_data)
           end
         end
 

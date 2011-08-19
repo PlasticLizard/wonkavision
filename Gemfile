@@ -4,6 +4,7 @@ source "http://rubygems.org"
 gemspec
 
 group :test do
+  gem 'pry'
   gem 'rake'
   gem 'shoulda','~> 2.11'
   gem 'mocha'
