@@ -105,9 +105,6 @@ class FactsTest < ActiveSupport::TestCase
       end
     end
 
-    context "#apply_dynamic_fields" do
-    end
-
     context "instance methods" do
       setup do
         @instance = @facts.new

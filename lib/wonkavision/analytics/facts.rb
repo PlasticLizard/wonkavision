@@ -96,6 +96,11 @@ module Wonkavision
           end
         end
 
+        def update_dynamic(facts, options={})
+          facts = apply_dynamic(facts, :context_time => Time.now.utc)
+          self.new.accept_event facts, options.merge(:action => :update)
+        end
+
       end
 
       module InstanceMethods
