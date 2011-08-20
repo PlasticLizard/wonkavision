@@ -52,7 +52,7 @@ module Wonkavision
         end
 
         def empty?
-          count.nil? || count !=0
+          count.nil? || count ==0
         end
 
         def sum; empty? ? nil : @data["sum"]; end
