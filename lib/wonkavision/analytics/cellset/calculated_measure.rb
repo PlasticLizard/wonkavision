@@ -17,7 +17,7 @@ module Wonkavision
         end
 
         def empty?
-          false
+          value != 0
         end
 
         def aggregate(data)
