@@ -28,9 +28,9 @@ module Wonkavision
         def serializable_hash(options={})
           hash = {
             :name => name,
-            :value => value            
+            :value => empty? ? nil : value            
           }
-          hash[:formatted_value] = formatted_value unless options[:format_measures] == false
+          hash[:formatted_value] = empty? ? "" : formatted_value unless options[:format_measures] == false
           hash.merge!( {
             :data => data,
             :default_component => default_component
@@ -52,7 +52,7 @@ module Wonkavision
         end
 
         def empty?
-          count.nil? || count < 1
+          count.nil? || count ==0
         end
 
         def sum; empty? ? nil : @data["sum"]; end

@@ -16,6 +16,10 @@ module Wonkavision
           cell.send(:instance_eval, &calculation)
         end
 
+        def empty?
+          value == 0
+        end
+
         def aggregate(data)
           #noop
         end
