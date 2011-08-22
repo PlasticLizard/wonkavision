@@ -75,6 +75,7 @@ module Wonkavision
 
         def method_missing(op,*args)
           args = [args[0].value.to_f] if args[0].kind_of?(Measure)
+          args = args.map{|a|a.to_f}
           value.to_f.send(op,*args)
         end
 
