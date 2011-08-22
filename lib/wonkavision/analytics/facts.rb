@@ -98,6 +98,7 @@ module Wonkavision
 
         def update_dynamic(facts, options={})
           facts = apply_dynamic(facts, :context_time => Time.now.utc)
+          facts[record_id.to_s] = facts.delete("_id")
           self.new.accept_event facts, options.merge(:action => :update)
         end
 
