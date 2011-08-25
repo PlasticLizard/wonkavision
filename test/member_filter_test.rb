@@ -182,6 +182,13 @@ class MemberFilterTest < ActiveSupport::TestCase
       end
 
     end
+    context "#parse" do
+      should "properly extract an array wrapped in a string" do
+        filter_string = "dimension::company_id::key::in::'[\"4d38c63d0c7dea49e0000005\", \"4d1bb6290c7dea787f0000d6\"]'"
+        filter = Wonkavision::Analytics::MemberFilter.parse(filter_string)
+        assert_equal ["4d38c63d0c7dea49e0000005", "4d1bb6290c7dea787f0000d6"], filter.value
+      end
+    end
 
 
   end

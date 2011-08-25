@@ -154,7 +154,7 @@ module Wonkavision
 
       def parse_value(value_string)
         case value_string
-        when /^(\'|\").*(\'|\")$/ then value_string[1..-2]
+        when /^(\'|\").*(\'|\")$/ then parse_value(value_string[1..-2])
         when /^time\(.*\)$/ then Time.parse(value_string[5..-2])
         when /^\[.*\]$/ then parse_array(value_string)
         when String then value_string.is_numeric? ? eval(value_string) : value_string
