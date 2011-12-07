@@ -1,0 +1,43 @@
+{
+   "started_time":null,
+   "current_balance":507.55,
+   "assigned_to":{
+      "name":"",
+      "id":""
+   },
+   "created_at":"2011-10-27T22:46:06Z",
+   "completed_time":null,
+   "resolution":"",
+   "priority":"23",
+   "id":"4ea9df2dce47d016090000f5",
+   "overdue_date":"2011-10-10T00:00:00Z",
+   "current_status":"overdue",
+   "task":{
+      "name":"Send To No Pay",
+      "url":""
+   },
+   "work_queue":{
+      "name":"Follow Up - Contract",
+      "priority":6,
+      "id":"4de3f6b30c7dea6e3c00019f"
+   },
+   "due_date":"2011-10-09T00:00:00Z",
+   "company_id":"4d38c63d0c7dea49e0000005",
+   "context":{
+      "current_balance":507.55,
+      "billing_record_number":"11-12412",
+      "current_payer":{
+         "name":"Employers Mutual Inc, AMR - VH",
+         "payer_type":"Contract",
+         "payer_id":"4d360a310c7dea643e00302e"
+      },
+      "status":{
+         "category":"insurance_claim_pending",
+         "current":"claim_submitted"
+      }
+   },
+   "team":{
+      "name":"Ground 1",
+      "id":"4de3f6b30c7dea6e3c000103"
+   }
+}

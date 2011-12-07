@@ -1,5 +1,2 @@
-.idea
-.idea/*
-*.log
-tmp
-*.gem
+target/
+tmp/
