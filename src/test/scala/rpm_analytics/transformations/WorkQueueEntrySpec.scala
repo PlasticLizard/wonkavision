@@ -73,7 +73,7 @@ class WorkQueueEntrySpec extends Spec with BeforeAndAfter with ShouldMatchers {
 
   def getTestMessage = {
   	val source = scala.io.Source.fromFile("src/test/resources/test_work_queue_entry_message.json")
-		val json = source .mkString
+		val json = source.mkString
 		source.close ()
 		parse(json).values.asInstanceOf[Map[String,Any]]
   }

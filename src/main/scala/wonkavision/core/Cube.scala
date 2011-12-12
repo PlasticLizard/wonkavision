@@ -13,15 +13,10 @@ class Cube( val name : String ) {
 	private var eventList : List[FactEventBinding] = List()
 
 	def dimensions = dimensionMap
-
 	def dimensionNames = dimensionMap.keys
-
 	def measures = measureMap
-
 	def aggregations = aggregationMap
-
 	def events = eventList
-
 
 	def dimension(name : String,
 		            key : String = null,
