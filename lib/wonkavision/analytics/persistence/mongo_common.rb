@@ -29,8 +29,13 @@ module Wonkavision
           username = options.delete(:username)
           password = options.delete(:password)
           database_name = options.delete(:database) || 'wonkavision'
+          hosts = options.delete(:hosts)
+          unless hosts
+            @connection = create_connection(host, port, options)
+          else
+            @connection = create_repl_set_connection(hosts, options)
+          end
           
-          @connection = create_connection(host, port, options)
           self.database_name = database_name
 
           if username && password && database
@@ -57,6 +62,9 @@ module Wonkavision
           raise "Create Connection must be implmeneted by a subclass"
         end     
 
+        def create_repl_set_connection(hosts, options)
+          raise "create_repl_set_connection must be implmeneted by a subclass"
+        end 
       end
     end
   end

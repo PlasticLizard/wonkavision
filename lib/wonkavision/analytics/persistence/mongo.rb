@@ -20,6 +20,9 @@ module Wonkavision
           ::Mongo::Connection.new(host, port, options)
         end     
 
+        def self.create_repl_set_connection(hosts, options)
+          ::Mongo::ReplSetConnection.new(*hosts.push(options))
+        end
       end
     end
   end
