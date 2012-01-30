@@ -69,7 +69,13 @@ module Wonkavision
     def connect(environment, options={})
       raise 'Set config before connecting. config = {...}' if config.blank?
       env = config_for_environment(environment)
-      self.connection = ::Mongo::Connection.new(env['host'], env['port'], options)
+
+      hosts = env['hosts']
+      unless hosts
+        self.connection = ::Mongo::Connection.new(env['host'], env['port'], options)
+      else
+        self.connection = ::Mongo::ReplSetConnection.new(*hosts.push(options))
+      end
       self.database = env['database']
       database.authenticate(env['username'], env['password']) if env['username'] && env['password']
     end
