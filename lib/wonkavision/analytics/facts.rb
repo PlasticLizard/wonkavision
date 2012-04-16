@@ -7,14 +7,14 @@ module Wonkavision
       include Wonkavision::EventHandler
 
       included do
-        write_inheritable_attribute :facts_options, {}
-        class_inheritable_reader :facts_options
+        class_attribute :facts_options, :instance_writer => false
+        self.facts_options = {}
 
-        write_inheritable_attribute :aggregations, []
-        class_inheritable_reader :aggregations
+        class_attribute :aggregations, :instance_writer => false
+        self.aggregations = []
 
-        write_inheritable_attribute :snapshots, {}
-        class_inheritable_reader :snapshots
+        class_attribute :snapshots, :instance_writer => false
+        self.snapshots = {}
       end
 
       module ClassMethods

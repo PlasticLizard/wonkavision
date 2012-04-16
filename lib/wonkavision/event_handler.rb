@@ -5,15 +5,14 @@ module Wonkavision
       EventContext = Struct.new(:data,:path,:binding,:callback)
 
       included do
-        write_inheritable_attribute :event_handler_options, {}
-        class_inheritable_reader :event_handler_options
+        class_attribute :event_handler_options, :instance_writer => false
+        self.event_handler_options = {}
 
-        write_inheritable_attribute :bindings, []
-        class_inheritable_reader :bindings
+        class_attribute :bindings, :instance_writer => false
+        self.bindings = []
 
-        write_inheritable_attribute :maps, []
-        class_inheritable_reader :maps
-
+        class_attribute :maps, :instance_writer => false
+        self.maps = []
       end
 
       module ClassMethods

@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.platform = Gem::Platform::RUBY
   s.files = Dir.glob("{lib,test}/**/*") + %w[LICENSE.txt README.rdoc CHANGELOG.rdoc]
 
-  s.add_dependency 'activesupport', '>= 2.3'
+  s.add_dependency 'activesupport', '3.1'
   s.add_dependency 'i18n'
  
 end

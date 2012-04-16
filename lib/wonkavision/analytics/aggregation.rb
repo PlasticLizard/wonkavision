@@ -8,15 +8,14 @@ module Wonkavision
       end
 
       included do
-        write_inheritable_attribute :aggregation_options, {}
-        class_inheritable_reader :aggregation_options
+        class_attribute :aggregation_options, :instance_write => false
+        self.aggregation_options = {}
 
-        write_inheritable_attribute( :aggregation_spec,
-                                                 AggregationSpec.new(name) )
-        class_inheritable_reader :aggregation_spec
+        class_attribute :aggregation_spec, :instance_writer => false
+        self.aggregation_spec = AggregationSpec.new(name)
 
-        write_inheritable_attribute :snapshots, {}
-        class_inheritable_reader :snapshots
+        class_attribute :snapshots, :instance_write => false
+        self.snapshots = {}
 
         Aggregation.all[name] = self
       end

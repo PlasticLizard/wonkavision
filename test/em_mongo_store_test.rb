@@ -43,7 +43,7 @@ class EMMongoStoreTest < ActiveSupport::TestCase
         collection.insert('hello' => 'world')
         found = collection.find_and_modify(:query => {'hello' => 'world'}, :update => {"$set" => {'hello' => 'dlrow'}})
         assert_equal 'world', found['hello']
-        assert_equal 'dlrow', collection.first['hello']
+        assert_equal 'dlrow', collection.find().to_a[0]['hello']
 
         EM.stop
       end
@@ -58,7 +58,7 @@ class EMMongoStoreTest < ActiveSupport::TestCase
         obj_id = collection.insert('hello' => 'world')
         @store.update({'hello' => 'world'}, {'hello' => 'newworld'})
 
-        new_obj = collection.first({'_id' => obj_id})
+        new_obj = collection.find({'_id' => obj_id}).to_a[0]
         assert_equal new_obj['hello'], 'newworld'
 
         EM.stop
