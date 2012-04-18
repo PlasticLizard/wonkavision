@@ -61,7 +61,16 @@ class CubeSpec extends Spec with BeforeAndAfter with ShouldMatchers {
       )
      
     }
+
+    Cube.register(cube)
     
+  }
+
+  describe("Registration") {
+    it ("should keep a map of registered cubes") {
+      Cube.cubes.size should equal (1)
+      Cube.cubes("mah cube") should equal(cube)
+    }
   }
 
   describe("Construction") {

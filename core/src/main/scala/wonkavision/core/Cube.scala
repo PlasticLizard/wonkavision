@@ -5,8 +5,22 @@ import measures._
 import MeasureFormat._
 import FactAction._
 
+object Cube {
+	private var cubeMap : Map[String, Cube] = Map()
+	
+	def register(cube : Cube) { register(List(cube)) }
+
+	def register(cubes : Iterable[Cube]) {
+		cubes.foreach{ c : Cube =>
+			cubeMap = cubeMap + (c.name -> c)
+		}
+	}
+
+	def cubes = cubeMap
+}
+
 class Cube( val name : String ) {
-		
+	
 	private var dimensionMap : Map[String, Dimension] = Map()
 	private var measureMap : Map[String, Measure] = Map()
 	private var aggregationMap : Map[String, Aggregation] = Map()
