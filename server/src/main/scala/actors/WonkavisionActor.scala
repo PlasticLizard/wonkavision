@@ -8,7 +8,7 @@ import org.wonkavision.server.messages._
 class WonkavisionActor extends Actor {
 	import context._
 
-	private var cubes : Map[String, ActorRef] = Map()
+	var cubes : Map[String, ActorRef] = Map()
 
 	override def preStart() {
 		Cube.cubes.values.foreach { cube =>

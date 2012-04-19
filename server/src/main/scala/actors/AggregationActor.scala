@@ -8,15 +8,15 @@ import org.wonkavision.core.Aggregation
 class AggregationActor(val aggregation : Aggregation) extends Actor {
 	import context._
 
-	private var aggregations : Map[String, ActorRef] = Map()
+	var aggregations : Map[String, ActorRef] = Map()
 
 	override def preStart() {
 		
 	}
 
 	def receive = {
-		case query : CellsetQuery => {
-			sender ! Cellset()
+		case query : TupleQuery => {
+			sender ! Tuples()
 		}
 	}
 }
