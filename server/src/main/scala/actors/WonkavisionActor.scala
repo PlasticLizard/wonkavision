@@ -18,12 +18,8 @@ class WonkavisionActor extends Actor {
 	}
 
 	def receive = {
-		case query : Query => {
-			if (cubes.contains(query.cube)) {
-					cubes(query.cube) forward query
-				} else {
-					sender ! CubeNotFound(query.cube)
-				}
+		case query : CellsetQuery => {
+			cubes(query.cube) forward query		
 		}
 	}
 }

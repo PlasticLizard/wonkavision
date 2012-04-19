@@ -28,14 +28,17 @@ object App extends Application {
   def route = {
     case GET(Path(Seg("query" :: cube :: aggregation :: Nil))) & QueryString(qs) => Action{ implicit request=>
       val query = parseQuery(cube, aggregation, qs)
-      AsyncResult { 
-        (wonkavision ? query).mapTo[QueryResult].asPromise.map { result =>
-          result match {
-            case CubeNotFound(name) => NotFound("Cube not found:" + name)
-            case cs : Cellset => Ok("great!")
+      val error = validateQuery(query)
+      if (!error.isEmpty)
+        NotFound(error.get.message)
+      else
+        AsyncResult { 
+          (wonkavision ? query).mapTo[QueryResult].asPromise.map { result =>
+            result match {
+              case cs : Cellset => Ok("great!")
+            }
           }
         }
-      }
     }
   }
 }
