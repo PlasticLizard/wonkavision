@@ -5,6 +5,8 @@ import org.scalatest.BeforeAndAfter
 import org.scalatest.matchers.ShouldMatchers
 import org.wonkavision.core._
 import org.wonkavision.server.messages._
+import org.wonkavision.server.test.cubes.TestCube
+
 
 class ApiHelperSpec extends Spec with BeforeAndAfter with ShouldMatchers {
 
@@ -21,6 +23,7 @@ class ApiHelperSpec extends Spec with BeforeAndAfter with ShouldMatchers {
       measures.fa.attribute.lt => 5}
     */
     qs = "measures=me%7Cfa&filters=dimension%3A%3Ahi%3A%3Akey%3A%3Anin%3A%3A%5B%223%22%2C%20%222%22%2C%20%221%22%5D%7Cdimension%3A%3Aso%3A%3Akey%3A%3Ain%3A%3A%5B1%2C%202%2C%203%5D%7Cmeasure%3A%3Afa%3A%3Aattribute%3A%3Alt%3A%3A5&columns=hi%7Cho%7Chum&rows=do%7Cre"
+    Cube.register(new TestCube())
   }
 
   describe("parseAxes") {
@@ -73,6 +76,25 @@ class ApiHelperSpec extends Spec with BeforeAndAfter with ShouldMatchers {
 
           )
         ))
+    }
+  }
+
+  describe("validateQuery(query)") {
+    it("should complain if the requested cube isn't found") {
+      val query = ApiHelper.parseQuery("blah","An Aggregation","")
+      ApiHelper.validateQuery(query) should equal (Some(ObjectNotFound("Cube", "blah")))
+    }
+    it ("should complain if the cube is OK but the aggreagation isn't found") {
+      val query = ApiHelper.parseQuery("A Cube Of Testing", "blah", "")
+      ApiHelper.validateQuery(query) should equal (Some(ObjectNotFound("Aggregation", "blah")))
+    }
+    it ("should complain if the cube and aggregation are OK but the dimensions aren't found"){
+      val query = ApiHelper.parseQuery("A Cube Of Testing", "An Aggregation", "columns=a|team")
+      ApiHelper.validateQuery(query) should equal(Some(ObjectNotFound("Dimension(s)","a")))
+    }
+    it ("should return None if the query is valid") {
+      val query = ApiHelper.parseQuery("A Cube Of Testing", "An Aggregation", "columns=team&rows=status")
+      ApiHelper.validateQuery(query) should equal (None)
     }
   }
 

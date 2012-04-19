@@ -51,7 +51,7 @@ object ApiHelper {
 	def validateQuery(cube : Cube, query : CellsetQuery) : Option[ObjectNotFound] = {
 		val missingDims = query.dimensions.diff(cube.dimensionNames.toSeq)
 		if (missingDims != Nil) {
-			Some(ObjectNotFound("Dimensions", missingDims.mkString(", ")))
+			Some(ObjectNotFound("Dimension(s)", missingDims.mkString(", ")))
 		} else if (!cube.aggregations.contains(query.aggregation)) {
 			Some(ObjectNotFound("Aggregation", query.aggregation))
 		} else { None }
