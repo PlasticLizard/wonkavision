@@ -32,10 +32,10 @@ class Cube( val name : String ) {
 	def aggregations = aggregationMap
 	def events = eventList
 
-	def dimension(name : String,
-		            key : String = null,
-		            caption : String = null,
-		            sort : String = null) {
+	def dimension(  name : String,
+		            key : Attribute = null,
+		            caption :Attribute = null,
+		            sort : Attribute = null) {
 
 		            addDimension( Dimension(name, key, caption, sort) )
 

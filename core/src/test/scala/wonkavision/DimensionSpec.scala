@@ -13,16 +13,16 @@ class DimensionSpec extends Spec with BeforeAndAfter with ShouldMatchers {
   before {
     dim = Dimension (
       name = "dimname",
-      key = "dimkey",
-      caption = "dimcap",
-      sort = "dimsort"
+      key = Attribute("dimkey"),
+      caption = Attribute("dimcap"),
+      sort = Attribute("dimsort")
     )
   }
 
   describe("Instantiation") {
     it("should create a new Dimension") {
       dim should equal (
-        Dimension("dimname","dimkey","dimcap","dimsort")
+        Dimension("dimname",Attribute("dimkey"),Attribute("dimcap"),Attribute("dimsort"))
       )
     }    
   }

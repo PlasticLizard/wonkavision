@@ -1,9 +1,21 @@
 package org.wonkavision.core
 
-case class Dimension(
-	val name : String,
-	val key : String = null,
-	val caption : String = null,
-	val sort : String = null
+import scala.collection.immutable.SortedSet
 
-)
+case class Dimension(
+	name : String,
+	key : Option[Attribute] = None,
+	caption : Option[Attribute] = None,
+	sort : Option[Attribute] = None) {
+
+	def getAttribute(name : String) = {
+		val defaultAttr = Attribute(name)
+		name match {
+			case "key" => key.getOrElse(defaultAttr)
+			case "caption" => caption.orElse(key).getOrElse(defaultAttr)
+			case "sort" => sort.orElse(caption).orElse(key).getOrElse(defaultAttr)
+			case _ => Attribute(name)
+		}
+	}
+
+}

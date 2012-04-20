@@ -8,6 +8,7 @@ import scala.collection.immutable.SortedSet
 import org.wonkavision.core._
 import org.wonkavision.core.measures._
 import org.wonkavision.core.FactAction._
+import org.wonkavision.core.AttributeType._
 
 class CubeSpec extends Spec with BeforeAndAfter with ShouldMatchers {
 
@@ -27,7 +28,7 @@ class CubeSpec extends Spec with BeforeAndAfter with ShouldMatchers {
         name = "dimname2",
         key = "dimkey2",
         caption = "dimcap2",
-        sort = "dimsort2"
+        sort = "dimsort2" -> Integer
       )
 
       sum ("awe_sum")
@@ -82,10 +83,10 @@ class CubeSpec extends Spec with BeforeAndAfter with ShouldMatchers {
     it( "should create specified dimensions") {
       
       cube dimensions "dimname" should equal (
-        Dimension ("dimname","dimkey","dimcap","dimsort")
+        Dimension ("dimname",Attribute("dimkey"),Attribute("dimcap"),Attribute("dimsort"))
       )
       cube dimensions "dimname2" should equal (
-        Dimension ("dimname2","dimkey2","dimcap2","dimsort2")
+        Dimension ("dimname2",Attribute("dimkey2"),Attribute("dimcap2"),Attribute("dimsort2", Integer))
       )
 
     }
