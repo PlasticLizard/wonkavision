@@ -27,7 +27,7 @@ class CubeSpec extends Spec with BeforeAndAfter with ShouldMatchers {
       dimension (
         name = "dimname2",
         key = "dimkey2",
-        caption = "dimcap2",
+        caption = ("dimcap2", String, "hithere"),
         sort = "dimsort2" -> Integer
       )
 
@@ -86,7 +86,7 @@ class CubeSpec extends Spec with BeforeAndAfter with ShouldMatchers {
         Dimension ("dimname",Attribute("dimkey"),Attribute("dimcap"),Attribute("dimsort"))
       )
       cube dimensions "dimname2" should equal (
-        Dimension ("dimname2",Attribute("dimkey2"),Attribute("dimcap2"),Attribute("dimsort2", Integer))
+        Dimension ("dimname2",Attribute("dimkey2"),Attribute("dimcap2", String, "hithere"),Attribute("dimsort2", Integer))
       )
 
     }

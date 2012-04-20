@@ -8,13 +8,15 @@ case class Dimension(
 	caption : Option[Attribute] = None,
 	sort : Option[Attribute] = None) {
 
-	def getAttribute(name : String) = {
+	lazy val attributes = List("key","caption","sort").map(a=>getAttribute(a))
+
+	def getAttribute(attrName : String) = {
 		val defaultAttr = Attribute(name)
-		name match {
+		attrName match {
 			case "key" => key.getOrElse(defaultAttr)
 			case "caption" => caption.orElse(key).getOrElse(defaultAttr)
 			case "sort" => sort.orElse(caption).orElse(key).getOrElse(defaultAttr)
-			case _ => Attribute(name)
+			case _ => Attribute(attrName)
 		}
 	}
 

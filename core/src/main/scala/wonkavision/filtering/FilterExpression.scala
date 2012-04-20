@@ -8,11 +8,24 @@ import FilterOperator._
 import Ordering.Implicits._
 
 class FilterExpression(val operator:FilterOperator, val values : List[Any]){
-	
+	import Convert._
+
 	def this(operator: FilterOperator, value : Some[Any]) = this(operator, List(value.get))
 	
+	def matches(data : Any) : Boolean = {
+		data.getClass match {
+			case t if t == classOf[Int] || t == classOf[java.lang.Integer] => matches(toInt(data))
+			case t if t == classOf[Long] => matches(toLong(data))
+			case t if t == classOf[Double] => matches(toDouble(data))
+			case t if t == classOf[DateTime] => matches(toDate(data))
+			case t if t == classOf[Boolean] => matches(toBool(data))
+			case _ => matches(Option(data.toString))
+		}
+	}	
+
+	def matches[T:Ordering](data : Option[T]) : Boolean = data.exists(matchesValue(_))
 	
-	def matches[T:Ordering](data : T) = {
+	def matchesValue[T:Ordering](data : T) : Boolean = {
 		val vals = values.map(v => Convert.coerce(v -> data.getClass).asInstanceOf[T])
 		if (operator == In) {
 			vals.contains(data)
