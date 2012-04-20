@@ -8,6 +8,6 @@ case class DimensionMember(dimension : Dimension, attributeValues : Map[String,A
 	def attributeValue(name : String) = {
 		val attr = dimension.getAttribute(name)
 		val rawVal = attributeValues(attr.name)
-		attr.convert(rawVal)
+		attr.coerce(rawVal)
 	}
 }

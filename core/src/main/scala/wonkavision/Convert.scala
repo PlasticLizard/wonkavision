@@ -62,4 +62,21 @@ object Convert {
 		}
 		Option(converted)
 	}
+
+
+	def coerce(fromTo : (Any, Class[_])) = {
+		val (from,to) = fromTo
+		val conv = to match {
+			case t if t == classOf[String] => toString(from)
+			case t if t == classOf[Int] || t == classOf[Integer] => toInt(from)
+			case t if t == classOf[Long] => toLong(from)
+			case t if t == classOf[Double] => toDouble(from)
+			case t if t == classOf[DateTime] => toDate(from)
+			case t if t == classOf[Boolean] => toBool(from)
+			case _ => Some(from)
+		}
+		conv.get
+	}
+
+	
 }

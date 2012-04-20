@@ -3,22 +3,21 @@ package org.wonkavision.core.filtering
 import org.joda.time.format.ISODateTimeFormat
 import org.scala_tools.time.Imports._
 
+import org.wonkavision.core.Convert
 import FilterOperator._
 import Ordering.Implicits._
 
-class FilterExpression[T : Ordering](val operator:FilterOperator, val values : List[T]){
+class FilterExpression(val operator:FilterOperator, val values : List[Any]){
 	
-	def this(operator: FilterOperator, value : Some[T]) = this(operator, List(value.get))
+	def this(operator: FilterOperator, value : Some[Any]) = this(operator, List(value.get))
 	
-	def matches(data : Any) = {
-		matchesValues(data.asInstanceOf[T])
-	}
-
-	def matchesValues(data : T) = {
+	
+	def matches[T:Ordering](data : T) = {
+		val vals = values.map(v => Convert.coerce(v -> data.getClass).asInstanceOf[T])
 		if (operator == In) {
-			values.contains(data)
+			vals.contains(data)
 		} else {
-			values.forall { value =>
+			vals.forall { value =>
 				operator match {
 					case Gt => data > value
 					case Gte => data >= value
@@ -44,9 +43,8 @@ class FilterExpression[T : Ordering](val operator:FilterOperator, val values : L
 		}
 	}
 
-	def delimitedValue(value : T) = {
+	def delimitedValue(value : Any) = {
 		value match {
-			case _ : String => "'" + value + "'"
 			case _ : DateTime => "time(" + value + ")"
 			case _ => value.toString
 		}

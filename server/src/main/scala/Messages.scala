@@ -8,7 +8,7 @@ case class CellsetQuery(
 	aggregation : String,
 	axes : List[List[String]],
 	measures : List[String],
-	filters : List[MemberFilterExpression[_]]
+	filters : List[MemberFilterExpression]
 ) {
 	def dimensions = axes.flatten
 	def dimensionFiltersFor(dimensionName : String) = filters.filter { f =>
@@ -16,7 +16,7 @@ case class CellsetQuery(
 	}
 }
 
-case class DimensionMemberQuery(dimensionName : String, filters : List[MemberFilterExpression[_]]) {
+case class DimensionMemberQuery(dimensionName : String, filters : List[MemberFilterExpression]) {
 	val hasFilter = filters.size > 0
 }
 case class TupleQuery(aggregationName : String, dimensions : List[DimensionMembers]) extends QueryResult

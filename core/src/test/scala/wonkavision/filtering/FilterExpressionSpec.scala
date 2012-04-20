@@ -28,8 +28,8 @@ class FilterExpressionSpec extends Spec with BeforeAndAfter with ShouldMatchers 
       new FilterExpression(Nin, Some(1)) should equal ("nin::[1]")
     }
 
-    it ("should delimit strings with a apostraphe") {
-      new FilterExpression(Eq, Some("1")) should equal ("eq::'1'")
+    it ("should not delimit strings") {
+      new FilterExpression(Eq, Some("1")) should equal ("eq::1")
     }
 
     it ("should delimit time with time()") {
