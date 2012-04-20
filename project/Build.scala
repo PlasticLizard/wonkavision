@@ -22,6 +22,7 @@ object WonkavisionBuild extends Build {
   lazy val wvcore = Project(id = "wonkavision-core", base = file("core"), settings = Project.defaultSettings).settings(
     version := buildVersion,
     organization := "com.hsihealth",
+    scalacOptions ++= Seq("-unchecked", "-deprecation"),
     libraryDependencies += "log4j" % "log4j" % "1.2.16",
     libraryDependencies += "ch.qos.logback" % "logback-classic" % "0.9.28",
     libraryDependencies += "org.scalatest" %% "scalatest" % "1.6.1" % "test",
@@ -38,6 +39,7 @@ object WonkavisionBuild extends Build {
   .settings(
     version := buildVersion,
     organization := "com.hsihealth",
+    scalacOptions ++= Seq("-unchecked", "-deprecation"),
     libraryDependencies += "log4j" % "log4j" % "1.2.16",
     libraryDependencies += "ch.qos.logback" % "logback-classic" % "0.9.28",
     libraryDependencies += "org.scalatest" %% "scalatest" % "1.6.1" % "test",

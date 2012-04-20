@@ -5,6 +5,7 @@ import org.scalatest.BeforeAndAfter
 import org.scalatest.matchers.ShouldMatchers
 import org.wonkavision.core._
 import org.wonkavision.server.messages._
+import org.wonkavision.core.filtering.MemberFilterExpression
 import org.wonkavision.server.test.cubes.TestCube
 
 
@@ -74,7 +75,7 @@ class ApiHelperSpec extends Spec with BeforeAndAfter with ShouldMatchers {
             "dimension::so::key::in::[1, 2, 3]",
             "measure::fa::attribute::lt::5"
 
-          )
+          ).map(fs => MemberFilterExpression.parse(fs))
         ))
     }
   }

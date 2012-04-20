@@ -50,6 +50,5 @@ class CubeActor(val cube : Cube) extends Actor {
 
 		} yield Cellset(query, members, tuples)
 	}
-
 	
 }

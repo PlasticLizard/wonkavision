@@ -5,6 +5,7 @@ import collection.JavaConversions._
 
 import org.wonkavision.server.messages._
 import org.wonkavision.core.Cube
+import org.wonkavision.core.filtering.MemberFilterExpression
 
 object ApiHelper {
 	
@@ -22,7 +23,7 @@ object ApiHelper {
 			aggregation = aggregationName,
 			axes = axes,
 			measures = measureNames,
-			filters = filterStrings
+			filters = filterStrings.map(fs => MemberFilterExpression.parse(fs))
 		)
 	}
 
