@@ -12,7 +12,7 @@ import org.wonkavision.core.AttributeType._
 
 class CubeSpec extends Spec with BeforeAndAfter with ShouldMatchers {
 
-  var cube : Cube = _
+  implicit var cube : Cube = _
 
   before {
     cube = new Cube("mah cube") {

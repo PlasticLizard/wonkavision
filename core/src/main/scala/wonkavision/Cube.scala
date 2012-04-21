@@ -32,6 +32,8 @@ class Cube( val name : String ) {
 	def aggregations = aggregationMap
 	def events = eventList
 
+	implicit val cube  = this
+
 	def dimension(  name : String,
 		            key : Attribute = null,
 		            caption :Attribute = null,

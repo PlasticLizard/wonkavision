@@ -1,12 +1,14 @@
-package org.wonkavision.server.dimensions
+package org.wonkavision.server
 
 import org.wonkavision.core.Dimension
 import org.wonkavision.core.Attribute
 import org.wonkavision.core.filtering.MemberFilterExpression
 
-class DimensionMember(val dimension : Dimension, attributeMap : Map[String,Any]) {
+class DimensionMember(attributeMap : Map[String,Any])(implicit val dimension : Dimension) {
 	
 	val attributeValues = extractAttributeValues(attributeMap)
+
+	def key = apply("key").get
 
 	def at(idx : Int) = {
 		if (idx < attributeValues.size) Some(attributeValues(idx)) else None

@@ -13,7 +13,5 @@ class DimensionActor(val dimension : Dimension) extends Actor {
 		case query : DimensionMemberQuery => {	
 			sender ! DimensionMembers(List(), query)	
 		}
-	}
-
-	
+	}	
 }

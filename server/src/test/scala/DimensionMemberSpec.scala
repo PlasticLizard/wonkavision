@@ -1,4 +1,4 @@
-package org.wonkavision.server.dimensions
+package org.wonkavision.server
 
 import org.scalatest.Spec
 import org.scalatest.BeforeAndAfter
@@ -9,15 +9,17 @@ import AttributeType._
 
 class DimensionMemberSpec extends Spec with BeforeAndAfter with ShouldMatchers {
 
+  implicit val cube = new Cube("hi")
+
   val attrMap = Map("k" -> "1", "c" -> "hi", "s" -> "1000")
-  val dim = Dimension(
-    name = "mydim",
-    key = Some(Attribute("k",Integer)),
-    caption = Some(Attribute("c")),
-    sort = Some(Attribute("s",Decimal))
+  implicit val dim = Dimension(
+    "mydim",
+     Some(Attribute("k",Integer)),
+     Some(Attribute("c")),
+     Some(Attribute("s",Decimal))
   )
 
-  val member = new DimensionMember(dim, attrMap)
+  val member = new DimensionMember(attrMap)
   
   before {
     

@@ -4,18 +4,22 @@ import scala.collection.immutable.SortedSet
 
 case class Dimension(
 	name : String,
-	key : Option[Attribute] = None,
-	caption : Option[Attribute] = None,
-	sort : Option[Attribute] = None) {
+	keyAttribute : Option[Attribute] = None,
+	captionAttribute : Option[Attribute] = None,
+	sortAttribute : Option[Attribute] = None)(implicit val cube : Cube) {
+
+	def key = getAttribute("key")
+	def caption = getAttribute("caption")
+	def sort = getAttribute("sort")
 
 	lazy val attributes = List("key","caption","sort").map(a=>getAttribute(a))
 
-	def getAttribute(attrName : String) = {
+	def getAttribute(attrName : String) : Attribute = {
 		val defaultAttr = Attribute(name)
 		attrName match {
-			case "key" => key.getOrElse(defaultAttr)
-			case "caption" => caption.orElse(key).getOrElse(defaultAttr)
-			case "sort" => sort.orElse(caption).orElse(key).getOrElse(defaultAttr)
+			case "key" => keyAttribute.getOrElse(defaultAttr)
+			case "caption" => captionAttribute.getOrElse(getAttribute("key"))
+			case "sort" => sortAttribute.getOrElse(getAttribute("caption"))
 			case _ => Attribute(attrName)
 		}
 	}

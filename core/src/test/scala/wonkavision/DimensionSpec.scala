@@ -6,17 +6,20 @@ import org.scalatest.matchers.ShouldMatchers
 import scala.io.Source
 import org.wonkavision.core._
 
+
 class DimensionSpec extends Spec with BeforeAndAfter with ShouldMatchers {
+  implicit val cube = new Cube("hi")
 
   var dim : Dimension = _
   var noattr : Dimension = _
 
   before {
+
     dim = Dimension (
-      name = "dimname",
-      key = Attribute("dimkey"),
-      caption = Attribute("dimcap"),
-      sort = Attribute("dimsort")
+      "dimname",
+       Attribute("dimkey"),
+       Attribute("dimcap"),
+       Attribute("dimsort")
     )
 
     noattr = Dimension(name="dimname")
