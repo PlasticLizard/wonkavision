@@ -9,7 +9,9 @@ class DimensionMember(attributeMap : Map[String,Any])(implicit val dimension : D
 	val attributeValues = extractAttributeValues(attributeMap)
 
 	def key = apply("key").get
-
+	def caption = apply("caption").get
+	def sort = apply("sort").get
+	
 	def at(idx : Int) = {
 		if (idx < attributeValues.size) Some(attributeValues(idx)) else None
 	}

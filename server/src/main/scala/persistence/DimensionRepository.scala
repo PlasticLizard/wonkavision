@@ -21,11 +21,12 @@ abstract trait KeyValueDimensionReader extends DimensionReader {
 			filter.attributeName == "key" && (filter.operator == Eq || filter.operator == In)
 		}	
 
-		keyFilters
-			.flatMap(_.values)
-			.map(get(_))
-			.flatten
-			.filter(_.matches(attrFilters))
+		val vals = keyFilters
+					.flatMap(_.values)
+					.map(get(_))
+					println(vals)
+					vals.flatten
+		.filter(_.matches(attrFilters))
 	}
 }
 
