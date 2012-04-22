@@ -8,7 +8,7 @@ import scala.collection.immutable.SortedSet
 
 class AggregationSpec extends Spec with BeforeAndAfter with ShouldMatchers {
 
-  var cube : Cube = new Cube("c") {
+  implicit var cube : Cube = new Cube("c") {
     dimension ( name = "d1" )
     dimension ( name = "d2" )
     dimension ( name = "d3" )
@@ -19,7 +19,7 @@ class AggregationSpec extends Spec with BeforeAndAfter with ShouldMatchers {
 
  
   before {
-    agg = new Aggregation("a", Set("m1", "m2"), cube)
+    agg = new Aggregation("a", Set("m1", "m2"))
   }
  
   describe("Construction") {

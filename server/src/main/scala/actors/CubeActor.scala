@@ -10,6 +10,7 @@ import akka.util.Timeout
 import akka.util.duration._
 
 
+
 class CubeActor(val cube : Cube) extends Actor {
 	import context._
 	implicit val timeout = Timeout(5000 milliseconds)
@@ -45,8 +46,8 @@ class CubeActor(val cube : Cube) extends Actor {
 
 		for {
 			members <- Future.sequence(dimQueries).mapTo[List[DimensionMembers]]
-			tuples <- (aggregations(query.aggregation) ? TupleQuery(query.aggregation, members))
-				.mapTo[Tuples]
+			tuples <- (aggregations(query.aggregation) ? AggregationQuery(query.aggregation, members))
+				.mapTo[Iterable[Aggregate]]
 
 		} yield Cellset(query, members, tuples)
 	}

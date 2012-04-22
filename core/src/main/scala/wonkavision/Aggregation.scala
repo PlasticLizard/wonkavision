@@ -2,7 +2,7 @@ package org.wonkavision.core
 
 import scala.collection.immutable.SortedSet
 
-class Aggregation(val name : String, val measures : Set[String], val cube : Cube) {
+class Aggregation(val name : String, val measures : Set[String])(implicit cube : Cube) {
 	
 	private var dimensionSetList : Set[SortedSet[String]] = Set() 
 	def aggregations = dimensionSetList

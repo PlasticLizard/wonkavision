@@ -15,8 +15,8 @@ class AggregationActor(val aggregation : Aggregation) extends Actor {
 	}
 
 	def receive = {
-		case query : TupleQuery => {
-			sender ! Tuples()
+		case query : AggregationQuery => {
+			sender ! List()
 		}
 	}
 }

@@ -11,7 +11,7 @@ class DimensionActor(val dimension : Dimension) extends Actor {
 
 	def receive = {
 		case query : DimensionMemberQuery => {	
-			sender ! DimensionMembers(List(), query)	
+			sender ! DimensionMembers(dimension, List(), true)	
 		}
 	}	
 }

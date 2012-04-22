@@ -26,7 +26,7 @@ class DimensionMember(attributeMap : Map[String,Any])(implicit val dimension : D
 		}	
 	}
 
-	def matches(filters : List[MemberFilterExpression]) : Boolean = {
+	def matches(filters : Iterable[MemberFilterExpression]) : Boolean = {
 		filters.forall(matches(_))
 	}
 

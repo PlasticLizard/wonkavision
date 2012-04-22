@@ -2,6 +2,8 @@ package org.wonkavision.server.messages
 
 import org.wonkavision.core.filtering.MemberFilterExpression
 import org.wonkavision.core.MemberType._
+import org.wonkavision.core.Dimension
+import org.wonkavision.server.DimensionMember
 
 case class CellsetQuery(
 	cube : String,
@@ -16,10 +18,12 @@ case class CellsetQuery(
 	}
 }
 
-case class DimensionMemberQuery(dimensionName : String, filters : List[MemberFilterExpression]) {
+case class DimensionMemberQuery(dimensionName : String, filters : Iterable[MemberFilterExpression]) {
 	val hasFilter = filters.size > 0
 }
-case class TupleQuery(aggregationName : String, dimensions : List[DimensionMembers]) extends QueryResult
+case class AggregationQuery(aggregationName : String, dimensions : Iterable[DimensionMembers]) {
+	val hasFilter = dimensions.exists(_.hasFilter)
+}
 
 abstract trait QueryResult
 case class ObjectNotFound(what : String, name : String) extends QueryResult {
@@ -27,10 +31,11 @@ case class ObjectNotFound(what : String, name : String) extends QueryResult {
 }
 
 
-case class Cellset(query : CellsetQuery, members : List[DimensionMembers], tuples : Tuples) extends QueryResult
+case class Cellset(query : CellsetQuery, members : Iterable[DimensionMembers], tuples : Iterable[Aggregate]) extends QueryResult
 
-case class DimensionMembers(members : List[String], query : DimensionMemberQuery) extends QueryResult {
+case class DimensionMembers(dimension : Dimension, members : Iterable[DimensionMember], hasFilter : Boolean) extends QueryResult {
 }
 
+case class Aggregate()
 
-case class Tuples() extends QueryResult
+

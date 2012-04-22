@@ -57,7 +57,7 @@ class Cube( val name : String ) {
 
 	def aggregation(name : String, measures : List[String] = List(), config:(Aggregation) => Aggregation = {c:Aggregation => c}) {
 
-		val agg = new Aggregation(name, measures.toSet, this)
+		val agg = new Aggregation(name, measures.toSet)
 		config(agg)
 		addAggregation(agg)
 
