@@ -39,7 +39,13 @@ class DimensionRepositorySpec extends Spec with BeforeAndAfter with ShouldMatche
     		val found = KvReader.select(new DimensionMemberQuery("dim", filters))
     		found.size should equal (1)
     		found.head.key should equal (2)
-    	}    
+    	}  
+    	it("should select members without a key filter") {
+    		val found = KvReader.select(new DimensionMemberQuery("dim",filters.tail))
+    		found.size should equal (2)
+    		found.head.key should equal(2)
+    		found.last.key should equal(3)
+    	}  
   	}
 
 }

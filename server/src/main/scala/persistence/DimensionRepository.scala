@@ -20,13 +20,16 @@ abstract trait KeyValueDimensionReader extends DimensionReader {
 		val (keyFilters, attrFilters) = query.filters.partition { filter =>
 			filter.attributeName == "key" && (filter.operator == Eq || filter.operator == In)
 		}	
-
-		val vals = keyFilters
-					.flatMap(_.values)
-					.map(get(_))
-					println(vals)
-					vals.flatten
-		.filter(_.matches(attrFilters))
+		
+		val vals = if (keyFilters.size > 0) {
+			keyFilters
+				.flatMap(_.values)
+				.map(get(_))
+				.flatten
+		} else { 
+			all
+		}
+		vals.filter(_.matches(attrFilters))	
 	}
 }
 

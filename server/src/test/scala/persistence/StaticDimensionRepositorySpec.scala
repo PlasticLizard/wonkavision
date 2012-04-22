@@ -20,12 +20,7 @@ class StaticDimensionRepositorySpec extends Spec with BeforeAndAfter with Should
 		Map("k" -> 2, "c" -> "b"),
 		Map("k" -> 3, "c" -> "c")
 	)	
-
-	val filters = List(
-		MemberFilterExpression.parse("dimension::dim::key::in::[1,2]"),
-		MemberFilterExpression.parse("dimension::dim::caption::gte::b")
-	)
-
+	
 	val repo = new StaticDimensionRepository(dim, memberData)
 
 	before {}
