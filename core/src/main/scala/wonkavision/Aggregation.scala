@@ -18,8 +18,7 @@ class Aggregation(val name : String, val measures : Set[String])(implicit cube :
 	}
 
 	def combine(dimensions : String*) = {
-		val combos = for (i <- dimensions.indices) yield dimensions.combinations(i+1)
-		combos.flatten.foreach { dims => add(dims:_*) 	}
+		Util.combine(dimensions).foreach { dims => add(dims:_*) 	}
 		this
 	}
 
