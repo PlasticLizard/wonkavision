@@ -4,6 +4,7 @@ import org.wonkavision.core.filtering.MemberFilterExpression
 import org.wonkavision.core.MemberType._
 import org.wonkavision.core.Dimension
 import org.wonkavision.server.DimensionMember
+import org.wonkavision.server.Aggregate
 
 case class CellsetQuery(
 	cube : String,
@@ -23,6 +24,7 @@ case class DimensionMemberQuery(dimensionName : String, filters : Iterable[Membe
 }
 case class AggregationQuery(aggregationName : String, dimensions : Iterable[DimensionMembers]) {
 	val hasFilter = dimensions.exists(_.hasFilter)
+	val dimensionNames = dimensions.map(_.dimension.name)
 }
 
 abstract trait QueryResult
@@ -33,9 +35,6 @@ case class ObjectNotFound(what : String, name : String) extends QueryResult {
 
 case class Cellset(query : CellsetQuery, members : Iterable[DimensionMembers], tuples : Iterable[Aggregate]) extends QueryResult
 
-case class DimensionMembers(dimension : Dimension, members : Iterable[DimensionMember], hasFilter : Boolean) extends QueryResult {
-}
-
-case class Aggregate()
+case class DimensionMembers(dimension : Dimension, members : Iterable[DimensionMember], hasFilter : Boolean = false) extends QueryResult
 
 

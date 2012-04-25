@@ -4,6 +4,8 @@ import akka.actor.{Props, Actor, ActorRef}
 
 import org.wonkavision.server.messages._
 import org.wonkavision.core.Cube
+import org.wonkavision.server.Aggregate
+
 import akka.dispatch.{Await, Future}
 import akka.pattern.{ask, pipe}
 import akka.util.Timeout
@@ -46,10 +48,10 @@ class CubeActor(val cube : Cube) extends Actor {
 
 		for {
 			members <- Future.sequence(dimQueries).mapTo[List[DimensionMembers]]
-			tuples <- (aggregations(query.aggregation) ? AggregationQuery(query.aggregation, members))
+			aggregates <- (aggregations(query.aggregation) ? AggregationQuery(query.aggregation, members))
 				.mapTo[Iterable[Aggregate]]
 
-		} yield Cellset(query, members, tuples)
+		} yield Cellset(query, members, aggregates)
 	}
 	
 }
