@@ -5,9 +5,9 @@ import org.wonkavision.server.messages._
 import org.wonkavision.core.Dimension
 import org.wonkavision.core.Aggregation
 
-class StaticAggregationRepository(
+class LocalAggregationRepository(
 	val agg : Aggregation,
-	data : Map[Iterable[String],Iterable[Map[String,Any]]]
+	data : Map[Iterable[String],Iterable[Map[String,Any]]] = Map()
 ) extends KeyValueAggregationReader {
 	
 	implicit val aggregation = agg

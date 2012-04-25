@@ -34,7 +34,7 @@ object App extends Application {
         AsyncResult { 
           (wonka.dispatcher ? query).mapTo[QueryResult].asPromise.map { result =>
             result match {
-              case cs : Cellset => Ok("great! Here's your tuples:" + cs.tuples)
+              case cs : Cellset => Ok("great! Here's your stuff:" + cs)
             }
           }
         }

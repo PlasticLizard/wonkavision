@@ -1,6 +1,7 @@
 package org.wonkavision.server.messages
 
 import org.wonkavision.core.filtering.MemberFilterExpression
+import org.wonkavision.core.MemberType
 import org.wonkavision.core.MemberType._
 import org.wonkavision.core.Dimension
 import org.wonkavision.server.DimensionMember
@@ -15,7 +16,7 @@ case class CellsetQuery(
 ) {
 	def dimensions = axes.flatten
 	def dimensionFiltersFor(dimensionName : String) = filters.filter { f =>
-		f.memberType == Dimension && f.memberName == dimensionName
+		f.memberType == MemberType.Dimension && f.memberName == dimensionName
 	}
 }
 
@@ -33,8 +34,8 @@ case class ObjectNotFound(what : String, name : String) extends QueryResult {
 }
 
 
-case class Cellset(query : CellsetQuery, members : Iterable[DimensionMembers], tuples : Iterable[Aggregate]) extends QueryResult
+case class Cellset(members : Iterable[DimensionMembers], tuples : Iterable[Aggregate]) extends QueryResult
 
-case class DimensionMembers(dimension : Dimension, members : Iterable[DimensionMember], hasFilter : Boolean = false) extends QueryResult
+case class DimensionMembers(dimension : Dimension, members : Iterable[DimensionMember], hasFilter : Boolean) extends QueryResult
 
 

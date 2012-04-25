@@ -10,7 +10,7 @@ import org.wonkavision.server.messages._
 import org.wonkavision.core.filtering._
 import org.wonkavision.core.AttributeType._
 
-class StaticAggregationRepositorySpec extends Spec with BeforeAndAfter with ShouldMatchers {
+class LocalAggregationRepositorySpec extends Spec with BeforeAndAfter with ShouldMatchers {
 	
 	implicit val cube  = new Cube("hi") {      
       dimension ( name = "d1", key = Attribute("k",Integer))
@@ -24,7 +24,7 @@ class StaticAggregationRepositorySpec extends Spec with BeforeAndAfter with Shou
 		List("d1","d2","d3") -> List(Map("d1"->1,"d2"->2,"d3"->3),Map("d1"->1,"d2"->3,"d3"->3))
 	)	
 	
-	val repo = new StaticAggregationRepository(aggregation, aggData)
+	val repo = new LocalAggregationRepository(aggregation, aggData)
 
 	before {}
 

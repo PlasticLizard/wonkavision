@@ -4,9 +4,9 @@ import org.wonkavision.server.messages._
 import org.wonkavision.server.DimensionMember
 import org.wonkavision.core.Dimension
 
-class StaticDimensionRepository(
+class LocalDimensionRepository(
 	dim : Dimension,
-	data : Iterable[Map[String,Any]]
+	data : Iterable[Map[String,Any]] = List()
 ) extends KeyValueDimensionReader {
 	
 	implicit val dimension = dim

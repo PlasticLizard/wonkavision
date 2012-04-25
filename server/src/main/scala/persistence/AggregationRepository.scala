@@ -14,7 +14,7 @@ abstract trait AggregationRepository {
 	val aggregation : Aggregation
 }
 
-abstract trait AggregationReader {
+abstract trait AggregationReader  {
 	def get(dimensions : Iterable[String], key : Iterable[Any]) : Option[Aggregate]
 	def select(query : AggregationQuery) : Iterable[Aggregate]
 	def all(dimensions : Iterable[String]) : Iterable[Aggregate]

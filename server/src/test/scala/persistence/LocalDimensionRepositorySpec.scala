@@ -10,7 +10,7 @@ import org.wonkavision.server.messages._
 import org.wonkavision.core.filtering._
 import org.wonkavision.core.AttributeType._
 
-class StaticDimensionRepositorySpec extends Spec with BeforeAndAfter with ShouldMatchers {
+class LocalDimensionRepositorySpec extends Spec with BeforeAndAfter with ShouldMatchers {
 	
 	implicit val cube = new Cube("hi")
 	implicit val dim = Dimension("dim", Attribute("k", Integer), Attribute("c"))
@@ -21,7 +21,7 @@ class StaticDimensionRepositorySpec extends Spec with BeforeAndAfter with Should
 		Map("k" -> 3, "c" -> "c")
 	)	
 	
-	val repo = new StaticDimensionRepository(dim, memberData)
+	val repo = new LocalDimensionRepository(dim, memberData)
 
 	before {}
 

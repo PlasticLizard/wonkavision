@@ -13,17 +13,20 @@ import akka.util.duration._
 
 
 
-class CubeActor(val cube : Cube) extends Actor {
+class CubeActor(val cube : Cube) extends Actor
+	with AggregationRepoActorFactory
+	with DimensionRepoActorFactory {
+
 	import context._
 	implicit val timeout = Timeout(5000 milliseconds)
 
 	override def preStart() {
 		cube.aggregations.values.foreach { agg => 
-			actorOf(Props(new AggregationActor(agg)), name="aggregation." + agg.name)
+			aggregationRepoActorFor(agg)
 		}
 
 		cube.dimensions.values.foreach { dim =>
-			actorOf(Props(new DimensionActor(dim)), name="dimension." + dim.name)
+			dimensionRepoActorFor(dim)
 		}
 	}
 
@@ -46,7 +49,7 @@ class CubeActor(val cube : Cube) extends Actor {
 			aggregates <- (actorFor("aggregation." + query.aggregation) ? AggregationQuery(query.aggregation, members))
 				.mapTo[Iterable[Aggregate]]
 
-		} yield Cellset(query, members, aggregates)
+		} yield Cellset(members, aggregates)
 	}
 	
 }

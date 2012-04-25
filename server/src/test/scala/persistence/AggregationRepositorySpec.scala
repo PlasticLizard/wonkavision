@@ -43,7 +43,8 @@ class AggregationRepositorySpec extends Spec with BeforeAndAfter with ShouldMatc
 			dimensions = List(
 				DimensionMembers(
 					dimension = d1,
-					members = List(new DimensionMember(Map("k" -> 1))(d1))
+					members = List(new DimensionMember(Map("k" -> 1))(d1)),
+					hasFilter = false
 				),
 				DimensionMembers(
 					dimension = d2,
@@ -58,7 +59,8 @@ class AggregationRepositorySpec extends Spec with BeforeAndAfter with ShouldMatc
 					dimension = d3,
 					members = List(
 						new DimensionMember(Map("k"->3))(d3)
-					)
+					),
+					hasFilter = false
 				)
 			)
 		)
