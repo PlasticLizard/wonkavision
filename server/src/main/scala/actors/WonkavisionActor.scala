@@ -8,18 +8,17 @@ import org.wonkavision.server.messages._
 class WonkavisionActor extends Actor {
 	import context._
 
-	var cubes : Map[String, ActorRef] = Map()
-
 	override def preStart() {
 		Cube.cubes.values.foreach { cube =>
-			val ca = actorOf(Props(new CubeActor(cube)), cube.name)
-			cubes = cubes + (cube.name -> ca)
+			actorOf(Props(new CubeActor(cube)), name=cube.name)
 		}
 	}
 
 	def receive = {
 		case query : CellsetQuery => {
-			cubes(query.cube) forward query		
+			actorFor(query.cube) forward query		
 		}
 	}
+
+
 }

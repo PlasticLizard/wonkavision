@@ -12,7 +12,6 @@ import akka.util.Timeout
 import akka.util.duration._
 import akka.dispatch.{Await, Future}
 
-import org.wonkavision.server.actors.WonkavisionActor
 import org.wonkavision.server.messages._
 
 /**
@@ -20,9 +19,9 @@ import org.wonkavision.server.messages._
  */
 object App extends Application { 
   import ApiHelper._
+  val WV_APP_NAME = "wonkavision"
 
-  lazy val system = ActorSystem("Wonkavision")
-  lazy val wonkavision = system.actorOf(Props[WonkavisionActor], "wonkavision")
+  lazy val wonka = Wonkavision(WV_APP_NAME).get
   implicit val timeout = Timeout(5000 milliseconds)
 
   def route = {
@@ -33,7 +32,7 @@ object App extends Application {
         NotFound(error.get.message)
       else
         AsyncResult { 
-          (wonkavision ? query).mapTo[QueryResult].asPromise.map { result =>
+          (wonka.dispatcher ? query).mapTo[QueryResult].asPromise.map { result =>
             result match {
               case cs : Cellset => Ok("great! Here's your tuples:" + cs.tuples)
             }
