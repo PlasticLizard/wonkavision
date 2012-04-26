@@ -6,13 +6,13 @@ import org.wonkavision.server.messages._
 import org.wonkavision.core.Aggregation
 import org.wonkavision.server.persistence._
 
-trait AggregationRepoActorFactory { self : Actor =>
+trait AggregationActorFactory { self : Actor =>
 
-	def aggregationRepoActorFor(agg : Aggregation) = {
+	def aggregationActorFor(agg : Aggregation) = {
 		 val props = Props(
-		 	new AggregationReaderActor {
+		 	new AggregationActor {
 		 		val aggregation = agg
-		 		val reader = new LocalAggregationRepository(agg)
+		 		val repo = new LocalAggregationRepository(agg)
 		 	}
 		 )
 		 context.actorOf(props, "aggregation." + agg.name)

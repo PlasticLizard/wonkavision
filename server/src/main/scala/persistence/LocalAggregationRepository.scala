@@ -8,7 +8,8 @@ import org.wonkavision.core.Aggregation
 class LocalAggregationRepository(
 	val agg : Aggregation,
 	data : Map[Iterable[String],Iterable[Map[String,Any]]] = Map()
-) extends KeyValueAggregationReader
+) extends AggregationRepository
+	 with KeyValueAggregationReader
      with KeyValueAggregationWriter {
 	
 	implicit val aggregation = agg

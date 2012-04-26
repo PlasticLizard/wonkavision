@@ -10,7 +10,7 @@ import org.wonkavision.core.Aggregation
 import org.wonkavision.core.Util
 import org.wonkavision.server.Aggregate
 
-abstract trait AggregationRepository {
+abstract trait AggregationRepository extends AggregationReader with AggregationWriter {
 	val aggregation : Aggregation
 }
 

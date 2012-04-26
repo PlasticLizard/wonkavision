@@ -6,13 +6,13 @@ import org.wonkavision.server.messages._
 import org.wonkavision.core.Dimension
 import org.wonkavision.server.persistence._
 
-trait DimensionRepoActorFactory { self : Actor =>
+trait DimensionActorFactory { self : Actor =>
 
 	def dimensionRepoActorFor(dim : Dimension) = {
 		 val props = Props(
-		 	new DimensionReaderActor {
+		 	new DimensionActor {
 		 		val dimension = dim
-		 		val reader = new LocalDimensionRepository(dim)
+		 		val repo = new LocalDimensionRepository(dim)
 		 	}
 		 )
 		 context.actorOf(props, "dimension." + dim.name)

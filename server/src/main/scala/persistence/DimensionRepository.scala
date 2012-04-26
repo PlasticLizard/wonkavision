@@ -5,7 +5,7 @@ import org.wonkavision.server.DimensionMember
 import org.wonkavision.core.Dimension
 import org.wonkavision.core.filtering.FilterOperator._
 
-abstract trait DimensionRepository {
+abstract trait DimensionRepository extends DimensionReader with DimensionWriter {
 	val dimension : Dimension
 }
 

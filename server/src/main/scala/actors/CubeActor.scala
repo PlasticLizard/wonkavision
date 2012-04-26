@@ -14,15 +14,15 @@ import akka.util.duration._
 
 
 class CubeActor(val cube : Cube) extends Actor
-	with AggregationRepoActorFactory
-	with DimensionRepoActorFactory {
+	with AggregationActorFactory
+	with DimensionActorFactory {
 
 	import context._
 	implicit val timeout = Timeout(5000 milliseconds)
 
 	override def preStart() {
 		cube.aggregations.values.foreach { agg => 
-			aggregationRepoActorFor(agg)
+			aggregationActorFor(agg)
 		}
 
 		cube.dimensions.values.foreach { dim =>

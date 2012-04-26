@@ -7,7 +7,8 @@ import org.wonkavision.core.Dimension
 class LocalDimensionRepository(
 	dim : Dimension,
 	data : Iterable[Map[String,Any]] = List()
-) extends KeyValueDimensionReader
+) extends DimensionRepository
+	 with KeyValueDimensionReader
      with KeyValueDimensionWriter {
 	
 	implicit val dimension = dim

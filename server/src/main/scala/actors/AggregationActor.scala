@@ -5,12 +5,13 @@ import akka.actor.{Props, Actor, ActorRef}
 import org.wonkavision.server.Aggregate
 import org.wonkavision.server.messages._
 import org.wonkavision.core.Aggregation
-import org.wonkavision.server.persistence.AggregationReader
+import org.wonkavision.server.persistence.AggregationRepository
 
 abstract trait AggregationActor extends Actor {
 	import context._
 
 	val aggregation : Aggregation
+	val repo : AggregationRepository
 
 	def receive = {
 		case query : AggregationQuery => {
@@ -18,15 +19,5 @@ abstract trait AggregationActor extends Actor {
 		}
 	}
 
-	def executeQuery(query : AggregationQuery) : Iterable[Aggregate]
+	def executeQuery(query : AggregationQuery) : Iterable[Aggregate] = repo.select(query)
 }
-
-abstract trait AggregationReaderActor
-	extends AggregationActor {
-
-		val reader : AggregationReader
-
-		def executeQuery(query : AggregationQuery) = reader.select(query)
-
-}
-
