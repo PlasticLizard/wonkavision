@@ -15,9 +15,11 @@ abstract trait DimensionActor extends Actor {
 	val repo : DimensionRepository
 
 	def receive = {
-		case query : DimensionMemberQuery => {	
-			sender ! executeQuery(query)
-		}
+		case query : DimensionMemberQuery => sender ! executeQuery(query)
+		case add : AddDimensionMember => repo.put(add.key, add.member)
+		case add : AddDimensionMembers => repo.put(add.members)
+		case del : DeleteDimensionMember => repo.delete(del.key)
+		case purge : Purge => repo.purge()
 	}
 
 	def executeQuery(query : DimensionMemberQuery) : DimensionMembers  = {

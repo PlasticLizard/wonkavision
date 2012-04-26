@@ -9,16 +9,13 @@ class WonkavisionActor extends Actor {
 	import context._
 
 	override def preStart() {
-		Cube.cubes.values.foreach { cube =>
-			actorOf(Props(new CubeActor(cube)), name=cube.name)
-		}
+		Cube.cubes.values.foreach { register( _ ) }
 	}
 
 	def receive = {
-		case query : CellsetQuery => {
-			actorFor(query.cube) forward query		
-		}
+		case query : CellsetQuery => actorFor(query.cube) forward query		
+		case reg : RegisterCube => register( reg.cube )
 	}
 
-
+	def register(cube : Cube) = actorOf(Props(new CubeActor(cube)), name=cube.name)
 }

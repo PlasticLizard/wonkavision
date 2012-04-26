@@ -20,6 +20,14 @@ abstract trait AggregationReader  {
 	def all(dimensions : Iterable[String]) : Iterable[Aggregate]
 }
 
+abstract trait AggregationWriter {
+	def put(dimensions : Iterable[String], key : Iterable[Any], agg : Aggregate)
+	def put(dimensions : Iterable[String], aggs : Map[_ <: Iterable[Any], Aggregate])
+	def delete(dimensions : Iterable[String], key : Iterable[Any])
+	def purge(dimensions : Iterable[String])
+	def purgeAll()
+}
+
 abstract trait KeyValueAggregationReader extends AggregationReader {
 	def select(query : AggregationQuery) = {
 		val dimNames = SortedSet(query.dimensionNames.toSeq:_*)
@@ -41,26 +49,12 @@ abstract trait KeyValueAggregationReader extends AggregationReader {
 	
 }
 
-abstract trait AggregationWriter {
-	def put(dimensions : Iterable[String], key : Iterable[Any], agg : Aggregate)
-	def put(dimensions : Iterable[String], aggs : Map[_ <: Iterable[Any], Aggregate])
-	def load(dimensions : Iterable[String], aggs : Map[_ <: Iterable[Any], Aggregate])
-	def delete(dimensions : Iterable[String], key : Iterable[Any])
-	def purge(dimensions : Iterable[String])
-	def purgeAll()
-}
-
 abstract trait KeyValueAggregationWriter extends AggregationWriter {
 	def put(dimensions : Iterable[String], aggs : Map[_ <: Iterable[Any], Aggregate]) {
 		aggs.foreach { kv =>
 			val (key, agg) = kv
 			put(dimensions, key, agg)
 		}
-	}
-
-	def load(dimensions : Iterable[String], aggs : Map[_ <: Iterable[Any], Aggregate]) {
-		purge(dimensions)
-		put(dimensions, aggs)
 	}
 
 }

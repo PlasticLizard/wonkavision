@@ -73,16 +73,7 @@ class DimensionRepositorySpec extends Spec with BeforeAndAfter with ShouldMatche
 				KvWriter.put(memberData.map(e => (e._1+"b",e._2)))
 				KvWriter.data.size should equal(6)
 			}			
-		}
-		describe("load") {
-			it("should replace data with the incoming data"){
-				KvWriter.put(memberData)
-				KvWriter.put(memberData.map(e => (e._1+"b",e._2)))
-				KvWriter.data.size should equal(6)
-				KvWriter.load(memberData)
-				KvWriter.data should equal (memberData)
-			}
-		}
+		}		
 	}
 
 }

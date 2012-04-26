@@ -122,23 +122,6 @@ class AggregationRepositorySpec extends Spec with BeforeAndAfter with ShouldMatc
 				KvWriter.data.size should equal(4)
 			}
 		}
-		describe("load"){
-			it("should replace existing aggregations"){
-				val newData1 = Map(
-					List(1,2,3) -> new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3)),
-					List(1,3,3) -> new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 3, "d3" -> 3))
-				)
-				val newData2 = Map(
-					List(1,4,3) -> new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 4, "d3" -> 3)),
-					List(1,5,3) -> new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 5, "d3" -> 3))
-				)
-				KvWriter.put(List("d1","d2","d3"),newData1)
-				KvWriter.load(List("d1","d2","d3"),newData2)
-				KvWriter.data.size should equal(2)
-			}
-		}
-
-
 	}
 
 }

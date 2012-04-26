@@ -15,6 +15,14 @@ abstract trait DimensionReader {
 	def all() : Iterable[DimensionMember]
 }
 
+abstract trait DimensionWriter {
+	def put(key : Any, member : DimensionMember)
+	def put(members : Map[Any,DimensionMember])
+	def load(members : Map[Any, DimensionMember])
+	def delete(key : Any)
+	def purge()
+}
+
 abstract trait KeyValueDimensionReader extends DimensionReader {
 	def select(query : DimensionMemberQuery)  = {
 		val (keyFilters, attrFilters) = query.filters.partition { filter =>
@@ -31,14 +39,6 @@ abstract trait KeyValueDimensionReader extends DimensionReader {
 		}
 		vals.filter(_.matches(attrFilters))	
 	}
-}
-
-abstract trait DimensionWriter {
-	def put(key : Any, member : DimensionMember)
-	def put(members : Map[Any,DimensionMember])
-	def load(members : Map[Any, DimensionMember])
-	def delete(key : Any)
-	def purge()
 }
 
 abstract trait KeyValueDimensionWriter extends DimensionWriter {

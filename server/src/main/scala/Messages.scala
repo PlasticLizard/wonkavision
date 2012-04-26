@@ -1,11 +1,14 @@
 package org.wonkavision.server.messages
 
+import org.wonkavision.core.Cube
 import org.wonkavision.core.filtering.MemberFilterExpression
 import org.wonkavision.core.MemberType
 import org.wonkavision.core.MemberType._
 import org.wonkavision.core.Dimension
 import org.wonkavision.server.DimensionMember
 import org.wonkavision.server.Aggregate
+
+case class RegisterCube(cube : Cube)
 
 case class CellsetQuery(
 	cube : String,
@@ -38,4 +41,16 @@ case class Cellset(members : Iterable[DimensionMembers], tuples : Iterable[Aggre
 
 case class DimensionMembers(dimension : Dimension, members : Iterable[DimensionMember], hasFilter : Boolean) extends QueryResult
 
+//Repo interactions
+case class Purge()
 
+//dimensions
+case class AddDimensionMember(key : Any, member : DimensionMember)
+case class AddDimensionMembers(members : Map[Any, DimensionMember])
+case class DeleteDimensionMember(key : Any)
+
+//aggregations
+case class AddAggregate(dimensions : Iterable[String], key : Iterable[Any], agg : Aggregate)
+case class AddAggregates(dimensions : Iterable[String], aggs : Map[_ <: Iterable[Any], Aggregate])
+case class DeleteAggregate(dimensions : Iterable[String], key : Iterable[Any])
+case class PurgeDimensionSet(dimensions : Iterable[String])

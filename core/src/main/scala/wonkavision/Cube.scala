@@ -8,7 +8,7 @@ import FactAction._
 object Cube {
 	private var cubeMap : Map[String, Cube] = Map()
 	
-	def register(cube : Cube) { register(List(cube)) }
+	def register(cube : Cube) : Cube = { register(List(cube)); cube }
 
 	def register(cubes : Iterable[Cube]) {
 		cubes.foreach{ c : Cube =>
