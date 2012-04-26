@@ -8,7 +8,8 @@ import org.wonkavision.core.Aggregation
 class LocalAggregationRepository(
 	val agg : Aggregation,
 	data : Map[Iterable[String],Iterable[Map[String,Any]]] = Map()
-) extends KeyValueAggregationReader {
+) extends KeyValueAggregationReader
+     with KeyValueAggregationWriter {
 	
 	implicit val aggregation = agg
 
@@ -23,11 +24,50 @@ class LocalAggregationRepository(
 			.toList.flatten
 	}
 
-	protected def aggregationSet(dimensionNames : Iterable[String]) = {
-		aggregationSets.get(dimensionNames.mkString(":"))
+	def put(dimensions : Iterable[String], key : Iterable[Any], agg : Aggregate) {
+		val aggKey = key.mkString(":")
+		val dimKey = dimensions.mkString(":")
+		val dimSet = aggregationSet(dimensions, true).get
+		val newSet = dimSet + (aggKey -> agg)
+		aggregationSets = aggregationSets + (dimKey -> newSet)
+	}
+	
+	def purge(dimensions : Iterable[String]) {
+		val dimKey = dimensions.mkString(":")
+		aggregationSets = aggregationSets - dimKey
+	}
+	
+	def purgeAll() {
+		aggregationSets = Map()
+	}
+	
+	def delete(dimensions : Iterable[String], key : Iterable[Any]) {
+		val aggKey = key.mkString(":")
+		val dimKey = key.mkString(":")
+		aggregationSet(dimensions).foreach { dimSet =>
+			dimSet.get(aggKey).foreach { aggs => 
+				val newSet = dimSet - aggKey
+				aggregationSets = aggregationSets + (dimKey -> newSet)
+			}
+		}
+		
 	}
 
-	private val aggregationSets : Map[String,Map[String,Aggregate]] = data.map { dimSet =>
+	protected def aggregationSet(dimensionNames : Iterable[String], createIfMissing : Boolean = false) = {
+		val dimKey = dimensionNames.mkString(":")
+		if (createIfMissing) {
+			aggregationSets.get(dimKey).orElse {
+				val newSet = Map[String,Aggregate]()
+				aggregationSets = aggregationSets + (dimKey -> newSet)
+				Some(newSet)
+			} 
+		} else {
+			aggregationSets.get(dimKey)
+		}
+		
+	}
+
+	private var aggregationSets : Map[String,Map[String,Aggregate]] = data.map { dimSet =>
 		val (dimNames, aggData) = dimSet
 		val tuples = aggData.map { aggMap =>
 			val agg = new Aggregate(dimNames, aggMap)

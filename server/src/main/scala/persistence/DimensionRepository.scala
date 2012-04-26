@@ -33,5 +33,27 @@ abstract trait KeyValueDimensionReader extends DimensionReader {
 	}
 }
 
+abstract trait DimensionWriter {
+	def put(key : Any, member : DimensionMember)
+	def put(members : Map[Any,DimensionMember])
+	def load(members : Map[Any, DimensionMember])
+	def delete(key : Any)
+	def purge()
+}
+
+abstract trait KeyValueDimensionWriter extends DimensionWriter {
+	def put(members : Map[Any,DimensionMember]) {
+		members.foreach { kv =>
+			val (key, member) = kv
+			put(key, member)
+		}
+	}
+
+	def load(members : Map[Any, DimensionMember]) {
+		purge()
+		put(members)
+	}
+}
+
 
 

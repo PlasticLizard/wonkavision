@@ -32,21 +32,58 @@ class DimensionRepositorySpec extends Spec with BeforeAndAfter with ShouldMatche
 		MemberFilterExpression.parse("dimension::dim::caption::gte::b")
 	)
 
+
 	before {}
 
-  	describe("select") {
-    	it("should return the selected subset of members") {
-    		val found = KvReader.select(new DimensionMemberQuery("dim", filters))
-    		found.size should equal (1)
-    		found.head.key should equal (2)
-    	}  
-    	it("should select members without a key filter") {
-    		val found = KvReader.select(new DimensionMemberQuery("dim",filters.tail))
-    		found.size should equal (2)
-    		found.head.key should equal(2)
-    		found.last.key should equal(3)
-    	}  
+	describe("reader") {
+	  	describe("select") {
+	    	it("should return the selected subset of members") {
+	    		val found = KvReader.select(new DimensionMemberQuery("dim", filters))
+	    		found.size should equal (1)
+	    		found.head.key should equal (2)
+	    	}  
+	    	it("should select members without a key filter") {
+	    		val found = KvReader.select(new DimensionMemberQuery("dim",filters.tail))
+	    		found.size should equal (2)
+	    		found.head.key should equal(2)
+	    		found.last.key should equal(3)
+	    	}  
+	  	}
   	}
+
+  	object KvWriter extends KeyValueDimensionWriter {
+		val data : scala.collection.mutable.Map[Any, DimensionMember] = scala.collection.mutable.Map()
+		def put(key : Any, member : DimensionMember) {
+			data(key) = member
+		}
+		def delete(key : Any) {
+			data.remove(key)
+		}
+		def purge() { data.clear() }
+	}
+
+	describe ("writer"){
+		describe("put") {
+			it("should add each member in the provided map") {
+				KvWriter.put(memberData)
+				KvWriter.data should equal (memberData)
+			}
+			it("should append the values to the existing data") {
+				KvWriter.put(memberData)
+				KvWriter.put(memberData.map(e => (e._1+"b",e._2)))
+				KvWriter.data.size should equal(6)
+			}			
+		}
+		describe("load") {
+			it("should replace data with the incoming data"){
+				KvWriter.put(memberData)
+				KvWriter.put(memberData.map(e => (e._1+"b",e._2)))
+				KvWriter.data.size should equal(6)
+				KvWriter.load(memberData)
+				KvWriter.data should equal (memberData)
+			}
+		}
+	}
 
 }
  

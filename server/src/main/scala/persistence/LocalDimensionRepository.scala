@@ -7,7 +7,8 @@ import org.wonkavision.core.Dimension
 class LocalDimensionRepository(
 	dim : Dimension,
 	data : Iterable[Map[String,Any]] = List()
-) extends KeyValueDimensionReader {
+) extends KeyValueDimensionReader
+     with KeyValueDimensionWriter {
 	
 	implicit val dimension = dim
 	
@@ -20,7 +21,21 @@ class LocalDimensionRepository(
 		members.values
 	}
 
-	private val members : Map[Any,DimensionMember] = {
+	def put(rawKey : Any, member : DimensionMember) {
+		val key = dimension.key.ensure(rawKey)
+		members = members + (key -> member)
+	}
+
+	def delete(rawKey : Any) {
+		val key = dimension.key.ensure(rawKey)
+		members = members - key
+	}
+
+	def purge() {
+		members = Map()
+	}
+
+	private var members : Map[Any,DimensionMember] = {
 		val tuples = data.map { mdata =>
 			val member = new DimensionMember(mdata)
 			(member.key -> member)
