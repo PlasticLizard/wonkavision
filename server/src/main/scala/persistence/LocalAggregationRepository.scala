@@ -43,12 +43,10 @@ class LocalAggregationRepository(
 	
 	def delete(dimensions : Iterable[String], key : Iterable[Any]) {
 		val aggKey = key.mkString(":")
-		val dimKey = key.mkString(":")
+		val dimKey = dimensions.mkString(":")
 		aggregationSet(dimensions).foreach { dimSet =>
-			dimSet.get(aggKey).foreach { aggs => 
-				val newSet = dimSet - aggKey
-				aggregationSets = aggregationSets + (dimKey -> newSet)
-			}
+			val newSet = dimSet - aggKey
+			aggregationSets = aggregationSets + (dimKey -> newSet)
 		}
 		
 	}
