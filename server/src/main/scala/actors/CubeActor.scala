@@ -32,6 +32,7 @@ class CubeActor(val cube : Cube) extends Actor
 
 	def receive = {
 		case query : CellsetQuery => 	
+			println("dispatching " + query)
 			executeQuery(query) pipeTo sender
 		case query : AggregationQuery => 
 			aggActorFor(query.aggregationName) ? query

@@ -64,10 +64,7 @@ class AggregationActorSpec(_system:ActorSystem)
 				aggActor ! query
 				val results = expectMsgClass(1 second, classOf[Iterable[Aggregate]])
 				results.size should equal (1)
-				// cs.dimension.name should equal("team")
-				// cs.hasFilter should equal(true)
-				// cs.members.size should equal(2)
-				// cs.members.filter(m => m.key.toString >= "3").size should equal(2)
+				results.toSeq(0).key should equal (List("happy","3"))
 			}
 		}
 
@@ -77,9 +74,9 @@ class AggregationActorSpec(_system:ActorSystem)
 				aggActor ! AddAggregate(
 					cubeName = "testcube",
 					aggregationName = "testaggregation",
-					agg = agg.createAggregate(List("team","status"), "team" -> "1", "status" -> "happy") 				
+					agg = agg.createAggregate(List("status","team"), "team" -> "1", "status" -> "happy") 				
 				)
-				aggActor.underlyingActor.repo.get(List("team","status"),List("1","happy")).get.key should equal(List("1","happy"))
+				aggActor.underlyingActor.repo.get(List("status","team"),List("happy","1")).get.key should equal(List("happy","1"))
 			}
 
 			"append members to the repo" in {
@@ -88,8 +85,8 @@ class AggregationActorSpec(_system:ActorSystem)
 					aggregationName = "testaggregation",
 					agg = agg.createAggregate(List("team","status"), "team" -> "2", "status" -> "happy") 				
 				)
-				aggActor.underlyingActor.repo.get(List("team","status"),List("1","happy")).get.key should equal(List("1","happy"))
-				aggActor.underlyingActor.repo.get(List("team","status"),List("2","happy")).get.key should equal(List("2","happy"))
+				aggActor.underlyingActor.repo.get(List("status","team"),List("happy","1")).get.key should equal(List("happy","1"))
+				aggActor.underlyingActor.repo.get(List("status","team"),List("happy","2")).get.key should equal(List("happy","2"))
 			}
 		}
 
@@ -104,8 +101,8 @@ class AggregationActorSpec(_system:ActorSystem)
 						agg.createAggregate(List("team","status"), "team" -> "4", "status" -> "happy")
 					)
 				)
-				aggActor.underlyingActor.repo.get(List("team","status"),List("3","happy")).get.key should equal(List("3","happy"))
-				aggActor.underlyingActor.repo.get(List("team","status"),List("4","happy")).get.key should equal(List("4","happy"))
+				aggActor.underlyingActor.repo.get(List("status","team"),List("happy","3")).get.key should equal(List("happy","3"))
+				aggActor.underlyingActor.repo.get(List("status","team"),List("happy","4")).get.key should equal(List("happy","4"))
 			}
 
 		}

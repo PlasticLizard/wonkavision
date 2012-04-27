@@ -19,8 +19,12 @@ class PingCube extends Cube("ping") {
 		caption = "name"
 	)
 
+	sum("cling","clong")
+
 	aggregation (
-		name = "pong"
+		name = "pong",
+		measures = List("cling","clong"),
+		_.aggregateAll
 	)
 
 }
@@ -31,6 +35,7 @@ object PingCube {
 	def initialize(disp : ActorRef) = {
 		dispatcher = disp
 		instance = Cube.register(new PingCube()).asInstanceOf[PingCube]
+		dispatcher ! RegisterCube(instance)
 		populate()
 	}
 
@@ -46,6 +51,9 @@ object PingCube {
 			2 -> "dong2",
 			3 -> "dong3"
 		))	
+
+		addAggregate(List("ding","dong"),Map("ding"->1,"dong"->1,"cling"->1,"clong"->2))
+		addAggregate(List("ding","dong"),Map("ding"->1,"dong"->2,"cling"->1,"clong"->4))
 	}
 
 	def purge(){
@@ -66,6 +74,16 @@ object PingCube {
 			
 		)
 		dispatcher ! addCmd
+	}
+
+	def addAggregate(dims : List[String], data : Map[String,Any]) {
+		val addCmd = AddAggregate(
+			cubeName = "ping",
+			aggregationName = "pong",
+			agg = instance.aggregations("pong").createAggregate(dims,data)
+		)
+		dispatcher ! addCmd
+
 	}
 }
 

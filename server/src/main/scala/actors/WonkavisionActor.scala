@@ -5,13 +5,11 @@ import akka.actor.{Props, Actor, ActorRef}
 import org.wonkavision.core.Cube
 import org.wonkavision.server.messages._
 
-class WonkavisionActor(cubes : Iterable[Cube]) extends Actor {
+class WonkavisionActor() extends Actor {
 	import context._
 
-	val initialCubeList = cubes
-
 	override def preStart() {
-		initialCubeList.foreach { register( _ ) }
+		Cube.cubes.values.foreach { register( _ ) }
 	}
 
 	def receive = {

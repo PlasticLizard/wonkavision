@@ -17,7 +17,7 @@ class AggregateSpec extends Spec with BeforeAndAfter with ShouldMatchers {
  	implicit val aggregation = new Aggregation("agg", Set("m1","m2"))
 
  	val aggregate = new Aggregate(
- 			dimensions = List("d1","d2"),
+ 			dims = List("d1","d2"),
  			data = Map("d1" -> "1", "d2" -> "2", "m1" -> 100)
  	)(aggregation)
 

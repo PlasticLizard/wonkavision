@@ -35,7 +35,7 @@ case class CellsetQuery(
 	}
 }
 
-case class Cellset(members : Iterable[DimensionMembers], tuples : Iterable[Aggregate]) extends QueryResult
+case class Cellset(members : Iterable[DimensionMembers], aggregates : Iterable[Aggregate]) extends QueryResult
 
 
 abstract trait DimensionCommand extends CubeCommand { val dimensionName : String }

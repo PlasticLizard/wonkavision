@@ -22,13 +22,8 @@ import org.wonkavision.server.cubes._
 object Wonkavision {
 	val instances : scala.collection.mutable.Map[String,Wonkavision] = scala.collection.mutable.Map()
 
-	def createActorSystem(appName : String) = {
-		val baseConfig = ConfigFactory.load()
-		ActorSystem(appName, baseConfig.getConfig(appName).withFallback(baseConfig))
-	}
-
 	def startNew(appName : String = "wonkavision") = {
-		val wv = new Wonkavision(appName, createActorSystem(appName))
+		val wv = new Wonkavision(appName)
 		instances += appName -> wv
 		wv
 	}
@@ -36,22 +31,26 @@ object Wonkavision {
 	def apply(appName : String) = instances.get(appName)
 }
 
-class Wonkavision(val appName : String, val system : ActorSystem) {
+class Wonkavision(val appName : String) {
 	
+	val system = createActorSystem(appName)
 	def config = system.settings.config
-	lazy val dispatcher = system.actorFor("akka://" + appName + "/user/dispatcher")
+	def dispatcher = system.actorFor("akka://" + appName + "/user/dispatcher")
 	initializeApp()
 
 	def initializeApp(){
 		val cubePackages = config.getStringList("cube.packages")
-    	Cube register new CubeLoader(cubePackages:_*).cubes
-    	
-    	system.actorOf(Props(new WonkavisionActor(Cube.cubes.values)), "dispatcher")
-
+    	Cube register new CubeLoader(cubePackages:_*).cubes    	
+    	val disp = system.actorOf(Props[WonkavisionActor], name="dispatcher")
     	if (config.getBoolean("ping.cube.enabled")) {
-    		PingCube.initialize(dispatcher)   		
+    		PingCube.initialize(disp)   		
     	}
 
+	}
+
+	def createActorSystem(appName : String) = {
+		val baseConfig = ConfigFactory.load()
+		ActorSystem(appName, baseConfig.getConfig(appName).withFallback(baseConfig))
 	}
 
 

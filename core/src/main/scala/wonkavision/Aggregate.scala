@@ -1,8 +1,11 @@
 package org.wonkavision.core
 
+import scala.collection.immutable.SortedSet
 
-class Aggregate(val dimensions : Iterable[String], data : Map[String,Any])(implicit val aggregation : Aggregation) {
 
+class Aggregate(dims : Iterable[String], data : Map[String,Any])(implicit val aggregation : Aggregation) {
+
+	val dimensions = dims.toSeq.sortBy(s=>s)
 	val key : Iterable[Any] = dimensions.map( d => getKeyComponent(d, data)) 
 	val measures : Map[String, Option[Double]] = measureNames.map(m => (m -> getMeasure(m,data))).toMap
 
