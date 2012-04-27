@@ -1,7 +1,7 @@
 package org.wonkavision.server.persistence
 
 import org.wonkavision.server.messages._
-import org.wonkavision.server.DimensionMember
+import org.wonkavision.core.DimensionMember
 import org.wonkavision.core.Dimension
 
 class LocalDimensionRepository(
@@ -22,9 +22,8 @@ class LocalDimensionRepository(
 		members.values
 	}
 
-	def put(rawKey : Any, member : DimensionMember) {
-		val key = dimension.key.ensure(rawKey)
-		members = members + (key -> member)
+	def put(member : DimensionMember) {
+		members = members + (member.key -> member)
 	}
 
 	def delete(rawKey : Any) {

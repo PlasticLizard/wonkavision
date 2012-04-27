@@ -4,11 +4,11 @@ import org.scalatest.Spec
 import org.scalatest.BeforeAndAfter
 import org.scalatest.matchers.ShouldMatchers
 import org.wonkavision.core._
-import org.wonkavision.server.DimensionMember
+import org.wonkavision.core.DimensionMember
 import org.wonkavision.server.messages._
 import org.wonkavision.core.filtering._
 import org.wonkavision.core.AttributeType._
-import org.wonkavision.server.Aggregate
+import org.wonkavision.core.Aggregate
 
 class AggregationRepositorySpec extends Spec with BeforeAndAfter with ShouldMatchers {
 	
@@ -38,7 +38,8 @@ class AggregationRepositorySpec extends Spec with BeforeAndAfter with ShouldMatc
 	}
 
 	def createQuery(filtered : Boolean) = {
-		AggregationQuery(
+		AggregateQuery(
+			cubeName = "hi",
 			aggregationName = "agg",
 			dimensions = List(
 				DimensionMembers(
@@ -86,8 +87,8 @@ class AggregationRepositorySpec extends Spec with BeforeAndAfter with ShouldMatc
   	object KvWriter extends KeyValueAggregationWriter {
 		val data : scala.collection.mutable.Map[String,Aggregate] = scala.collection.mutable.Map()
 
-		def put(dimensions : Iterable[String], key : Iterable[Any], agg : Aggregate) {
-			data(dimensions.mkString(":") + key.mkString(":")) = agg
+		def put(agg : Aggregate) {
+			data(agg.dimensions.mkString(":") + agg.key.mkString(":")) = agg
 		}
 		def purge(dimensions : Iterable[String]) {
 			data.clear()
@@ -99,26 +100,26 @@ class AggregationRepositorySpec extends Spec with BeforeAndAfter with ShouldMatc
 	describe("writer"){
 		describe("put"){
 			it("should add all aggregations to the repo"){
-				val newData = Map(
-					List(1,2,3) -> new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3)),
-					List(1,3,3) -> new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 3, "d3" -> 3))
+				val newData = List(
+					new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3)),
+					new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 3, "d3" -> 3))
 				)
-				KvWriter.put(List("d1","d2","d3"), newData)
+				KvWriter.put(newData)
 				KvWriter.data.size should equal(2)
 				KvWriter.data("d1:d2:d31:2:3").key should equal(List(1,2,3))
 				KvWriter.data("d1:d2:d31:3:3").key should equal(List(1,3,3))
 			}
 			it("should append aggregations to the repo"){
-				val newData1 = Map(
-					List(1,2,3) -> new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3)),
-					List(1,3,3) -> new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 3, "d3" -> 3))
+				val newData1 = List(
+					new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3)),
+					new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 3, "d3" -> 3))
 				)
-				val newData2 = Map(
-					List(1,4,3) -> new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 4, "d3" -> 3)),
-					List(1,5,3) -> new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 5, "d3" -> 3))
+				val newData2 = List(
+					new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 4, "d3" -> 3)),
+					new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 5, "d3" -> 3))
 				)
-				KvWriter.put(List("d1","d2","d3"),newData1)
-				KvWriter.put(List("d1","d2","d3"),newData2)
+				KvWriter.put(newData1)
+				KvWriter.put(newData2)
 				KvWriter.data.size should equal(4)
 			}
 		}

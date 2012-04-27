@@ -1,9 +1,7 @@
-package org.wonkavision.server
+package org.wonkavision.core
 
-import org.wonkavision.core.Aggregation
-import org.wonkavision.core.Convert
 
-class Aggregate(dimensions : Iterable[String], data : Map[String,Any])(implicit val aggregation : Aggregation) {
+class Aggregate(val dimensions : Iterable[String], data : Map[String,Any])(implicit val aggregation : Aggregation) {
 
 	val key : Iterable[Any] = dimensions.map( d => getKeyComponent(d, data)) 
 	val measures : Map[String, Option[Double]] = measureNames.map(m => (m -> getMeasure(m,data))).toMap

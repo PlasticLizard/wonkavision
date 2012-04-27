@@ -63,8 +63,8 @@ class ApiHelperSpec extends Spec with BeforeAndAfter with ShouldMatchers {
     it("should return a populated query from a query string") {
       val query = ApiHelper.parseQuery("cb","ag",qs)
       query should equal (CellsetQuery(
-          cube = "cb",
-          aggregation = "ag",
+          cubeName = "cb",
+          aggregationName = "ag",
           axes = List(
             List("hi","ho","hum"),
             List("do","re")        
@@ -82,19 +82,19 @@ class ApiHelperSpec extends Spec with BeforeAndAfter with ShouldMatchers {
 
   describe("validateQuery(query)") {
     it("should complain if the requested cube isn't found") {
-      val query = ApiHelper.parseQuery("blah","An Aggregation","")
+      val query = ApiHelper.parseQuery("blah","testaggregation","")
       ApiHelper.validateQuery(query) should equal (Some(ObjectNotFound("Cube", "blah")))
     }
     it ("should complain if the cube is OK but the aggreagation isn't found") {
-      val query = ApiHelper.parseQuery("A Cube Of Testing", "blah", "")
+      val query = ApiHelper.parseQuery("testcube", "blah", "")
       ApiHelper.validateQuery(query) should equal (Some(ObjectNotFound("Aggregation", "blah")))
     }
     it ("should complain if the cube and aggregation are OK but the dimensions aren't found"){
-      val query = ApiHelper.parseQuery("A Cube Of Testing", "An Aggregation", "columns=a|team")
+      val query = ApiHelper.parseQuery("testcube", "testaggregation", "columns=a|team")
       ApiHelper.validateQuery(query) should equal(Some(ObjectNotFound("Dimension(s)","a")))
     }
     it ("should return None if the query is valid") {
-      val query = ApiHelper.parseQuery("A Cube Of Testing", "An Aggregation", "columns=team&rows=status")
+      val query = ApiHelper.parseQuery("testcube", "testaggregation", "columns=team&rows=status")
       ApiHelper.validateQuery(query) should equal (None)
     }
   }

@@ -10,8 +10,8 @@ class MessagesSpec extends Spec with BeforeAndAfter with ShouldMatchers {
 
   describe ("CellsetQuery") {
     val query = CellsetQuery(
-      cube = "c",
-      aggregation = "a",
+      cubeName = "c",
+      aggregationName = "a",
       axes = List(List("d1","d2"),List("d3","d4")),
       measures = List("m1","m2"),
       filters = List(MemberFilterExpression.parse("dimension::d1::key::gt::1"))

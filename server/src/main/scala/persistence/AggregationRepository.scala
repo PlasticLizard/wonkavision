@@ -3,12 +3,12 @@ package org.wonkavision.server.persistence
 import scala.collection.SortedSet
 
 import org.wonkavision.server.messages._
-import org.wonkavision.server.DimensionMember
+import org.wonkavision.core.DimensionMember
 import org.wonkavision.core.Dimension
 import org.wonkavision.core.filtering.FilterOperator._
 import org.wonkavision.core.Aggregation
 import org.wonkavision.core.Util
-import org.wonkavision.server.Aggregate
+import org.wonkavision.core.Aggregate
 
 abstract trait AggregationRepository extends AggregationReader with AggregationWriter {
 	val aggregation : Aggregation
@@ -16,20 +16,20 @@ abstract trait AggregationRepository extends AggregationReader with AggregationW
 
 abstract trait AggregationReader  {
 	def get(dimensions : Iterable[String], key : Iterable[Any]) : Option[Aggregate]
-	def select(query : AggregationQuery) : Iterable[Aggregate]
+	def select(query : AggregateQuery) : Iterable[Aggregate]
 	def all(dimensions : Iterable[String]) : Iterable[Aggregate]
 }
 
 abstract trait AggregationWriter {
-	def put(dimensions : Iterable[String], key : Iterable[Any], agg : Aggregate)
-	def put(dimensions : Iterable[String], aggs : Map[_ <: Iterable[Any], Aggregate])
+	def put(agg : Aggregate)
+	def put(aggs : Iterable[Aggregate])
 	def delete(dimensions : Iterable[String], key : Iterable[Any])
 	def purge(dimensions : Iterable[String])
 	def purgeAll()
 }
 
 abstract trait KeyValueAggregationReader extends AggregationReader {
-	def select(query : AggregationQuery) = {
+	def select(query : AggregateQuery) = {
 		val dimNames = SortedSet(query.dimensionNames.toSeq:_*)
 		if (query.hasFilter) {
 			val keys = generateAggregationKeys(dimNames, query.dimensions)
@@ -50,11 +50,8 @@ abstract trait KeyValueAggregationReader extends AggregationReader {
 }
 
 abstract trait KeyValueAggregationWriter extends AggregationWriter {
-	def put(dimensions : Iterable[String], aggs : Map[_ <: Iterable[Any], Aggregate]) {
-		aggs.foreach { kv =>
-			val (key, agg) = kv
-			put(dimensions, key, agg)
-		}
+	def put(aggs : Iterable[Aggregate]) {
+		aggs.foreach(put(_))
 	}
 
 }

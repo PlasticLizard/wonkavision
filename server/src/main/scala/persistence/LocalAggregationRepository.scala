@@ -1,6 +1,6 @@
 package org.wonkavision.server.persistence
 
-import org.wonkavision.server.Aggregate
+import org.wonkavision.core.Aggregate
 import org.wonkavision.server.messages._
 import org.wonkavision.core.Dimension
 import org.wonkavision.core.Aggregation
@@ -25,10 +25,10 @@ class LocalAggregationRepository(
 			.toList.flatten
 	}
 
-	def put(dimensions : Iterable[String], key : Iterable[Any], agg : Aggregate) {
-		val aggKey = key.mkString(":")
-		val dimKey = dimensions.mkString(":")
-		val dimSet = aggregationSet(dimensions, true).get
+	def put(agg : Aggregate) {
+		val aggKey = agg.key.mkString(":")
+		val dimKey = agg.dimensions.mkString(":")
+		val dimSet = aggregationSet(agg.dimensions, true).get
 		val newSet = dimSet + (aggKey -> agg)
 		aggregationSets = aggregationSets + (dimKey -> newSet)
 	}

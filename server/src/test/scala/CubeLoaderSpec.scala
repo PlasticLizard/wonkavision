@@ -17,7 +17,7 @@ class CubeLoaderSpec extends Spec with BeforeAndAfter with ShouldMatchers {
     it("should return a set of cubes in the configured namespace") {
       val cubes = loader.cubes
       cubes.size should equal (1)
-      cubes.head.name should equal ("A Cube Of Testing")
+      cubes.head.name should equal ("testcube")
     }    
   }
 

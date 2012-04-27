@@ -5,11 +5,11 @@ import org.scalatest.BeforeAndAfter
 import org.scalatest.matchers.ShouldMatchers
 
 import org.wonkavision.core._
-import org.wonkavision.server.DimensionMember
+import org.wonkavision.core.DimensionMember
 import org.wonkavision.server.messages._
 import org.wonkavision.core.filtering._
 import org.wonkavision.core.AttributeType._
-import org.wonkavision.server.Aggregate
+import org.wonkavision.core.Aggregate
 
 class LocalAggregationRepositorySpec extends Spec with BeforeAndAfter with ShouldMatchers {
 	
@@ -67,19 +67,19 @@ class LocalAggregationRepositorySpec extends Spec with BeforeAndAfter with Shoul
     describe("put"){
       it("should put an aggregate into the correct dimset"){
         repo.purgeAll()
-        repo.put(List("d1","d2","d3"), List(1,2,3), new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3)))
+        repo.put(new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3)))
         repo.get(List("d1","d2","d3"),List(1,2,3)).get.key should equal (List(1,2,3))
       }
       it("should append to the dimset"){
         repo.purgeAll()
-        repo.put(List("d1","d2","d3"), List(1,2,3), new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3)))
-        repo.put(List("d1","d2","d3"), List(1,3,3), new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 3, "d3" -> 3)))
+        repo.put(new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3)))
+        repo.put(new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 3, "d3" -> 3)))
         repo.all(List("d1","d2","d3")).size should equal (2)
       }
       it("should put into different dimsets"){
         repo.purgeAll()
-        repo.put(List("d1","d2","d3"), List(1,2,3), new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3)))
-        repo.put(List("d1","d2"), List(1,3,3), new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 3, "d3" -> 3)))
+        repo.put(new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3)))
+        repo.put(new Aggregate(List("d1","d2"), Map("d1" -> 1, "d2" -> 3, "d3" -> 3)))
         repo.all(List("d1","d2","d3")).size should equal (1)
         repo.all(List("d1","d2")).size should equal(1)
       }
@@ -88,8 +88,8 @@ class LocalAggregationRepositorySpec extends Spec with BeforeAndAfter with Shoul
     describe("purge"){
       it("should only clear the specified dimset"){
         repo.purgeAll()
-        repo.put(List("d1","d2","d3"), List(1,2,3), new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3)))
-        repo.put(List("d1","d2"), List(1,3,3), new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 3, "d3" -> 3)))
+        repo.put(new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3)))
+        repo.put(new Aggregate(List("d1","d2"), Map("d1" -> 1, "d2" -> 3, "d3" -> 3)))
         repo.purge(List("d1","d2","d3"))
         repo.all(List("d1","d2","d3")).size should equal (0)
         repo.all(List("d1","d2")).size should equal(1)
@@ -98,8 +98,8 @@ class LocalAggregationRepositorySpec extends Spec with BeforeAndAfter with Shoul
 
     describe("purgeAll"){
       it("should clear all dimsets"){
-        repo.put(List("d1","d2","d3"), List(1,2,3), new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3)))
-        repo.put(List("d1","d2"), List(1,3,3), new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 3, "d3" -> 3)))
+        repo.put(new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3)))
+        repo.put(new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 3, "d3" -> 3)))
         repo.purgeAll()
         repo.all(List("d1","d2","d3")).size should equal (0)
         repo.all(List("d1","d2")).size should equal(0)
@@ -108,7 +108,7 @@ class LocalAggregationRepositorySpec extends Spec with BeforeAndAfter with Shoul
 
     describe("delete"){
       it("should remove the specified key from the specified dimset"){
-        repo.put(List("d1","d2","d3"), List(1,2,3), new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3)))
+        repo.put(new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3)))
         repo.delete(List("d1","d2","d3"),List(1,2,3))
         repo.get(List("d1","d2","d3"),List(1,2,3)) should equal (None)
       }

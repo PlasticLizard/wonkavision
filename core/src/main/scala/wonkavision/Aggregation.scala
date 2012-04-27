@@ -27,5 +27,13 @@ class Aggregation(val name : String, val measures : Set[String])(implicit val cu
 		this
 	}
 
+	def createAggregate(dimensions : Iterable[String], data : Map[String,Any]) = {
+		new Aggregate(dimensions, data)(this)
+	}
+
+	def createAggregate(dimensions : Iterable[String], data : (String,Any)*) = {
+		new Aggregate(dimensions, Map(data:_*))(this)
+	}
+
 
 }

@@ -1,4 +1,4 @@
-package org.wonkavision.server
+package org.wonkavision.core
 
 import org.scalatest.Spec
 import org.scalatest.BeforeAndAfter

@@ -1,7 +1,5 @@
-package org.wonkavision.server
+package org.wonkavision.core
 
-import org.wonkavision.core.Dimension
-import org.wonkavision.core.Attribute
 import org.wonkavision.core.filtering.MemberFilterExpression
 
 class DimensionMember(attributeMap : Map[String,Any])(implicit val dimension : Dimension) {

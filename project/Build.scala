@@ -22,6 +22,9 @@ object WonkavisionBuild extends Build {
   lazy val wvcore = Project(id = "wonkavision-core", base = file("core"), settings = Project.defaultSettings).settings(
     version := buildVersion,
     organization := "com.hsihealth",
+    resolvers += typesafe,
+    resolvers += typesafeSnapshot,
+    resolvers += maven,    
     scalacOptions ++= Seq("-unchecked", "-deprecation"),
     libraryDependencies += "log4j" % "log4j" % "1.2.16",
     libraryDependencies += "ch.qos.logback" % "logback-classic" % "0.9.28",
@@ -39,12 +42,16 @@ object WonkavisionBuild extends Build {
   .settings(
     version := buildVersion,
     organization := "com.hsihealth",
+    resolvers += typesafe,
+    resolvers += typesafeSnapshot,
+    resolvers += maven,    
     scalacOptions ++= Seq("-unchecked", "-deprecation"),
     libraryDependencies += "log4j" % "log4j" % "1.2.16",
     libraryDependencies += "ch.qos.logback" % "logback-classic" % "0.9.28",
     libraryDependencies += "org.scalatest" %% "scalatest" % "1.6.1" % "test",
     libraryDependencies += "org.mockito" % "mockito-core" % "1.9.0-rc1" % "test",
-    libraryDependencies += "com.typesafe" %% "play-mini" % "2.0",
+    libraryDependencies += "com.typesafe" %% "play-mini" % "2.0.1",
+    libraryDependencies += "com.typesafe.akka" % "akka-testkit" % "2.0.1" % "test",
     libraryDependencies += "org.reflections" % "reflections" % "0.9.5",
     mainClass in (Compile, run) := Some("play.core.server.NettyServer")
   )

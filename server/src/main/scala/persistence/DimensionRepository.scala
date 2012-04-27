@@ -1,7 +1,7 @@
 package org.wonkavision.server.persistence
 
 import org.wonkavision.server.messages._
-import org.wonkavision.server.DimensionMember
+import org.wonkavision.core.DimensionMember
 import org.wonkavision.core.Dimension
 import org.wonkavision.core.filtering.FilterOperator._
 
@@ -16,9 +16,8 @@ abstract trait DimensionReader {
 }
 
 abstract trait DimensionWriter {
-	def put(key : Any, member : DimensionMember)
-	def put(members : Map[Any,DimensionMember])
-	def load(members : Map[Any, DimensionMember])
+	def put(member : DimensionMember)
+	def put(members : Iterable[DimensionMember])
 	def delete(key : Any)
 	def purge()
 }
@@ -42,16 +41,8 @@ abstract trait KeyValueDimensionReader extends DimensionReader {
 }
 
 abstract trait KeyValueDimensionWriter extends DimensionWriter {
-	def put(members : Map[Any,DimensionMember]) {
-		members.foreach { kv =>
-			val (key, member) = kv
-			put(key, member)
-		}
-	}
-
-	def load(members : Map[Any, DimensionMember]) {
-		purge()
-		put(members)
+	def put(members : Iterable[DimensionMember]) {
+		members.foreach(put(_))
 	}
 }
 

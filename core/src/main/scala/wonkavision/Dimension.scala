@@ -24,4 +24,12 @@ case class Dimension(
 		}
 	}
 
+	def createMember(memberData : Map[String,Any]) : DimensionMember = {
+		new DimensionMember(memberData)(this)
+	}
+
+	def createMember(elements : (String,Any)*) : DimensionMember = {
+		createMember(Map(elements:_*))
+	}
+
 }

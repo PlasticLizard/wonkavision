@@ -3,7 +3,7 @@ package org.wonkavision.server.test.cubes
 import org.wonkavision.core._
 import FactAction._
 
-class TestCube extends Cube("A Cube Of Testing") {
+class TestCube extends Cube("testcube") {
 	
 	dimension (
 		name = "team",
@@ -24,7 +24,7 @@ class TestCube extends Cube("A Cube Of Testing") {
 	)	
 
 	aggregation (
-		name = "An Aggregation",
+		name = "testaggregation",
 		measures = List("count", "incoming", "outgoing"),
 		_.aggregateAll
 	)

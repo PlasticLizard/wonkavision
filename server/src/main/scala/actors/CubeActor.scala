@@ -4,7 +4,7 @@ import akka.actor.{Props, Actor, ActorRef}
 
 import org.wonkavision.server.messages._
 import org.wonkavision.core.Cube
-import org.wonkavision.server.Aggregate
+import org.wonkavision.core.Aggregate
 
 import akka.dispatch.{Await, Future}
 import akka.pattern.{ask, pipe}
@@ -31,25 +31,35 @@ class CubeActor(val cube : Cube) extends Actor
 	}
 
 	def receive = {
-		case query : CellsetQuery => {	
+		case query : CellsetQuery => 	
 			executeQuery(query) pipeTo sender
-		}
+		case query : AggregationQuery => 
+			aggActorFor(query.aggregationName) ? query
+		case cmd : AggregationCommand =>
+			aggActorFor(cmd.aggregationName) ! cmd
+		case query : DimensionQuery =>
+			dimActorFor(query.dimensionName) ? query
+		case cmd : DimensionCommand =>
+			dimActorFor(cmd.dimensionName) ! cmd
 	}
 
 	def executeQuery(query : CellsetQuery) = {
 		//TODO: if there are no filters, then we can probably get tuples without individual members
 		//listed depending on the impl of the tuple store
 		val dimQueries = query.dimensions.map { dim =>
-			(actorFor("dimension." + dim) ? DimensionMemberQuery(dim, query.dimensionFiltersFor(dim)))
+			(dimActorFor(dim) ? DimensionMemberQuery(query.cubeName, dim, query.dimensionFiltersFor(dim)))
 				.mapTo[DimensionMembers]
 		}
 
 		for {
 			members <- Future.sequence(dimQueries).mapTo[List[DimensionMembers]]
-			aggregates <- (actorFor("aggregation." + query.aggregation) ? AggregationQuery(query.aggregation, members))
+			aggregates <- (aggActorFor(query.aggregationName) ? AggregateQuery(query.cubeName, query.aggregationName, members))
 				.mapTo[Iterable[Aggregate]]
 
 		} yield Cellset(members, aggregates)
 	}
+
+	private def aggActorFor(agg : String) = actorFor("aggregation." + agg)
+	private def dimActorFor(dim : String) = actorFor("dimension." + dim)
 	
 }

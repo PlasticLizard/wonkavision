@@ -5,7 +5,7 @@ import org.scalatest.BeforeAndAfter
 import org.scalatest.matchers.ShouldMatchers
 
 import org.wonkavision.core._
-import org.wonkavision.server.DimensionMember
+import org.wonkavision.core.DimensionMember
 import org.wonkavision.server.messages._
 import org.wonkavision.core.filtering._
 import org.wonkavision.core.AttributeType._
@@ -62,11 +62,11 @@ class LocalDimensionRepositorySpec extends Spec with BeforeAndAfter with ShouldM
 
   describe("put") {
     it ("should add the member to the repo") {
-      repo.put(4, new DimensionMember(Map("k" -> 4, "c" -> "d")))
+      repo.put(new DimensionMember(Map("k" -> 4, "c" -> "d")))
       repo.get(4).get.key should equal (4)
     }
     it ("should convert the key to the appropriate type"){
-      repo.put("4", new DimensionMember(Map("k"->"4", "c"->"d")))
+      repo.put(new DimensionMember(Map("k"->"4", "c"->"d")))
       repo.get(4).get.key should equal (4)
     }
   }

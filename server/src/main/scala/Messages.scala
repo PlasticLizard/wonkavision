@@ -5,52 +5,60 @@ import org.wonkavision.core.filtering.MemberFilterExpression
 import org.wonkavision.core.MemberType
 import org.wonkavision.core.MemberType._
 import org.wonkavision.core.Dimension
-import org.wonkavision.server.DimensionMember
-import org.wonkavision.server.Aggregate
+import org.wonkavision.core.DimensionMember
+import org.wonkavision.core.Aggregate
 
-case class RegisterCube(cube : Cube)
+abstract trait WonkavisionMessage
+abstract trait Command extends WonkavisionMessage
+abstract trait Query extends Command
+abstract trait QueryResult extends WonkavisionMessage
 
+case class ObjectNotFound(what : String, name : String) extends QueryResult {
+	def message = what + " " + name + " cannot be found"
+}
+
+case class RegisterCube(cube : Cube) extends Command
+
+abstract trait CubeCommand extends Command { val cubeName : String }
+
+abstract trait CubeQuery extends CubeCommand
 case class CellsetQuery(
-	cube : String,
-	aggregation : String,
+	cubeName : String,
+	aggregationName : String,
 	axes : List[List[String]],
 	measures : List[String],
 	filters : List[MemberFilterExpression]
-) {
+) extends CubeQuery {
 	def dimensions = axes.flatten
 	def dimensionFiltersFor(dimensionName : String) = filters.filter { f =>
 		f.memberType == MemberType.Dimension && f.memberName == dimensionName
 	}
 }
 
-case class DimensionMemberQuery(dimensionName : String, filters : Iterable[MemberFilterExpression]) {
+case class Cellset(members : Iterable[DimensionMembers], tuples : Iterable[Aggregate]) extends QueryResult
+
+
+abstract trait DimensionCommand extends CubeCommand { val dimensionName : String }
+case class AddDimensionMember(cubeName : String, dimensionName : String, member : DimensionMember) extends DimensionCommand
+case class AddDimensionMembers(cubeName : String, dimensionName : String, members : Iterable[DimensionMember]) extends DimensionCommand
+case class DeleteDimensionMember(cubeName : String, dimensionName : String, key : Any) extends DimensionCommand
+case class PurgeDimensionMembers(cubeName : String, dimensionName : String) extends DimensionCommand
+
+abstract trait DimensionQuery extends DimensionCommand with Query
+case class DimensionMemberQuery(cubeName : String, dimensionName : String, filters : Iterable[MemberFilterExpression]) extends DimensionQuery {
 	val hasFilter = filters.size > 0
 }
-case class AggregationQuery(aggregationName : String, dimensions : Iterable[DimensionMembers]) {
+case class DimensionMembers(dimension : Dimension, members : Iterable[DimensionMember], hasFilter : Boolean) extends QueryResult
+
+abstract trait AggregationCommand extends CubeCommand { val aggregationName : String }
+case class AddAggregate(cubeName : String, aggregationName : String, agg : Aggregate) extends AggregationCommand
+case class AddAggregates(cubeName : String, aggregationName : String, aggs : Iterable[Aggregate]) extends AggregationCommand
+case class DeleteAggregate(cubeName : String, aggregationName : String, dimensions : Iterable[String], key : Iterable[Any]) extends AggregationCommand
+case class PurgeDimensionSet(cubeName : String, aggregationName : String, dimensions : Iterable[String]) extends AggregationCommand
+case class PurgeAggregation(cubeName : String, aggregationName : String) extends AggregationCommand
+
+abstract trait AggregationQuery extends AggregationCommand with Query
+case class AggregateQuery(cubeName : String, aggregationName : String, dimensions : Iterable[DimensionMembers]) extends AggregationQuery {
 	val hasFilter = dimensions.exists(_.hasFilter)
 	val dimensionNames = dimensions.map(_.dimension.name)
 }
-
-abstract trait QueryResult
-case class ObjectNotFound(what : String, name : String) extends QueryResult {
-	def message = what + " " + name + " cannot be found"
-}
-
-
-case class Cellset(members : Iterable[DimensionMembers], tuples : Iterable[Aggregate]) extends QueryResult
-
-case class DimensionMembers(dimension : Dimension, members : Iterable[DimensionMember], hasFilter : Boolean) extends QueryResult
-
-//Repo interactions
-case class Purge()
-
-//dimensions
-case class AddDimensionMember(key : Any, member : DimensionMember)
-case class AddDimensionMembers(members : Map[Any, DimensionMember])
-case class DeleteDimensionMember(key : Any)
-
-//aggregations
-case class AddAggregate(dimensions : Iterable[String], key : Iterable[Any], agg : Aggregate)
-case class AddAggregates(dimensions : Iterable[String], aggs : Map[_ <: Iterable[Any], Aggregate])
-case class DeleteAggregate(dimensions : Iterable[String], key : Iterable[Any])
-case class PurgeDimensionSet(dimensions : Iterable[String])
