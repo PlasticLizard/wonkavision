@@ -40,7 +40,7 @@ abstract trait KeyValueAggregationReader extends AggregationReader {
 	}
 
 	protected def generateAggregationKeys(dims : Iterable[String], members : Iterable[DimensionMembers] ) = {
-		val membersList = dims.map( dim =>
+		var membersList = dims.toList.map( dim =>
 				members.find(_.dimension.name == dim).get
 					.members.map(_.key).toList).toList
 		Util.product(membersList)

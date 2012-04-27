@@ -11,7 +11,7 @@ class DimensionMember(attributeMap : Map[String,Any])(implicit val dimension : D
 	def sort = apply("sort").get
 	
 	def at(idx : Int) = {
-		if (idx < attributeValues.size) Some(attributeValues(idx)) else None
+		if (idx < attributeValues.size) Option(attributeValues(idx)) else None
 	}
 
 	def apply(name : String) = {

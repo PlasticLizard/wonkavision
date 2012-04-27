@@ -78,14 +78,14 @@ class CubActorSpec(_system:ActorSystem)
 					aggregationName = "testaggregation",
 					axes = List(List("team"),List("status")),
 					measures = List("incoming","outgoing"),
-					filters = List(MemberFilterExpression.parse("dimension::status::key::eq::happy"))
+					filters = List(MemberFilterExpression.parse("dimension::team::key::lt::4"))
 				)
 
 				cubeActor ! query
 				val cellset = expectMsgClass(1 second, classOf[Cellset])
 				cellset.members.size should equal(2)
-				cellset.members.find(m=>m.dimension.name == "team").get.members.size should equal(3)
-				cellset.members.find(m=>m.dimension.name == "status").get.members.size should equal(1)
+				cellset.members.find(m=>m.dimension.name == "team").get.members.size should equal(2)
+				cellset.members.find(m=>m.dimension.name == "status").get.members.size should equal(3)
 				cellset.aggregates.size should equal(2)
 				cellset.aggregates.forall(ag => ag.key.toSeq(0).toString() == "happy") should equal(true)
 			}
