@@ -22,6 +22,7 @@ import org.wonkavision.server.actors._
 import org.wonkavision.server.test.cubes.TestCube
 import org.wonkavision.server.persistence.LocalAggregationRepository
 import org.wonkavision.core.filtering.MemberFilterExpression
+import org.wonkavision.core.Aggregate
 
 class AggregationActorSpec(_system:ActorSystem)
 	extends TestKit(_system) with ImplicitSender
@@ -30,7 +31,8 @@ class AggregationActorSpec(_system:ActorSystem)
 		def this() = this(ActorSystem("AggregationActorSpec"))
 
 		val cube = new TestCube()
-		val dim = cube.dimensions("team")
+		val team = cube.dimensions("team")
+		val status = cube.dimensions("status")
 		val agg = cube.aggregations("testaggregation")
 
 		val aggActor = TestActorRef(new AggregationActor {
@@ -45,22 +47,23 @@ class AggregationActorSpec(_system:ActorSystem)
 
 		"Sending a query to an aggregation" should {
 			"return the selected aggregates" in {
-				// dimActor ! AddDimensionMembers(
-				// 	cubeName = "testcube",
-				// 	dimensionName = "team",
-				// 	members = List(
-				// 		dim.createMember("id"->"2","name"->"wakka"),
-				// 		dim.createMember("id"->"3","name"->"sailor"),
-				// 		dim.createMember("id"->"4","name"->"bob")
-				// 	)					
-				// )
+				aggActor ! AddAggregates(
+					cubeName = "testcube",
+					aggregationName = "testaggregation",
+					aggs = List(
+						agg.createAggregate(List("team","status"), "team" -> "3", "status" -> "happy"),
+						agg.createAggregate(List("team","status"), "team" -> "4", "status" -> "happy")
+					)
+				)
 
-				// var query = DimensionMemberQuery("testcube", "team", List(
-				// 	MemberFilterExpression.parse("dimension::team::key::gte::3")
-				// ))
+				var query = AggregateQuery("testcube", "testaggregation", List(
+					DimensionMembers( team, List(team.createMember("id"->"3")), true),
+					DimensionMembers( status, List(status.createMember("status"->"happy")),false)
+				))
 
-				// dimActor ! query
-				// val cs = expectMsgClass(1 second, classOf[DimensionMembers])
+				aggActor ! query
+				val results = expectMsgClass(1 second, classOf[Iterable[Aggregate]])
+				results.size should equal (1)
 				// cs.dimension.name should equal("team")
 				// cs.hasFilter should equal(true)
 				// cs.members.size should equal(2)
