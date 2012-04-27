@@ -88,6 +88,7 @@ class CubActorSpec(_system:ActorSystem)
 				cellset.members.find(m=>m.dimension.name == "status").get.members.size should equal(3)
 				cellset.aggregates.size should equal(2)
 				cellset.aggregates.forall(ag => ag.key.toSeq(0).toString() == "happy") should equal(true)
+				println(cellset.toMap)
 			}
 		}
 

@@ -11,7 +11,7 @@ import org.wonkavision.core.Aggregate
 abstract trait WonkavisionMessage
 abstract trait Command extends WonkavisionMessage
 abstract trait Query extends Command
-abstract trait QueryResult extends WonkavisionMessage
+abstract trait QueryResult extends WonkavisionMessage 
 
 case class ObjectNotFound(what : String, name : String) extends QueryResult {
 	def message = what + " " + name + " cannot be found"
@@ -34,9 +34,6 @@ case class CellsetQuery(
 		f.memberType == MemberType.Dimension && f.memberName == dimensionName
 	}
 }
-
-case class Cellset(members : Iterable[DimensionMembers], aggregates : Iterable[Aggregate]) extends QueryResult
-
 
 abstract trait DimensionCommand extends CubeCommand { val dimensionName : String }
 case class AddDimensionMember(cubeName : String, dimensionName : String, member : DimensionMember) extends DimensionCommand

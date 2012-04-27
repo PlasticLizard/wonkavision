@@ -32,6 +32,14 @@ class DimensionMember(attributeMap : Map[String,Any])(implicit val dimension : D
 		apply(filter.attributeName).exists(filter.matches(_))
 	}
 
+	def toMap : Map[String,Any] = {
+		val elems = List("key","caption","sort")
+			.map { attr =>
+				attr -> apply(attr).get
+			}
+		Map(elems:_*)
+	}
+
 	private def extractAttributeValues(attrMap : Map[String, Any]) = {
 		val converted = dimension.attributes.map{ attr =>
 			val rawVal = attrMap.getOrElse(attr.name, null)

@@ -8,7 +8,7 @@ import org.joda.time.format.ISODateTimeFormat
 object Convert {
 	
 	def toString(value : Any) : Option[String] =
-		if (value == null) None else Some(value.toString)
+		if (value == null) None else Option(value.toString)
 
 	def toInt(value : Any) : Option[Int] = {
 		if (value == null) return None
@@ -73,7 +73,7 @@ object Convert {
 			case t if t == classOf[Double] => toDouble(from)
 			case t if t == classOf[DateTime] => toDate(from)
 			case t if t == classOf[Boolean] => toBool(from)
-			case _ => Some(from)
+			case _ => Option(from)
 		}
 		conv.get
 	}

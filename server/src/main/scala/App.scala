@@ -14,6 +14,8 @@ import akka.dispatch.{Await, Future}
 
 import org.wonkavision.server.messages._
 
+import com.codahale.jerkson.Json
+
 /**
  * this application is registered via Global
  */
@@ -34,7 +36,10 @@ object App extends Application {
         AsyncResult { 
           (wonka.dispatcher ? query).mapTo[QueryResult].asPromise.map { result =>
             result match {
-              case cs : Cellset => Ok("great! Here's your stuff:" + cs)
+              case cs : Cellset => {
+                val json = Json.generate(cs.toMap())
+                Ok(json)
+              }
             }
           }
         }

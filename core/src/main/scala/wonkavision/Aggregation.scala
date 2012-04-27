@@ -34,6 +34,4 @@ class Aggregation(val name : String, val measures : Set[String])(implicit val cu
 	def createAggregate(dimensions : Iterable[String], data : (String,Any)*) = {
 		new Aggregate(dimensions, Map(data:_*))(this)
 	}
-
-
 }
