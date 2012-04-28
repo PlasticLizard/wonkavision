@@ -38,7 +38,7 @@ object App extends Application {
             result match {
               case cs : Cellset => {
                 val json = Json.generate(cs.toMap())
-                Ok(json)
+                Ok(json).as("application/json")
               }
             }
           }
