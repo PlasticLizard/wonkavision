@@ -50,8 +50,9 @@ object WonkavisionBuild extends Build {
     libraryDependencies += "ch.qos.logback" % "logback-classic" % "0.9.28",
     libraryDependencies += "org.scalatest" %% "scalatest" % "1.6.1" % "test",
     libraryDependencies += "org.mockito" % "mockito-core" % "1.9.0-rc1" % "test",
-    libraryDependencies += "com.typesafe.akka" % "akka-actor" % "2.0.1",
+    libraryDependencies += "com.typesafe" %% "play-mini" % "2.0.1",
     libraryDependencies += "com.typesafe.akka" % "akka-testkit" % "2.0.1" % "test",
-    libraryDependencies += "org.reflections" % "reflections" % "0.9.5"
+    libraryDependencies += "org.reflections" % "reflections" % "0.9.5",
+    mainClass in (Compile, run) := Some("play.core.server.NettyServer")
   )
 }
