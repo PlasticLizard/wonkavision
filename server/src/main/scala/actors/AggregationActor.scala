@@ -15,8 +15,8 @@ abstract trait AggregationActor extends Actor {
 
 	def receive = {
 		case query : AggregateQuery => sender ! executeQuery(query)
-		case add : AddAggregate => repo.put(add.agg)
-		case add : AddAggregates => repo.put(add.aggs)
+		case add : AddAggregate => repo.put(aggregation.createAggregate(add.dimensions, add.data))
+		case add : AddAggregates => repo.put(add.data.map(d => aggregation.createAggregate(add.dimensions, d)))
 		case del : DeleteAggregate => repo.delete(del.dimensions, del.key)
 		case purge : PurgeDimensionSet => repo.purge(purge.dimensions)
 		case purge : PurgeAggregation => repo.purgeAll()

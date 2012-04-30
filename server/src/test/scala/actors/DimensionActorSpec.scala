@@ -46,10 +46,10 @@ class DimensionActorSpec(_system:ActorSystem)
 				dimActor ! AddDimensionMembers(
 					cubeName = "testcube",
 					dimensionName = "team",
-					members = List(
-						dim.createMember("id"->"2","name"->"wakka"),
-						dim.createMember("id"->"3","name"->"sailor"),
-						dim.createMember("id"->"4","name"->"bob")
+					data = List(
+						Map("id"->"2","name"->"wakka"),
+						Map("id"->"3","name"->"sailor"),
+						Map("id"->"4","name"->"bob")
 					)					
 				)
 
@@ -72,7 +72,7 @@ class DimensionActorSpec(_system:ActorSystem)
 				dimActor ! AddDimensionMember(
 					cubeName = "testcube",
 					dimensionName = "team",
-					member = dim.createMember("id" -> "1", "name" -> "hi") 				
+					data = Map("id" -> "1", "name" -> "hi") 				
 				)
 				dimActor.underlyingActor.repo.get("1").get.key should equal("1")
 			}
@@ -81,7 +81,7 @@ class DimensionActorSpec(_system:ActorSystem)
 				dimActor ! AddDimensionMember(
 					cubeName = "testcube",
 					dimensionName = "team",
-					member = dim.createMember("id" -> "2", "name" -> "ho") 				
+					data = Map("id" -> "2", "name" -> "ho") 				
 				)
 				dimActor.underlyingActor.repo.get("1").get.caption should equal("hi")
 				dimActor.underlyingActor.repo.get("2").get.caption should equal("ho")
@@ -94,9 +94,9 @@ class DimensionActorSpec(_system:ActorSystem)
 				dimActor ! AddDimensionMembers(
 					cubeName = "testcube",
 					dimensionName = "team",
-					members = List(
-						dim.createMember("id"->"3","name"->"sailor"),
-						dim.createMember("id"->"4","name"->"bob")
+					data = List(
+						Map("id"->"3","name"->"sailor"),
+						Map("id"->"4","name"->"bob")
 					)					
 				)
 				dimActor.underlyingActor.repo.get("3").get.caption should equal ("sailor")
@@ -111,7 +111,7 @@ class DimensionActorSpec(_system:ActorSystem)
 				dimActor ! AddDimensionMember(
 					cubeName = "testcube",
 					dimensionName = "team",
-					member = dim.createMember("id" -> "2", "name" -> "ho") 				
+					data = Map("id" -> "2", "name" -> "ho") 				
 				)
 				dimActor.underlyingActor.repo.get("2").get.key should equal("2")
 
@@ -128,9 +128,9 @@ class DimensionActorSpec(_system:ActorSystem)
 				dimActor ! AddDimensionMembers(
 					cubeName = "testcube",
 					dimensionName = "team",
-					members = List(
-						dim.createMember("id"->"3","name"->"sailor"),
-						dim.createMember("id"->"4","name"->"bob")
+					data = List(
+						Map("id"->"3","name"->"sailor"),
+						Map("id"->"4","name"->"bob")
 					)					
 				)
 				dimActor.underlyingActor.repo.get("3").get.caption should equal ("sailor")

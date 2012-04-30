@@ -65,8 +65,7 @@ object PingCube {
 		val addCmd =  AddDimensionMembers(
 			cubeName = "ping",
 			dimensionName = dim,
-			members = memData.map { mdata =>
-				instance.dimensions(dim).createMember(
+			data = memData.map { mdata => Map(
 					"id" -> mdata._1,
 					"name" -> mdata._2
 				)
@@ -76,11 +75,12 @@ object PingCube {
 		dispatcher ! addCmd
 	}
 
-	def addAggregate(dims : List[String], data : Map[String,Any]) {
+	def addAggregate(dims : List[String], aggData : Map[String,Any]) {
 		val addCmd = AddAggregate(
 			cubeName = "ping",
 			aggregationName = "pong",
-			agg = instance.aggregations("pong").createAggregate(dims,data)
+			dimensions = dims,
+			data = aggData
 		)
 		dispatcher ! addCmd
 

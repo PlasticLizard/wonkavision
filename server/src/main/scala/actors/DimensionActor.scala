@@ -16,8 +16,8 @@ abstract trait DimensionActor extends Actor {
 
 	def receive = {
 		case query : DimensionMemberQuery => sender ! executeQuery(query)
-		case add : AddDimensionMember => repo.put(add.member)
-		case add : AddDimensionMembers => repo.put(add.members)
+		case add : AddDimensionMember => repo.put(dimension.createMember(add.data))
+		case add : AddDimensionMembers => repo.put(add.data.map(dimension.createMember(_)))
 		case del : DeleteDimensionMember => repo.delete(del.key)
 		case purge : PurgeDimensionMembers => repo.purge()
 	}

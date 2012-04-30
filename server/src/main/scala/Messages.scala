@@ -36,8 +36,8 @@ case class CellsetQuery(
 }
 
 abstract trait DimensionCommand extends CubeCommand { val dimensionName : String }
-case class AddDimensionMember(cubeName : String, dimensionName : String, member : DimensionMember) extends DimensionCommand
-case class AddDimensionMembers(cubeName : String, dimensionName : String, members : Iterable[DimensionMember]) extends DimensionCommand
+case class AddDimensionMember(cubeName : String, dimensionName : String, data : Map[String,Any]) extends DimensionCommand
+case class AddDimensionMembers(cubeName : String, dimensionName : String, data : Iterable[Map[String,Any]]) extends DimensionCommand
 case class DeleteDimensionMember(cubeName : String, dimensionName : String, key : Any) extends DimensionCommand
 case class PurgeDimensionMembers(cubeName : String, dimensionName : String) extends DimensionCommand
 
@@ -48,8 +48,8 @@ case class DimensionMemberQuery(cubeName : String, dimensionName : String, filte
 case class DimensionMembers(dimension : Dimension, members : Iterable[DimensionMember], hasFilter : Boolean) extends QueryResult
 
 abstract trait AggregationCommand extends CubeCommand { val aggregationName : String }
-case class AddAggregate(cubeName : String, aggregationName : String, agg : Aggregate) extends AggregationCommand
-case class AddAggregates(cubeName : String, aggregationName : String, aggs : Iterable[Aggregate]) extends AggregationCommand
+case class AddAggregate(cubeName : String, aggregationName : String, dimensions : Iterable[String], data : Map[String,Any]) extends AggregationCommand
+case class AddAggregates(cubeName : String, aggregationName : String, dimensions : Iterable[String], data : Iterable[Map[String,Any]]) extends AggregationCommand
 case class DeleteAggregate(cubeName : String, aggregationName : String, dimensions : Iterable[String], key : Iterable[Any]) extends AggregationCommand
 case class PurgeDimensionSet(cubeName : String, aggregationName : String, dimensions : Iterable[String]) extends AggregationCommand
 case class PurgeAggregation(cubeName : String, aggregationName : String) extends AggregationCommand

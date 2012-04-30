@@ -46,30 +46,31 @@ class CubActorSpec(_system:ActorSystem)
 				cubeActor ! AddAggregates(
 					cubeName = "testcube",
 					aggregationName = "testaggregation",
-					aggs = List(
-						agg.createAggregate(List("team","status"), "team" -> "2", "status"->"happy","incoming" -> 1, "outgoing" -> 2),
-						agg.createAggregate(List("team","status"), "team" -> "3", "status" -> "happy", "incoming" -> 3, "outgoing" -> 4),
-						agg.createAggregate(List("team","status"), "team" -> "4", "status" -> "sad", "incoming" -> 5, "outgoing" -> 6)
+					dimensions = List("team","status"),
+					data = List(
+						Map("team" -> "2", "status"->"happy","incoming" -> 1, "outgoing" -> 2),
+						Map("team" -> "3", "status" -> "happy", "incoming" -> 3, "outgoing" -> 4),
+						Map("team" -> "4", "status" -> "sad", "incoming" -> 5, "outgoing" -> 6)
 					)
 				)
 
 				cubeActor ! AddDimensionMembers(
 					cubeName = "testcube",
 					dimensionName = "team",
-					members = List(
-						team.createMember("id"->"2","name"->"ah"),
-						team.createMember("id"->"3","name"->"blah"),
-						team.createMember("id"->"4","name"->"es")
+					data = List(
+						Map("id"->"2","name"->"ah"),
+						Map("id"->"3","name"->"blah"),
+						Map("id"->"4","name"->"es")
 					)					
 				)
 
 				cubeActor ! AddDimensionMembers(
 					cubeName = "testcube",
 					dimensionName = "status",
-					members = List(
-						status.createMember("status"->"happy","name"->"ah"),
-						status.createMember("status"->"sad","name"->"blah"),
-						status.createMember("status"->"funny","name"->"es")
+					data = List(
+						Map("status"->"happy","name"->"ah"),
+						Map("status"->"sad","name"->"blah"),
+						Map("status"->"funny","name"->"es")
 					)					
 				)
 
