@@ -22,10 +22,11 @@ class Aggregate(dims : Iterable[String], data : Map[String,Any])(implicit val ag
 		aggregation.cube.dimensions(dimName).key.ensure(data(dimName))
 	}
 
-	def toMap : Map[String,Any] = {
+	def toMap(includedMeasures : Iterable[String] = measures.keys) : Map[String,Any] = {
 		Map(
 			"key" -> key,
-			"measures" -> measures.map{ m => 
+			"measures" -> measures.filter{ m => includedMeasures.toSeq.contains(m._1)}
+			.map{ m => 
 				Map(
 					"name" -> m._1,
 					"value" -> m._2

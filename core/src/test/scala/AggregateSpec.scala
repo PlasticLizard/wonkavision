@@ -14,11 +14,11 @@ class AggregateSpec extends Spec with BeforeAndAfter with ShouldMatchers {
       dimension ( name = "d2", key = Attribute("k", Integer))
   	}
 
- 	implicit val aggregation = new Aggregation("agg", Set("m1","m2"))
+ 	implicit val aggregation = new Aggregation("agg", Set("m1","m2","m3"))
 
  	val aggregate = new Aggregate(
  			dims = List("d1","d2"),
- 			data = Map("d1" -> "1", "d2" -> "2", "m1" -> 100)
+ 			data = Map("d1" -> "1", "d2" -> "2", "m1" -> 100, "m2" -> 200)
  	)(aggregation)
 
 	before {
@@ -33,7 +33,28 @@ class AggregateSpec extends Spec with BeforeAndAfter with ShouldMatchers {
 			aggregate.measures("m1") should equal (Some(100.0))
 		}
 		it ("should parse None for valid measures missing values") {
-			aggregate.measures("m2") should equal (None)
+			aggregate.measures("m3") should equal (None)
+		}
+	}
+
+	describe("toMap") {
+		it("return a map representation of its state") {
+			aggregate.toMap() should equal (Map(
+				"key" -> List(1,2),
+				"measures" -> List(
+					Map("name" -> "m1", "value" -> Some(100.0)),
+					Map("name" -> "m2", "value" -> Some(200.0)),
+					Map("name" -> "m3", "value" -> None)
+				)
+			))
+		}
+		it("should only present requested measures") {
+			aggregate.toMap(List("m2")) should equal (Map(
+				"key" -> List(1,2),
+				"measures" -> List(
+					Map("name" -> "m2", "value" -> Some(200.0))
+				)
+			))
 		}
 	}
 

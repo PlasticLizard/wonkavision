@@ -21,7 +21,7 @@ case class Cellset(
 			"cube" -> query.cubeName,
 			"aggregation" -> query.aggregationName,
 			"axes" -> axesMap(),
-			"cells" -> aggregates.map(_.toMap),
+			"cells" -> aggregates.map(_.toMap(query.measures)),
 			"measure_names" -> query.measures,
 			"filters" -> query.filters.map(_.toString())
 		)
