@@ -1,22 +1,23 @@
 package org.wonkavision.server
 
-import com.typesafe.play.mini._
 import collection.JavaConversions._
 
 import org.wonkavision.server.messages._
 import org.wonkavision.core.Cube
 import org.wonkavision.core.filtering.MemberFilterExpression
 
+
 object ApiHelper {
 	
 	val LIST_DELIMITER = "\\|"
 	val AXIS_NAMES = List("columns","rows","pages","chapters","sections")
 
-	def parseQuery(cubeName : String, aggregationName : String, qs : String) = {
+	def parseQuery(cubeName : String, aggregationName : String, queryParams : Map[String,List[String]]) : CellsetQuery = {
 
-		val axes = parseAxes(qs)
-		val measureNames = parseList(qs, "measures")
-		val filterStrings = parseList(qs, "filters")
+		implicit val params = queryParams
+		val axes = parseAxes()
+		val measureNames = parseList("measures")
+		val filterStrings = parseList("filters")
 
 		CellsetQuery(
 			cubeName = cubeName,
@@ -27,20 +28,16 @@ object ApiHelper {
 		)
 	}
 
-	def parseAxes(queryString : String) = {
-		AXIS_NAMES.map{axis => parseList(queryString, axis)}
+	def parseAxes()(implicit params : Map[String,List[String]]) = {
+		AXIS_NAMES.map{axis => parseList(axis)}
 			.takeWhile(_ != List())
 	}
 
-	def parseList(queryString : String, qsKey : String) = {
-		param(queryString, qsKey).mkString("|").split(LIST_DELIMITER).toList.filter(_ != "")
+	def parseList(qsKey : String)(implicit params : Map[String,List[String]]) = {
+		params.getOrElse(qsKey, List()).mkString("|").split(LIST_DELIMITER).toList.filter(_ != "")
 	}
 
-	def param(queryString : String, qsKey : String) = {
-		QueryString(queryString, qsKey)
-			.getOrElse(new java.util.ArrayList[String]())
-			.asInstanceOf[java.util.ArrayList[String]].toList
-	}
+
 
 	def validateQuery(query : CellsetQuery) : Option[ObjectNotFound] = {
 		if (!Cube.cubes.contains(query.cubeName))
@@ -57,4 +54,12 @@ object ApiHelper {
 			Some(ObjectNotFound("Aggregation", query.aggregationName))
 		} else { None }
 	}
+
+	// def parseQueryParams(queryString : String) : Map[String,List[String]] = {
+	// 	val decoder = new QueryStringDecoder("?"+queryString)
+	// 	val elements = decoder.getParameters().iterator.map{ entry =>
+	// 		(entry._1, entry._2.asInstanceOf[java.util.ArrayList[String]].toList)
+	// 	}
+	// 	Map(elements.toSeq:_*)
+	// }
 }

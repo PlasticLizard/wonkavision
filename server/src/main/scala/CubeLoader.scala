@@ -7,7 +7,7 @@ import scala.collection.JavaConversions._
 
 import org.wonkavision.core.Cube
 
-class CubeLoader(namespaces : String*) {
+class CubeLoader(namespaces : AnyRef*) {
 	val reflector = new Reflections(namespaces.toArray)
 
 	def cubes : Iterable[Cube] = {
