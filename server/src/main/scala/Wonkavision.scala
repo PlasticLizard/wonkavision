@@ -28,6 +28,12 @@ object Wonkavision {
 		wv
 	}
 
+	def shutdown(){
+		instances.values.foreach{
+			_.stop()
+		}
+	}
+
 	def apply(appName : String) = instances.get(appName)
 }
 
@@ -36,16 +42,26 @@ class Wonkavision(val appName : String) {
 	val system = createActorSystem(appName)
 	def config = system.settings.config
 	def dispatcher = system.actorFor("akka://" + appName + "/user/dispatcher")
+	def appLoader = new AppLoader(config.getStringList("app.packages"):_*)
+	private var environments : Iterable[Environment] = _
+
 	initializeApp()
 
 	def initializeApp(){
-		val cubePackages = config.getStringList("cube.packages")
-    	Cube register new CubeLoader(cubePackages:_*).cubes    	
+		val cubePackages = config.getStringList("app.packages")
+    	Cube register appLoader.cubes    	
     	val disp = system.actorOf(Props[WonkavisionActor], name="dispatcher")
     	if (config.getBoolean("ping.cube.enabled")) {
     		PingCube.initialize(disp)   		
     	}
+    	environments = createEnvironments()
+	}
 
+	def createEnvironments() = {
+		appLoader.environments.map{ e =>
+			e.initialize(Environment.withName(config.getString("environment")))
+			e.onStart(this); e
+		}
 	}
 
 	def createActorSystem(appName : String) = {
@@ -53,7 +69,11 @@ class Wonkavision(val appName : String) {
 		ActorSystem(appName, baseConfig.getConfig(appName).withFallback(baseConfig))
 	}
 
-
-	
+	def stop() {
+		environments.foreach { e =>
+			e.onStop(this)
+		}
+		system.shutdown()
+	}
 	
 }

@@ -2,6 +2,7 @@ package org.wonkavision.server.test.cubes
 
 import org.wonkavision.core._
 import FactAction._
+import org.wonkavision.server.Environment
 
 class TestCube extends Cube("testcube") {
 	
@@ -30,3 +31,5 @@ class TestCube extends Cube("testcube") {
 	)
 
 }
+
+class TestEnv extends Environment

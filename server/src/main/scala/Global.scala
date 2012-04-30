@@ -11,5 +11,6 @@ object Global extends com.typesafe.play.mini.Setup(org.wonkavision.server.App) {
 	}
 
 	override def onStop(app : Application) {
+		Wonkavision.shutdown()
 	}
 }

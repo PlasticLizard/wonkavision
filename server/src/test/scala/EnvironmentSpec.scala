@@ -1,9 +1,11 @@
-package org.wonkavision.core
+package org.wonkavision.server
 
 import org.scalatest.Spec
 import org.scalatest.BeforeAndAfter
 import org.scalatest.matchers.ShouldMatchers
 import scala.io.Source
+
+
 import Environment._
 
 class EnvironmentSpec extends Spec with BeforeAndAfter with ShouldMatchers {

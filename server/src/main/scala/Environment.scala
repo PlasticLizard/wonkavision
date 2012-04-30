@@ -1,4 +1,4 @@
-package org.wonkavision.core
+package org.wonkavision.server
 
 object Environment extends Enumeration {
 	type Environment = Value
@@ -11,12 +11,20 @@ trait Environment {
 	def environment = currentEnv
 
 	def initialize(env : Environment.Value) {
-		currentEnv = 	env
+		currentEnv = env
 		configure(env)
 	}
 
 	def configure : PartialFunction[Environment.Value, Unit] = {
 		case _ =>
+	}
+
+	def onStart(wv : Wonkavision) {
+
+	}
+
+	def onStop(wv : Wonkavision) {
+
 	}
 	
 }

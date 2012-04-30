@@ -7,11 +7,16 @@ import scala.collection.JavaConversions._
 
 import org.wonkavision.core.Cube
 
-class CubeLoader(namespaces : String*) {
+class AppLoader(namespaces : String*) {
 	val reflector = new Reflections(namespaces.toArray)
 
 	def cubes : Iterable[Cube] = {
 		val cubeClasses : Set[Class[_ <: Cube]] = reflector.getSubTypesOf(classOf[Cube]).toSet
 		cubeClasses.map(_.newInstance()).toList
+	}
+
+	def environments : Iterable[Environment] = {
+		val envClasses : Set[Class[_ <: Environment]] = reflector.getSubTypesOf(classOf[Environment]).toSet
+		envClasses.map(_.newInstance()).toList
 	}
 }

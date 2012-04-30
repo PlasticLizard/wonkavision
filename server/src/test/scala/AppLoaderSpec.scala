@@ -5,12 +5,12 @@ import org.scalatest.BeforeAndAfter
 import org.scalatest.matchers.ShouldMatchers
 import org.wonkavision.core._
 
-class CubeLoaderSpec extends Spec with BeforeAndAfter with ShouldMatchers {
+class AppLoaderSpec extends Spec with BeforeAndAfter with ShouldMatchers {
 
-  var loader : CubeLoader = _
+  var loader : AppLoader = _
 
   before {
-    loader = new CubeLoader("org.wonkavision.server.test.cubes")
+    loader = new AppLoader("org.wonkavision.server.test.cubes")
   }
 
   describe("cubes") {
@@ -19,6 +19,13 @@ class CubeLoaderSpec extends Spec with BeforeAndAfter with ShouldMatchers {
       cubes.size should equal (1)
       cubes.head.name should equal ("testcube")
     }    
+  }
+
+  describe("environments") {
+    it("should return a set of environments in the configured namespace"){
+      val envs = loader.environments
+      envs.size should equal (1)
+    }
   }
 
 }
