@@ -18,6 +18,7 @@ object Convert {
 		  case v:Long => v.asInstanceOf[Int]
 		  case v:Int => v.asInstanceOf[Int]
 		  case v:Double => round(v.asInstanceOf[Double]).toInt
+		  case v:Rate => Rate.RateIsNumeric.toInt(v)
 		  case _ => round(value.toString.toFloat)
 		}
 		Option(converted)
@@ -29,6 +30,7 @@ object Convert {
 			case v:Int => v.asInstanceOf[Long]
 			case v:Long => v.asInstanceOf[Long]
 			case v:Double => round(v.asInstanceOf[Double])
+			case v:Rate => Rate.RateIsNumeric.toLong(v)
 			case _ => value.toString.toLong
 		}
 		Option(converted)
@@ -40,6 +42,7 @@ object Convert {
 			case v:Int => v.asInstanceOf[Int].toDouble
 			case v:Long => v.asInstanceOf[Long].toDouble
 			case v:Double => v.asInstanceOf[Double]
+			case v:Rate => Rate.RateIsNumeric.toDouble(v)
 			case _ => value.toString.toDouble
 		}
 		Option(converted)

@@ -51,6 +51,9 @@ class ConvertSpec extends Spec with BeforeAndAfter with ShouldMatchers {
         val expected = List(1.0, 1.0, 1.4, 1.4, 1.0, 1.4)
         sources should equal (expected.map(Some(_)))
       }
+      it("should convert a Rate to a double") {
+        Convert.toDouble(Rate.parse("1/2")).get should equal (1.0/2.0)
+      }
     }
 
     describe("toDate") {
