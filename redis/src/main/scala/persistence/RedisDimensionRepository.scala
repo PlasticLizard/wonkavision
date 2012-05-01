@@ -11,8 +11,12 @@ class RedisDimensionRepository(dim : Dimension)(implicit wonkavision :Wonkavisio
 
 	implicit val dimension = dim
 
-	def get(rawKey : Any) = {
-		None
+	def hashname : String = dimension.fullname
+
+	def get(key : Any) = {
+		exec { redis =>
+			fromRedis( redis.hget[String](hashname, key.toString()) )
+		}
 	}
 
 	def all() = {
@@ -29,6 +33,16 @@ class RedisDimensionRepository(dim : Dimension)(implicit wonkavision :Wonkavisio
 
 	def purge(){
 
+	}
+
+	def toRedis(member : DimensionMember) : String = {
+		val map = for (i <- member.dimension.attributes.indices)
+			yield (member.dimension.attributes(i).name -> member.at(i))
+		map.toString()
+	}
+
+	def fromRedis(data : Option[String]) : Option[DimensionMember] = {
+		data.map{s => new DimensionMember(Map())}
 	}
 
 }

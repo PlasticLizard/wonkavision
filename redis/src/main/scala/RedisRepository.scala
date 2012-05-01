@@ -18,7 +18,15 @@ class RedisRepository(val wonkavision : Wonkavision) {
     	new RedisClientPool(settings.Hostname, settings.Port)
   	}
 
-  	protected def withErrorHandling[T](body: ⇒ T): T = {
+  	protected def exec[T](body : RedisClient => T) : T = {
+  		withErrorHandling {
+  			clients.withClient { client =>
+  				body(client)
+  			}
+  		}
+  	}
+
+  	protected def withErrorHandling[T](body: => T): T = {
 	    try {
 	      body
 	    } catch {
