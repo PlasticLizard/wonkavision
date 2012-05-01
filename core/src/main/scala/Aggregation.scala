@@ -7,6 +7,8 @@ class Aggregation(val name : String, val measures : Set[String])(implicit val cu
 	private var dimensionSetList : Set[SortedSet[String]] = Set() 
 	def aggregations = dimensionSetList
 
+	val fullname = cube.fullname + "#" + name
+
 	def add(dimensions : String*) = {
 		dimensionSetList += SortedSet(dimensions.toSeq:_*)
 		this

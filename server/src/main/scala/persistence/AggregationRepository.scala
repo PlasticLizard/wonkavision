@@ -22,7 +22,7 @@ abstract trait AggregationReader  {
 
 abstract trait AggregationWriter {
 	def put(agg : Aggregate)
-	def put(aggs : Iterable[Aggregate])
+	def put(dimensions : Iterable[String], aggs : Iterable[Aggregate])
 	def delete(dimensions : Iterable[String], key : Iterable[Any])
 	def purge(dimensions : Iterable[String])
 	def purgeAll()
@@ -50,7 +50,7 @@ abstract trait KeyValueAggregationReader extends AggregationReader {
 }
 
 abstract trait KeyValueAggregationWriter extends AggregationWriter {
-	def put(aggs : Iterable[Aggregate]) {
+	def put(dimensions : Iterable[String], aggs : Iterable[Aggregate]) {
 		aggs.foreach(put(_))
 	}
 

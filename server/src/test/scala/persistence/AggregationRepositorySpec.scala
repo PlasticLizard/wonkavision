@@ -104,7 +104,7 @@ class AggregationRepositorySpec extends Spec with BeforeAndAfter with ShouldMatc
 					new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3)),
 					new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 3, "d3" -> 3))
 				)
-				KvWriter.put(newData)
+				KvWriter.put(List("d1","d2","d3"),newData)
 				KvWriter.data.size should equal(2)
 				KvWriter.data("d1:d2:d31:2:3").key should equal(List(1,2,3))
 				KvWriter.data("d1:d2:d31:3:3").key should equal(List(1,3,3))
@@ -118,8 +118,8 @@ class AggregationRepositorySpec extends Spec with BeforeAndAfter with ShouldMatc
 					new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 4, "d3" -> 3)),
 					new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 5, "d3" -> 3))
 				)
-				KvWriter.put(newData1)
-				KvWriter.put(newData2)
+				KvWriter.put(List("d1","d2","d3"),newData1)
+				KvWriter.put(List("d1","d2","d3"),newData2)
 				KvWriter.data.size should equal(4)
 			}
 		}

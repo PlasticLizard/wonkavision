@@ -2,11 +2,15 @@ package org.wonkavision.redis
 
 import org.wonkavision.core.{Dimension, DimensionMember}
 import org.wonkavision.server.Wonkavision
-import org.wonkavision.redis.serialization.MessagePack
+import org.wonkavision.redis.serialization._
 import org.wonkavision.server.persistence._
 
 
-class RedisDimensionRepository(dim : Dimension)(implicit wonkavision :Wonkavision)
+class RedisDimensionRepository(
+	dim : Dimension,
+	val serializer : Serializer = new MessagePackSerializer())
+	(implicit wonkavision :Wonkavision)
+
 	extends RedisRepository(wonkavision)
 	with DimensionRepository
 	with KeyValueDimensionReader
@@ -59,16 +63,11 @@ class RedisDimensionRepository(dim : Dimension)(implicit wonkavision :Wonkavisio
 	}
 
 	def serialize(member : DimensionMember) : Array[Byte] = {
-		val elements = for (i <- member.dimension.attributes.indices)
-			yield (member.dimension.attributes(i).name -> member.at(i).getOrElse("").toString)
-		MessagePack.writeMap(Map(elements:_*))
+		serializer.write(member)
 	}
 
 	def deserialize(bytes : Option[Array[Byte]]) : Option[DimensionMember] = {
-		bytes.map { b => 
-			val data : Map[String,String] = MessagePack.readMap(b)
-			new DimensionMember(data)
-		}		
+		serializer.readDimensionMember(bytes)
 	}
 
 }

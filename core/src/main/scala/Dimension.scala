@@ -8,7 +8,7 @@ case class Dimension(
 	captionAttribute : Option[Attribute] = None,
 	sortAttribute : Option[Attribute] = None)(implicit val cube : Cube) {
 
-	val fullname = cube.fullname + ":" + name
+	val fullname = cube.fullname + "!" + name
 
 	def key = getAttribute("key")
 	def caption = getAttribute("caption")
