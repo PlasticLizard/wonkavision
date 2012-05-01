@@ -26,6 +26,8 @@ class Cube( val name : String ) {
 	private var aggregationMap : Map[String, Aggregation] = Map()
 	private var eventList : List[FactEventBinding] = List()
 
+	val fullname = "wv:" + name
+
 	def dimensions = dimensionMap
 	def dimensionNames = dimensionMap.keys
 	def measures = measureMap
