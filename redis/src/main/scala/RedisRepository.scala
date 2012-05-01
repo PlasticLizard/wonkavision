@@ -1,5 +1,5 @@
 //Portions copied from Akka Durable Mailbox impl
-package org.wonkavision.server.persistence
+package org.wonkavision.redis
 
 import org.wonkavision.server.Wonkavision
 import org.wonkavision.core.exceptions.WonkavisionException

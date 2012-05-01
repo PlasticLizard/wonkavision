@@ -1,4 +1,4 @@
-package org.wonkavision.server.persistence
+package org.wonkavision.redis
 
 import com.typesafe.config.Config
 

@@ -67,6 +67,7 @@ object WonkavisionBuild extends Build {
     libraryDependencies += "log4j" % "log4j" % "1.2.16",
     libraryDependencies += "ch.qos.logback" % "logback-classic" % "0.9.28",
     libraryDependencies += "org.scalatest" %% "scalatest" % "1.6.1" % "test",
-    libraryDependencies += "net.debasishg" %% "redisclient" % "2.5"
+    libraryDependencies += "net.debasishg" %% "redisclient" % "2.5",
+    libraryDependencies += "org.msgpack" % "msgpack" % "0.6.5"
   )
 }
