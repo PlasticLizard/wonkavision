@@ -10,6 +10,10 @@ import org.wonkavision.core.filtering._
 import org.wonkavision.core.AttributeType._
 import org.wonkavision.core.Aggregate
 
+import akka.dispatch.{Await, Promise, Future}
+import akka.util.duration._
+import akka.actor.ActorSystem
+
 class AggregationRepositorySpec extends Spec with BeforeAndAfter with ShouldMatchers {
 	
 	implicit val cube  = new Cube("hi") {      
@@ -18,6 +22,7 @@ class AggregationRepositorySpec extends Spec with BeforeAndAfter with ShouldMatc
       dimension ( name = "d3", key = Attribute("k", Integer))
   	}
 	implicit val aggregation = new Aggregation("agg", Set("m1","m2")).combine("d1","d2","d3")
+	implicit val executionContext = ActorSystem("test").dispatcher
 
 	val d1 = Dimension("d1", Attribute("k", Integer))
 	val d2 = Dimension("d2", Attribute("k", Integer))
@@ -32,9 +37,15 @@ class AggregationRepositorySpec extends Spec with BeforeAndAfter with ShouldMatc
 	
 	object KvReader extends KeyValueAggregationReader {
 		def get(dimensions : Iterable[String], key : Iterable[Any]) = {
-			aggData.get(key.mkString(":"))
+			Promise.successful( aggData.get(key.mkString(":")) )
 		}
-		def all(dimensionNames : Iterable[String]) = aggData.values.toList
+
+		def getMany(dimensions : Iterable[String], keys : Iterable[Iterable[Any]]) = {
+			val futures = keys.map{ key => get(dimensions, key).map(_.getOrElse(null))}
+			Future.sequence(futures).map{_.filter{agg => agg != null}}
+		}
+
+		def all(dimensionNames : Iterable[String]) = Promise.successful( aggData.values.toList )
 	}
 
 	def createQuery(filtered : Boolean) = {
@@ -73,12 +84,12 @@ class AggregationRepositorySpec extends Spec with BeforeAndAfter with ShouldMatc
 	describe("reader"){
 	  	describe("select") {
 	    	it("should return the selected subset of aggregates") {
-	    		KvReader.select(createQuery(true)) should equal (List(
+	    		Await.result(KvReader.select(createQuery(true)), 1 second) should equal (List(
 	    			aggData("1:2:3"), aggData("1:4:3")
 	    		))
 	    	} 
 	    	it ("should return all records when not filtered") {
-	    		KvReader.select(createQuery(false)) should equal (aggData.values.toList)
+	    		Await.result(KvReader.select(createQuery(false)), 1 second) should equal (aggData.values.toList)
 	    	}
 	    	
 	 	}

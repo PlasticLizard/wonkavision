@@ -29,6 +29,19 @@ class RedisDimensionRepository(
 		}
 	}
 
+	def getMany(keys : Iterable[Any]) = {
+		val rKeys = keys.map(_.toString)
+		exec { redis =>
+			import com.redis.serialization.Parse.Implicits.parseByteArray
+			val memberData = redis.hmget[String,Array[Byte]](
+				hashname,
+				rKeys.toSeq:_*
+			).getOrElse(Map())
+			memberData.values.map( bytes => deserialize(Some(bytes)) )
+			.flatten
+		}
+	}
+
 	def all() = {
 		exec { redis =>
 			import com.redis.serialization.Parse.Implicits.parseByteArray

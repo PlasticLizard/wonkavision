@@ -34,12 +34,23 @@ class RedisAggregationRepository(
 		}
 	}	
 
+	def getMany(dimensionNames : Iterable[String], keys : Iterable[Iterable[Any]]) = {
+		exec { redis =>
+			import com.redis.serialization.Parse.Implicits.parseByteArray
+			val rKeys = keys.map(_.mkString(":"))
+			val aggData = redis.hmget[String,Array[Byte]](
+				hashname(dimensionNames),
+				rKeys.toSeq:_*
+			).getOrElse(Map())
+			aggData.values.map( bytes => deserialize(dimensionNames, Some(bytes))).flatten
+		}
+	}
+
 	def all(dimensionNames : Iterable[String]) = {
 		exec { redis => 
 			import com.redis.serialization.Parse.Implicits.parseByteArray
 			val aggData = redis.hgetall[String,Array[Byte]](hashname(dimensionNames)).getOrElse(Map())
-			aggData.values.map( bytes => deserialize(dimensionNames, Some(bytes)))
-			.flatten
+			aggData.values.map( bytes => deserialize(dimensionNames, Some(bytes))).flatten
 		}
 	}
 

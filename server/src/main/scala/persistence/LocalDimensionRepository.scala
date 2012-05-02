@@ -4,10 +4,13 @@ import org.wonkavision.server.messages._
 import org.wonkavision.core.DimensionMember
 import org.wonkavision.core.Dimension
 
+import akka.dispatch.{Future,Promise,ExecutionContext}
+
 class LocalDimensionRepository(
 	dim : Dimension,
 	data : Iterable[Map[String,Any]] = List()
-) extends DimensionRepository
+)(implicit val executionContext : ExecutionContext)
+	 extends DimensionRepository
 	 with KeyValueDimensionReader
      with KeyValueDimensionWriter {
 	
@@ -15,11 +18,16 @@ class LocalDimensionRepository(
 	
 	def get(rawKey : Any) = {
 		val key = dimension.key.ensure(rawKey)
-		members.get(key)
+		Promise.successful( members.get(key) )
 	}	
 
+	def getMany(keys : Iterable[Any]) = {
+		val futures = keys.map{key => get(key).map(_.getOrElse(null))}
+		Future.sequence(futures).map(_.filter(dim => dim != null))
+	}
+
 	def all() = {
-		members.values
+		Promise.successful ( members.values ) 
 	}
 
 	def put(member : DimensionMember) {

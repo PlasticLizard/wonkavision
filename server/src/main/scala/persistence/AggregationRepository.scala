@@ -10,14 +10,17 @@ import org.wonkavision.core.Aggregation
 import org.wonkavision.core.Util
 import org.wonkavision.core.Aggregate
 
+import akka.dispatch.{Promise, Future, ExecutionContext}
+
 abstract trait AggregationRepository extends AggregationReader with AggregationWriter {
 	val aggregation : Aggregation
 }
 
 abstract trait AggregationReader  {
-	def get(dimensions : Iterable[String], key : Iterable[Any]) : Option[Aggregate]
-	def select(query : AggregateQuery) : Iterable[Aggregate]
-	def all(dimensions : Iterable[String]) : Iterable[Aggregate]
+	def get(dimensions : Iterable[String], key : Iterable[Any]) : Future[Option[Aggregate]]
+	def getMany(dimensions : Iterable[String], keys : Iterable[Iterable[Any]]) : Future[Iterable[Aggregate]]
+	def select(query : AggregateQuery) : Future[Iterable[Aggregate]]
+	def all(dimensions : Iterable[String]) : Future[Iterable[Aggregate]]
 }
 
 abstract trait AggregationWriter {
@@ -29,15 +32,16 @@ abstract trait AggregationWriter {
 }
 
 abstract trait KeyValueAggregationReader extends AggregationReader {
+
 	def select(query : AggregateQuery) = {
 		val dimNames = SortedSet(query.dimensionNames.toSeq:_*)
 		if (query.hasFilter) {
 			val keys = generateAggregationKeys(dimNames, query.dimensions)
-			keys.map(get(dimNames, _)).flatten
+			getMany(dimNames, keys)
 		} else {
 			all(dimNames)
 		}
-	}
+	}	
 
 	protected def generateAggregationKeys(dims : Iterable[String], members : Iterable[DimensionMembers] ) = {
 		var membersList = dims.toList.map( dim =>

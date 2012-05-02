@@ -5,14 +5,17 @@ import org.wonkavision.core.DimensionMember
 import org.wonkavision.core.Dimension
 import org.wonkavision.core.filtering.FilterOperator._
 
+import akka.dispatch.{Promise, Future, ExecutionContext}
+
 abstract trait DimensionRepository extends DimensionReader with DimensionWriter {
 	val dimension : Dimension
 }
 
 abstract trait DimensionReader { 
-	def get(key : Any) : Option[DimensionMember]
-	def select(query : DimensionMemberQuery) : Iterable[DimensionMember]
-	def all() : Iterable[DimensionMember]
+	def get(key : Any) : Future[Option[DimensionMember]]
+	def getMany(keys : Iterable[Any]) : Future[Iterable[DimensionMember]]
+	def select(query : DimensionMemberQuery) : Future[Iterable[DimensionMember]]
+	def all() : Future[Iterable[DimensionMember]]
 }
 
 abstract trait DimensionWriter {
@@ -29,14 +32,12 @@ abstract trait KeyValueDimensionReader extends DimensionReader {
 		}	
 		
 		val vals = if (keyFilters.size > 0) {
-			keyFilters
-				.flatMap(_.values)
-				.map(get(_))
-				.flatten
+			val keys = keyFilters.flatMap(_.values)
+			getMany(keys)
 		} else { 
 			all
 		}
-		vals.filter(_.matches(attrFilters))	
+		vals.map(_.filter(_.matches(attrFilters)))	
 	}
 }
 

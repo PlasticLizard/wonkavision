@@ -4,11 +4,15 @@ import org.wonkavision.core.Aggregate
 import org.wonkavision.server.messages._
 import org.wonkavision.core.Dimension
 import org.wonkavision.core.Aggregation
+import org.wonkavision.server.Wonkavision
+
+import akka.dispatch.{Promise, Future, ExecutionContext}
 
 class LocalAggregationRepository(
 	val agg : Aggregation,
 	data : Map[Iterable[String],Iterable[Map[String,Any]]] = Map()
-) extends AggregationRepository
+)(implicit val executionContext : ExecutionContext)
+	 extends AggregationRepository
 	 with KeyValueAggregationReader
      with KeyValueAggregationWriter {
 	
@@ -17,12 +21,22 @@ class LocalAggregationRepository(
 	def get(dimensionNames : Iterable[String], key : Iterable[Any]) = {
 		val aggKey = key.mkString(":")
 		val dimSet = aggregationSet(dimensionNames)
-		if (dimSet.isEmpty) None else dimSet.get.get(aggKey)
+		Promise.successful( 
+			if (dimSet.isEmpty) None else dimSet.get.get(aggKey)
+		)
 	}	
 
+	def getMany(dimensionNames : Iterable[String], keys : Iterable[Iterable[Any]]) = {
+		val futures = keys.map{ key => get(dimensionNames, key).map(_.getOrElse(null))}
+		Future.sequence(futures).map{_.filter{agg => agg != null}}
+	}
+
+
 	def all(dimensionNames : Iterable[String]) = {
-		aggregationSet(dimensionNames).map(_.values)
-			.toList.flatten
+		Promise.successful(
+			aggregationSet(dimensionNames).map(_.values)
+				.toList.flatten
+		)
 	}
 
 	def put(agg : Aggregate) {

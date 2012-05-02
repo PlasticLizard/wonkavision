@@ -6,11 +6,14 @@ import org.wonkavision.core.exceptions.WonkavisionException
 
 import com.redis._
 import akka.event.Logging
+import akka.dispatch.{ExecutionContext, Promise, Future}
 
 class RedisRepository(val wonkavision : Wonkavision) {
 
 	val settings = new WonkavisionRedisSettings(wonkavision.config)
 	val log = Logging(wonkavision.system, "WonkavisionRedisRepository")
+	implicit val executionContext = wonkavision.system.dispatcher
+
 	@volatile
 	private var clients = connect()
 
@@ -18,12 +21,14 @@ class RedisRepository(val wonkavision : Wonkavision) {
     	new RedisClientPool(settings.Hostname, settings.Port)
   	}
 
-  	protected def exec[T](body : RedisClient => T) : T = {
-  		withErrorHandling {
-  			clients.withClient { client =>
-  				body(client)
-  			}
-  		}
+  	protected def exec[T](body : RedisClient => T) : Future[T] = {
+  		Promise.successful(
+	  		withErrorHandling {
+	  			clients.withClient { client =>
+	  				body(client)
+	  			}
+	  		}
+  		)
   	}
 
   	protected def withErrorHandling[T](body: => T): T = {

@@ -12,7 +12,7 @@ trait DimensionActorFactory { self : Actor =>
 		 val props = Props(
 		 	new DimensionActor {
 		 		val dimension = dim
-		 		val repo = new LocalDimensionRepository(dim)
+		 		val repo = new LocalDimensionRepository(dim)(context.system.dispatcher)
 		 	}
 		 )
 		 context.actorOf(props, "dimension." + dim.name)

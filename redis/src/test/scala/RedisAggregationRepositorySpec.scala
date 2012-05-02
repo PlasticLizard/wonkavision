@@ -12,6 +12,9 @@ import org.wonkavision.core.AttributeType._
 import org.wonkavision.core.Aggregate
 import org.wonkavision.server.Wonkavision
 
+import akka.dispatch.Await
+import akka.util.duration._
+
 class RedisAggregationRepositorySpec extends Spec with BeforeAndAfter with ShouldMatchers {
 	
 	implicit val cube  = new Cube("hi") {      
@@ -42,29 +45,29 @@ class RedisAggregationRepositorySpec extends Spec with BeforeAndAfter with Shoul
   	it ("should return a matching aggregate") {
   		val dims = List("d1","d2","d3")
   		val key = List(1,3,3)
-  		repo.get(dims,key).get.key should equal (List(1,3,3))
+  		Await.result(repo.get(dims,key), 1 second).get.key should equal (List(1,3,3))
   	}
   	it("should return None if no key matches") {
   		val dims = List("d1","d2","d3")
   		val key = List(1,3,5)
-  		repo.get(dims,key) should equal (None)
+  		Await.result(repo.get(dims,key), 1 second) should equal (None)
   	}
   	it("should return None if no dim sets match") {
   		val dims = List("d1","d2","d4")
   		val key = List(1,3,3)
-  		repo.get(dims,key) should equal (None)
+  		Await.result(repo.get(dims,key), 1 second) should equal (None)
   	}
 	}
 
 	describe("all") {
 		it ("should get all aggregates for a dim set") {
-			val all = repo.all(List("d1","d2","d3")).toSeq
+			val all = Await.result(repo.all(List("d1","d2","d3")), 1 second).toSeq
 			all.size should equal (2)
 			all(0).key should equal (List(1,2,3))
 			all(1).key should equal (List(1,3,3))
 		}
 		it ("should return Nil if no dim set matches") {
-			repo.all(List("d1","d2")) should equal (Nil)
+			Await.result(repo.all(List("d1","d2")), 1 second) should equal (Nil)
 		}
 	}
 
@@ -73,20 +76,20 @@ class RedisAggregationRepositorySpec extends Spec with BeforeAndAfter with Shoul
       it("should put an aggregate into the correct dimset"){
         repo.purgeAll()
         repo.put(new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3)))
-        repo.get(List("d1","d2","d3"),List(1,2,3)).get.key should equal (List(1,2,3))
+        Await.result(repo.get(List("d1","d2","d3"),List(1,2,3)), 1 second).get.key should equal (List(1,2,3))
       }
       it("should append to the dimset"){
         repo.purgeAll()
         repo.put(new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3)))
         repo.put(new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 3, "d3" -> 3)))
-        repo.all(List("d1","d2","d3")).size should equal (2)
+        Await.result(repo.all(List("d1","d2","d3")), 1 second).size should equal (2)
       }
       it("should put into different dimsets"){
         repo.purgeAll()
         repo.put(new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3)))
         repo.put(new Aggregate(List("d1","d2"), Map("d1" -> 1, "d2" -> 3, "d3" -> 3)))
-        repo.all(List("d1","d2","d3")).size should equal (1)
-        repo.all(List("d1","d2")).size should equal(1)
+        Await.result(repo.all(List("d1","d2","d3")), 1 second).size should equal (1)
+        Await.result(repo.all(List("d1","d2")), 1 second).size should equal(1)
       }
     }
 
@@ -96,8 +99,8 @@ class RedisAggregationRepositorySpec extends Spec with BeforeAndAfter with Shoul
         repo.put(new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3)))
         repo.put(new Aggregate(List("d1","d2"), Map("d1" -> 1, "d2" -> 3, "d3" -> 3)))
         repo.purge(List("d1","d2","d3"))
-        repo.all(List("d1","d2","d3")).size should equal (0)
-        repo.all(List("d1","d2")).size should equal(1)
+        Await.result(repo.all(List("d1","d2","d3")), 1 second).size should equal (0)
+        Await.result(repo.all(List("d1","d2")), 1 second).size should equal(1)
       }
     }
 
@@ -106,8 +109,8 @@ class RedisAggregationRepositorySpec extends Spec with BeforeAndAfter with Shoul
         repo.put(new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3)))
         repo.put(new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 3, "d3" -> 3)))
         repo.purgeAll()
-        repo.all(List("d1","d2","d3")).size should equal (0)
-        repo.all(List("d1","d2")).size should equal(0)
+        Await.result(repo.all(List("d1","d2","d3")), 1 second).size should equal (0)
+        Await.result(repo.all(List("d1","d2")), 1 second).size should equal(0)
       }
     }
 
@@ -115,7 +118,7 @@ class RedisAggregationRepositorySpec extends Spec with BeforeAndAfter with Shoul
       it("should remove the specified key from the specified dimset"){
         repo.put(new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3)))
         repo.delete(List("d1","d2","d3"),List(1,2,3))
-        repo.get(List("d1","d2","d3"),List(1,2,3)) should equal (None)
+        Await.result(repo.get(List("d1","d2","d3"),List(1,2,3)), 1 second) should equal (None)
       }
     }
   }
