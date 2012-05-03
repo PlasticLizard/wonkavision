@@ -5,8 +5,7 @@ import akka.actor.{Props, Actor, ActorRef}
 import org.wonkavision.core.Aggregate
 import org.wonkavision.server.messages._
 import org.wonkavision.core.Aggregation
-import org.wonkavision.server.persistence.AggregationRepository
-
+import org.wonkavision.server.persistence.{AggregationRepository, LocalAggregationRepository}
 
 
 abstract trait AggregationActor extends Actor {
@@ -25,4 +24,8 @@ abstract trait AggregationActor extends Actor {
 	}
 
 	def executeQuery(query : AggregateQuery) : Iterable[Aggregate] = repo.select(query)
+}
+
+class LocalAggregationActor(val aggregation : Aggregation) extends AggregationActor {
+	val repo = new LocalAggregationRepository(aggregation, context.system)
 }

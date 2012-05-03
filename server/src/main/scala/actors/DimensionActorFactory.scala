@@ -13,20 +13,18 @@ trait DimensionActorFactory { self : CubeActor =>
 
 	def dimensionRepoActorFor(dim : Dimension) = {
 		 val props = Props(
-		 	new DimensionActor {
-		 		val dimension = dim
-		 		val repo = createRepository(dim)
-		 	}
-		 ).withRouter(SmallestMailboxRouter(settings.aggregationRepoWorkerCount))
-		  .withDispatcher("repo-dispatcher")
+		 	createDimensionActor(dim)
+		 )
+		 .withRouter(SmallestMailboxRouter(settings.aggregationRepoWorkerCount))
+		 
 		 context.actorOf(props, "dimension." + dim.name)
 	}
 
-	def createRepository(dimension : Dimension) = {
+	def createDimensionActor(dimension : Dimension) = {
 		val dimRepoClass = Class.forName(settings.dimensionRepoClassName)
-		val argList : List[java.lang.Object] = List(dimension, context.system)
+		val argList : List[java.lang.Object] = List(dimension)
 		val ctr = dimRepoClass.getConstructors.head
 
-		ctr.newInstance(argList.toSeq:_*).asInstanceOf[DimensionRepository]
+		ctr.newInstance(argList.toSeq:_*).asInstanceOf[Actor]
 	}
 }

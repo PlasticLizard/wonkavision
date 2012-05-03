@@ -5,7 +5,7 @@ import akka.actor.{Props, Actor, ActorRef}
 import org.wonkavision.server.messages._
 import org.wonkavision.core.Dimension
 import org.wonkavision.core.DimensionMember
-import org.wonkavision.server.persistence.DimensionRepository
+import org.wonkavision.server.persistence.{DimensionRepository, LocalDimensionRepository}
 
 
 abstract trait DimensionActor extends Actor {
@@ -25,4 +25,8 @@ abstract trait DimensionActor extends Actor {
 	def executeQuery(query : DimensionMemberQuery) : DimensionMembers  = {
 		DimensionMembers(dimension, repo.select(query), query.hasFilter)
 	}
+}
+
+class LocalDimensionActor(val dimension : Dimension) extends DimensionActor {
+	val repo = new LocalDimensionRepository(dimension, context.system)	
 }

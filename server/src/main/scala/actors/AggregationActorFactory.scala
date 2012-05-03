@@ -11,22 +11,18 @@ trait AggregationActorFactory { self : CubeActor =>
 
 	def aggregationActorFor(agg : Aggregation) = {
 		 val props = Props(
-		 	new AggregationActor {
-		 		val aggregation = agg
-		 		val repo = createRepository(agg)
-		 	}
+		 	createAggregationActor(agg)
 		 )
 		 .withRouter(SmallestMailboxRouter(settings.aggregationRepoWorkerCount))
-		 .withDispatcher("repo-dispatcher")
 		 
 		 context.actorOf(props, "aggregation." + agg.name)
 	}
 
-	def createRepository(aggregation : Aggregation) = {
+	private[this] def createAggregationActor(aggregation : Aggregation) = {
 		val aggRepoClass = Class.forName(settings.aggregationRepoClassName)
-		val argList : List[java.lang.Object] = List(aggregation, context.system)
+		val argList : List[java.lang.Object] = List(aggregation)
 		val ctr = aggRepoClass.getConstructors.head
 
-		ctr.newInstance(argList.toSeq:_*).asInstanceOf[AggregationRepository]
+		ctr.newInstance(argList.toSeq:_*).asInstanceOf[Actor]
 	}
 }
