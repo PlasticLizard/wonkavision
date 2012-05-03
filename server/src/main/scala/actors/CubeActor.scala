@@ -21,7 +21,7 @@ class CubeActor(val cube : Cube) extends Actor
 	with DimensionActorFactory {
 
 	import context._
-	implicit val timeout = Timeout(5000 milliseconds)
+	implicit val timeout = Timeout(30000 milliseconds)
 	val settings = CubeSettings.forCube(cube.name)
 	var enabled = settings.enabled
 	override def preStart() {

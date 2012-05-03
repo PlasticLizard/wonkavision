@@ -10,7 +10,6 @@ import org.wonkavision.server.messages.AggregationCommand
 import org.wonkavision.redis.RedisAggregationRepository
 
 class RedisAggregationActor(val aggregation : Aggregation) extends Actor {
-	
 	private var workers : ActorRef = _
 	override def preStart() {
 		workers = context.actorOf(

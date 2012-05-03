@@ -24,10 +24,10 @@ object App extends Application {
   val WV_APP_NAME = "wonkavision"
 
   lazy val wonka = Wonkavision(WV_APP_NAME).get
-  implicit val timeout = Timeout(5000 milliseconds)
 
   def route = {
     case GET(Path(Seg("query" :: cube :: aggregation :: Nil))) & QueryString(qs) => Action{ implicit request=>
+      implicit val timeout = Timeout(wonka.config.getInt("wonkavision.api-timeout") seconds)
       val query = parseQuery(cube, aggregation, qs)
       val error = validateQuery(query)
       if (!error.isEmpty)
