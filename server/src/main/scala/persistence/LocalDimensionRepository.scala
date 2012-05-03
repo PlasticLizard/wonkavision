@@ -4,7 +4,6 @@ import org.wonkavision.server.messages._
 import org.wonkavision.core.DimensionMember
 import org.wonkavision.core.Dimension
 
-import akka.dispatch.{Future,Promise,ExecutionContext}
 import akka.actor.ActorSystem
 
 class LocalDimensionRepository(dim : Dimension, val system : ActorSystem) 
@@ -18,37 +17,32 @@ class LocalDimensionRepository(dim : Dimension, val system : ActorSystem)
 	
 	def get(rawKey : Any) = {
 		val key = dimension.key.ensure(rawKey)
-		Promise.successful( members.get(key) )
+		members.get(key)
 	}	
 
-	def getMany(keys : Iterable[Any]) = {
-		val futures = keys.map{key => get(key).map(_.getOrElse(null))}
-		Future.sequence(futures).map(_.filter(dim => dim != null))
+	def getMany(rawKeys : Iterable[Any]) = {
+		rawKeys.map(get(_)).flatten
 	}
 
 	def all() = {
-		Promise.successful ( members.values ) 
+		members.values
 	}
 
-	def put(member : DimensionMember) = {
+	def put(member : DimensionMember) {
 		members = members + (member.key -> member)
-		Promise.successful()
 	}
 
-	def put(members : Iterable[DimensionMember]) = {
-		members.foreach(put(_))
-		Promise.successful()
+	def put(members : Iterable[DimensionMember]){
+		members.map(put(_))
 	}
 
-	def delete(rawKey : Any) = {
+	def delete(rawKey : Any) {
 		val key = dimension.key.ensure(rawKey)
 		members = members - key
-		Promise.successful()
 	}
 
-	def purge() = {
+	def purge() {
 		members = Map()
-		Promise.successful()
 	}
 
 

@@ -78,8 +78,7 @@ class AggregationActorSpec(_system:ActorSystem)
 					dimensions = List("status","team"),
 					data = Map("team" -> "1", "status" -> "happy")
 				)
-				Await.result(aggActor.underlyingActor.repo.get(List("status","team"),List("happy","1")), 1 second)
-					.get.key should equal(List("happy","1"))
+				aggActor.underlyingActor.repo.get(List("status","team"),List("happy","1")).get.key should equal(List("happy","1"))
 			}
 
 			"append members to the repo" in {
@@ -89,10 +88,8 @@ class AggregationActorSpec(_system:ActorSystem)
 					dimensions = List("team","status"),
 					data = Map("team" -> "2", "status" -> "happy") 				
 				)
-				Await.result(aggActor.underlyingActor.repo.get(List("status","team"),List("happy","1")), 1 second)
-					.get.key should equal(List("happy","1"))
-				Await.result(aggActor.underlyingActor.repo.get(List("status","team"),List("happy","2")), 1 second)
-					.get.key should equal(List("happy","2"))
+				aggActor.underlyingActor.repo.get(List("status","team"),List("happy","1")).get.key should equal(List("happy","1"))
+				aggActor.underlyingActor.repo.get(List("status","team"),List("happy","2")).get.key should equal(List("happy","2"))
 			}
 		}
 
@@ -108,10 +105,8 @@ class AggregationActorSpec(_system:ActorSystem)
 						Map("team" -> "4", "status" -> "happy")
 					)
 				)
-				Await.result(aggActor.underlyingActor.repo.get(List("status","team"),List("happy","3")), 1 second)
-					.get.key should equal(List("happy","3"))
-				Await.result(aggActor.underlyingActor.repo.get(List("status","team"),List("happy","4")), 1 second)
-					.get.key should equal(List("happy","4"))
+				aggActor.underlyingActor.repo.get(List("status","team"),List("happy","3")).get.key should equal(List("happy","3"))
+				aggActor.underlyingActor.repo.get(List("status","team"),List("happy","4")).get.key should equal(List("happy","4"))
 			}
 
 		}

@@ -9,15 +9,10 @@ import org.wonkavision.server.messages._
 import org.wonkavision.core.filtering._
 import org.wonkavision.core.AttributeType._
 
-import akka.dispatch.{Await, Promise, Future}
-import akka.util.duration._
-import akka.actor.ActorSystem
-
 class DimensionRepositorySpec extends Spec with BeforeAndAfter with ShouldMatchers {
 	
 	implicit val cube = new Cube("hi")
 	implicit val dim = Dimension("dim", Attribute("k", Integer), Attribute("c"))
-	implicit val executionContext = ActorSystem("test").dispatcher
 
 	val memberData : Map[Any,DimensionMember] = Map(
 		1 -> new DimensionMember(Map("k" -> 1, "c" -> "a")),
@@ -27,15 +22,12 @@ class DimensionRepositorySpec extends Spec with BeforeAndAfter with ShouldMatche
 
 	object KvReader extends KeyValueDimensionReader {
 		def get(key : Any) = {
-			Promise.successful(memberData.get(Convert.toInt(key).get))
+			memberData.get(Convert.toInt(key).get)
 		}
-
 		def getMany(keys : Iterable[Any]) = {
-			val futures = keys.map{key => get(key).map(_.getOrElse(null))}
-			Future.sequence(futures).map(_.filter(dim => dim != null))
+			keys.map(get(_)).flatten
 		}
-
-		def all = Promise.successful(memberData.values)
+		def all = memberData.values
 	}
 
 	val filters = List(
@@ -48,12 +40,12 @@ class DimensionRepositorySpec extends Spec with BeforeAndAfter with ShouldMatche
 	describe("reader") {
 	  	describe("select") {
 	    	it("should return the selected subset of members") {
-	    		val found = Await.result(KvReader.select(new DimensionMemberQuery("hi", "dim", filters)), 1 second)
+	    		val found = KvReader.select(new DimensionMemberQuery("hi", "dim", filters))
 	    		found.size should equal (1)
 	    		found.head.key should equal (2)
 	    	}  
 	    	it("should select members without a key filter") {
-	    		val found = Await.result(KvReader.select(new DimensionMemberQuery("hi", "dim",filters.tail)), 1 second)
+	    		val found = KvReader.select(new DimensionMemberQuery("hi", "dim",filters.tail))
 	    		found.size should equal (2)
 	    		found.head.key should equal(2)
 	    		found.last.key should equal(3)

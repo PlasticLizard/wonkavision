@@ -73,7 +73,7 @@ class DimensionActorSpec(_system:ActorSystem)
 					dimensionName = "team",
 					data = Map("id" -> "1", "name" -> "hi") 				
 				)
-				Await.result(dimActor.underlyingActor.repo.get("1"), 1 second).get.key should equal("1")
+				dimActor.underlyingActor.repo.get("1").get.key should equal("1")
 			}
 
 			"append members to the repo" in {
@@ -82,8 +82,8 @@ class DimensionActorSpec(_system:ActorSystem)
 					dimensionName = "team",
 					data = Map("id" -> "2", "name" -> "ho") 				
 				)
-				Await.result(dimActor.underlyingActor.repo.get("1"), 1 second).get.caption should equal("hi")
-				Await.result(dimActor.underlyingActor.repo.get("2"), 1 second).get.caption should equal("ho")
+				dimActor.underlyingActor.repo.get("1").get.caption should equal("hi")
+				dimActor.underlyingActor.repo.get("2").get.caption should equal("ho")
 			}
 		}
 
@@ -98,8 +98,8 @@ class DimensionActorSpec(_system:ActorSystem)
 						Map("id"->"4","name"->"bob")
 					)					
 				)
-				Await.result(dimActor.underlyingActor.repo.get("3"), 1 second).get.caption should equal ("sailor")
-				Await.result(dimActor.underlyingActor.repo.get("4"), 1 second).get.caption should equal ("bob")
+				dimActor.underlyingActor.repo.get("3").get.caption should equal ("sailor")
+				dimActor.underlyingActor.repo.get("4").get.caption should equal ("bob")
 			}
 
 		}
@@ -112,11 +112,11 @@ class DimensionActorSpec(_system:ActorSystem)
 					dimensionName = "team",
 					data = Map("id" -> "2", "name" -> "ho") 				
 				)
-				Await.result(dimActor.underlyingActor.repo.get("2"), 1 second).get.key should equal("2")
+				dimActor.underlyingActor.repo.get("2").get.key should equal("2")
 
 				dimActor ! DeleteDimensionMember("testcube","team","2")
 
-				Await.result(dimActor.underlyingActor.repo.get("2"), 1 second) should equal (None)
+				dimActor.underlyingActor.repo.get("2") should equal (None)
 			}
 
 		}
@@ -132,13 +132,13 @@ class DimensionActorSpec(_system:ActorSystem)
 						Map("id"->"4","name"->"bob")
 					)					
 				)
-				Await.result(dimActor.underlyingActor.repo.get("3"), 1 second).get.caption should equal ("sailor")
-				Await.result(dimActor.underlyingActor.repo.get("4"), 1 second).get.caption should equal ("bob")
+				dimActor.underlyingActor.repo.get("3").get.caption should equal ("sailor")
+				dimActor.underlyingActor.repo.get("4").get.caption should equal ("bob")
 
 				dimActor ! PurgeDimensionMembers("testcube","team")
 
-				Await.result(dimActor.underlyingActor.repo.get("3"), 1 second) should equal (None)
-				Await.result(dimActor.underlyingActor.repo.get("4"), 1 second) should equal (None)
+				dimActor.underlyingActor.repo.get("3") should equal (None)
+				dimActor.underlyingActor.repo.get("4") should equal (None)
 			}
 
 		}

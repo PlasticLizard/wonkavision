@@ -12,7 +12,7 @@ class RedisRepository(val system : ActorSystem) {
 
 	val settings = new WonkavisionRedisSettings(system.settings.config)
 	val log = Logging(system, "WonkavisionRedisRepository")
-	implicit val executionContext = system.dispatcher
+	
 
 	@volatile
 	private var clients = connect()
@@ -21,13 +21,11 @@ class RedisRepository(val system : ActorSystem) {
     	new RedisClientPool(settings.Hostname, settings.Port)
   	}
 
-  	protected def exec[T](body : RedisClient => T) : Future[T] = {
-  		Future {
-	  		withErrorHandling {
-	  			clients.withClient { client =>
-	  				body(client)
-	  			}
-	  		}
+  	protected def exec[T](body : RedisClient => T) : T = {
+  		withErrorHandling {
+  			clients.withClient { client =>
+  				body(client)
+  			}
   		}
   	}
 

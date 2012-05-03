@@ -6,7 +6,6 @@ import org.wonkavision.core.Dimension
 import org.wonkavision.core.Aggregation
 import org.wonkavision.server.Wonkavision
 
-import akka.dispatch.{Promise, Future, ExecutionContext}
 import akka.actor.ActorSystem
 
 class LocalAggregationRepository(agg : Aggregation, val system : ActorSystem)
@@ -21,57 +20,43 @@ class LocalAggregationRepository(agg : Aggregation, val system : ActorSystem)
 	def get(dimensionNames : Iterable[String], key : Iterable[Any]) = {
 		val aggKey = key.mkString(":")
 		val dimSet = aggregationSet(dimensionNames)
-		Promise.successful( 
-			if (dimSet.isEmpty) None else dimSet.get.get(aggKey)
-		)
+		if (dimSet.isEmpty) None else dimSet.get.get(aggKey)
 	}	
 
-	def getMany(dimensionNames : Iterable[String], keys : Iterable[Iterable[Any]]) = {
-		val futures = keys.map{ key => get(dimensionNames, key).map(_.getOrElse(null))}
-		Future.sequence(futures).map{_.filter{agg => agg != null}}
-	}
-
-
 	def all(dimensionNames : Iterable[String]) = {
-		Promise.successful(
-			aggregationSet(dimensionNames).map(_.values)
-				.toList.flatten
-		)
+		aggregationSet(dimensionNames).map(_.values)
+			.toList.flatten
 	}
 
-	def put(agg : Aggregate) = {
+	def put(agg : Aggregate) {
 		val aggKey = agg.key.mkString(":")
 		val dimKey = agg.dimensions.mkString(":")
 		val dimSet = aggregationSet(agg.dimensions, true).get
 		val newSet = dimSet + (aggKey -> agg)
 		aggregationSets = aggregationSets + (dimKey -> newSet)
-		Promise.successful()
 	}
 
 	def put(dimensions : Iterable[String], aggs : Iterable[Aggregate]) = {
 		aggs.foreach(put(_))
-		Promise.successful()
 	}
 	
-	def purge(dimensions : Iterable[String]) = {
+	def purge(dimensions : Iterable[String]) {
 		val dimKey = dimensions.mkString(":")
 		aggregationSets = aggregationSets - dimKey
-		Promise.successful()
 	}
 	
-	def purgeAll() = {
+	def purgeAll() {
 		aggregationSets = Map()
-		Promise.successful()
 	}
 	
-	def delete(dimensions : Iterable[String], key : Iterable[Any])  = {
+	def delete(dimensions : Iterable[String], key : Iterable[Any]) {
 		val aggKey = key.mkString(":")
 		val dimKey = dimensions.mkString(":")
 		aggregationSet(dimensions).foreach { dimSet =>
 			val newSet = dimSet - aggKey
 			aggregationSets = aggregationSets + (dimKey -> newSet)
 		}
-		Promise.successful()		
+		
 	}
 
 	def loadData(data : Map[Iterable[String],Iterable[Map[String,Any]]]) {

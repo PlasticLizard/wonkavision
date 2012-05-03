@@ -29,13 +29,10 @@ class RedisDimensionRepository(dim : Dimension, system : ActorSystem)
 	}
 
 	def getMany(keys : Iterable[Any]) = {
-		val rKeys = keys.map(_.toString)
+		val rKeys = keys.map(_.toString).toSeq
 		exec { redis =>
 			import com.redis.serialization.Parse.Implicits.parseByteArray
-			val memberData = redis.hmget[String,Array[Byte]](
-				hashname,
-				rKeys.toSeq:_*
-			).getOrElse(Map())
+			val memberData = redis.hmget[String,Array[Byte]](hashname, rKeys:_*).getOrElse(Map())
 			memberData.values.map( bytes => deserialize(Some(bytes)) )
 			.flatten
 		}
@@ -56,7 +53,7 @@ class RedisDimensionRepository(dim : Dimension, system : ActorSystem)
 		}
 	}
 
-	override def put(members : Iterable[DimensionMember]) = {
+	def put(members : Iterable[DimensionMember]) = {
 		val elements = members.map { member =>
 			(member.key.toString, serialize(member))
 		}
