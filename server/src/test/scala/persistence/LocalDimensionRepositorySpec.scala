@@ -18,7 +18,7 @@ class LocalDimensionRepositorySpec extends Spec with BeforeAndAfter with ShouldM
 	
 	implicit val cube = new Cube("hi")
 	implicit val dim = Dimension("dim", Attribute("k", Integer), Attribute("c"))
-  implicit val executionContext : ExecutionContext = ActorSystem("test").dispatcher
+  val system  = ActorSystem("test")
 
 	var memberData : List[Map[String,Any]] = _
   var repo : LocalDimensionRepository = _
@@ -35,7 +35,8 @@ class LocalDimensionRepositorySpec extends Spec with BeforeAndAfter with ShouldM
       Map("k" -> 3, "c" -> "c")
     ) 
 
-    repo = new LocalDimensionRepository(dim, memberData)
+    repo = new LocalDimensionRepository(dim, system)
+    repo.loadData(memberData)
   }
 
 	describe("get") {

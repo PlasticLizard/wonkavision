@@ -7,16 +7,16 @@ import org.wonkavision.core.Aggregation
 import org.wonkavision.server.Wonkavision
 
 import akka.dispatch.{Promise, Future, ExecutionContext}
+import akka.actor.ActorSystem
 
-class LocalAggregationRepository(
-	val agg : Aggregation,
-	data : Map[Iterable[String],Iterable[Map[String,Any]]] = Map()
-)(implicit val executionContext : ExecutionContext)
+class LocalAggregationRepository(agg : Aggregation, val system : ActorSystem)
 	 extends AggregationRepository
 	 with KeyValueAggregationReader
      with KeyValueAggregationWriter {
 	
+	private var aggregationSets : Map[String,Map[String,Aggregate]] = Map()
 	implicit val aggregation = agg
+	implicit val executionContext = system.dispatcher
 
 	def get(dimensionNames : Iterable[String], key : Iterable[Any]) = {
 		val aggKey = key.mkString(":")
@@ -74,7 +74,18 @@ class LocalAggregationRepository(
 		Promise.successful()		
 	}
 
-	protected def aggregationSet(dimensionNames : Iterable[String], createIfMissing : Boolean = false) = {
+	def loadData(data : Map[Iterable[String],Iterable[Map[String,Any]]]) {
+		aggregationSets = data.map { dimSet =>
+			val (dimNames, aggData) = dimSet
+			val tuples = aggData.map { aggMap =>
+				val agg = new Aggregate(dimNames, aggMap)
+				(agg.key.mkString(":") -> agg)
+			}.toSeq
+			(dimNames.mkString(":"), Map(tuples:_*))
+		}
+	}
+
+	private def aggregationSet(dimensionNames : Iterable[String], createIfMissing : Boolean = false) = {
 		val dimKey = dimensionNames.mkString(":")
 		if (createIfMissing) {
 			aggregationSets.get(dimKey).orElse {
@@ -88,14 +99,6 @@ class LocalAggregationRepository(
 		
 	}
 
-	private var aggregationSets : Map[String,Map[String,Aggregate]] = data.map { dimSet =>
-		val (dimNames, aggData) = dimSet
-		val tuples = aggData.map { aggMap =>
-			val agg = new Aggregate(dimNames, aggMap)
-			(agg.key.mkString(":") -> agg)
-		}.toSeq
-		(dimNames.mkString(":"), Map(tuples:_*))
-	}
 	
 
 }

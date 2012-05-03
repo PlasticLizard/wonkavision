@@ -13,12 +13,13 @@ import org.wonkavision.server.Wonkavision
 
 import akka.dispatch.Await
 import akka.util.duration._
+import akka.actor.ActorSystem
 
 class RedisDimensionRepositorySpec extends Spec with BeforeAndAfter with ShouldMatchers {
 	
 	implicit val cube = new Cube("hi")
 	implicit val dim = Dimension("dim", Attribute("k", Integer), Attribute("c"))
-  implicit val wv = Wonkavision.startNew("wonkavision")
+  val system = ActorSystem("wonkavision")
 
 	var memberData : List[DimensionMember] = _
   var repo : RedisDimensionRepository = _
@@ -36,7 +37,7 @@ class RedisDimensionRepositorySpec extends Spec with BeforeAndAfter with ShouldM
       dim.createMember(Map("k" -> 3, "c" -> "c"))
     ) 
 
-    repo = new RedisDimensionRepository(dim)
+    repo = new RedisDimensionRepository(dim, system)
     Await.result(repo.put(memberData), 1 second)
   }
 

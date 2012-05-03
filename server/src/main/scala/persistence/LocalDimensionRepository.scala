@@ -5,16 +5,16 @@ import org.wonkavision.core.DimensionMember
 import org.wonkavision.core.Dimension
 
 import akka.dispatch.{Future,Promise,ExecutionContext}
+import akka.actor.ActorSystem
 
-class LocalDimensionRepository(
-	dim : Dimension,
-	data : Iterable[Map[String,Any]] = List()
-)(implicit val executionContext : ExecutionContext)
+class LocalDimensionRepository(dim : Dimension, val system : ActorSystem) 
 	 extends DimensionRepository
 	 with KeyValueDimensionReader
      with KeyValueDimensionWriter {
 	
 	implicit val dimension = dim
+	implicit val executionContext = system.dispatcher
+	private var members : Map[Any,DimensionMember] = Map()
 	
 	def get(rawKey : Any) = {
 		val key = dimension.key.ensure(rawKey)
@@ -51,12 +51,15 @@ class LocalDimensionRepository(
 		Promise.successful()
 	}
 
-	private var members : Map[Any,DimensionMember] = {
-		val tuples = data.map { mdata =>
-			val member = new DimensionMember(mdata)
-			(member.key -> member)
-		}.toSeq
-		Map(tuples:_*)
+
+	def loadData(data : Iterable[Map[String,Any]]) = {
+		members = {
+			val tuples = data.map { mdata =>
+				val member = new DimensionMember(mdata)
+				(member.key -> member)
+			}.toSeq
+			Map(tuples:_*)
+		}
 	}
 
 }

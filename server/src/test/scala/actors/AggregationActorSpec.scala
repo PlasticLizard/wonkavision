@@ -37,7 +37,7 @@ class AggregationActorSpec(_system:ActorSystem)
 
 		val aggActor = TestActorRef(new AggregationActor {
 			val aggregation = agg
-		 	val repo = new LocalAggregationRepository(agg)
+		 	val repo = new LocalAggregationRepository(agg, system)
 		 })
 		
 

@@ -12,7 +12,7 @@ trait AggregationActorFactory { self : CubeActor =>
 		 val props = Props(
 		 	new AggregationActor {
 		 		val aggregation = agg
-		 		val repo = new LocalAggregationRepository(agg)(context.system.dispatcher)
+		 		val repo = new LocalAggregationRepository(agg, context.system)
 		 	}
 		 )
 		 context.actorOf(props, "aggregation." + agg.name)

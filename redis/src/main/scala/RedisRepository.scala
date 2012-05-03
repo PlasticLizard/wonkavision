@@ -1,18 +1,18 @@
 //Portions copied from Akka Durable Mailbox impl
 package org.wonkavision.redis
 
-import org.wonkavision.server.Wonkavision
 import org.wonkavision.core.exceptions.WonkavisionException
 
 import com.redis._
 import akka.event.Logging
 import akka.dispatch.{ExecutionContext, Promise, Future}
+import akka.actor.ActorSystem
 
-class RedisRepository(val wonkavision : Wonkavision) {
+class RedisRepository(val system : ActorSystem) {
 
-	val settings = new WonkavisionRedisSettings(wonkavision.config)
-	val log = Logging(wonkavision.system, "WonkavisionRedisRepository")
-	implicit val executionContext = wonkavision.system.dispatcher
+	val settings = new WonkavisionRedisSettings(system.settings.config)
+	val log = Logging(system, "WonkavisionRedisRepository")
+	implicit val executionContext = system.dispatcher
 
 	@volatile
 	private var clients = connect()

@@ -33,7 +33,7 @@ class DimensionActorSpec(_system:ActorSystem)
 		val dim = cube.dimensions("team")
 		val dimActor = TestActorRef(new DimensionActor {
 			val dimension = dim
-		 	val repo = new LocalDimensionRepository(dim)
+		 	val repo = new LocalDimensionRepository(dim, system)
 		 })
 		
 		override def afterAll() {

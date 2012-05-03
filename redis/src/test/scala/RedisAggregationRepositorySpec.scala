@@ -10,10 +10,10 @@ import org.wonkavision.server.messages._
 import org.wonkavision.core.filtering._
 import org.wonkavision.core.AttributeType._
 import org.wonkavision.core.Aggregate
-import org.wonkavision.server.Wonkavision
 
 import akka.dispatch.Await
 import akka.util.duration._
+import akka.actor.ActorSystem
 
 class RedisAggregationRepositorySpec extends Spec with BeforeAndAfter with ShouldMatchers {
 	
@@ -24,7 +24,7 @@ class RedisAggregationRepositorySpec extends Spec with BeforeAndAfter with Shoul
   }
 	implicit val dim = Dimension("dim", Attribute("k", Integer), Attribute("c"))
 	implicit val aggregation = new Aggregation("agg", Set("m1","m2")).combine("d1","d2","d3")
-  implicit val wv = Wonkavision.startNew("wonkavision")
+  val system = ActorSystem("wonkavision")
 	
   var aggData : List[Aggregate] = _
 	
@@ -37,7 +37,7 @@ class RedisAggregationRepositorySpec extends Spec with BeforeAndAfter with Shoul
       aggregation.createAggregate(List("d1","d2","d3"),Map("d1"->1,"d2"->3,"d3"->3))
 
     )
-    repo = new RedisAggregationRepository(aggregation)
+    repo = new RedisAggregationRepository(aggregation, system)
     Await.result(repo.put(List("d1","d2","d3"),aggData), 1 second)
   }
 

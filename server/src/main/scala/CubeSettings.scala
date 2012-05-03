@@ -29,6 +29,9 @@ object CubeSettings {
 
 class CubeSettings(val config : Config) {
   val enabled = config.getBoolean("enabled")
-  val dimensionRepo = config.getString("dimension-repository")
-  val aggregationRepo = config.getString("aggregation-repository")
+  val dimensionRepoClassName = config.getString("dimension-repository.class")
+  val dimensionRepoWorkerCount = config.getInt("dimension-repository.workers")
+
+  val aggregationRepoClassName = config.getString("aggregation-repository.class")
+  val aggregationRepoWorkerCount = config.getInt("dimension-repository.workers")
 }

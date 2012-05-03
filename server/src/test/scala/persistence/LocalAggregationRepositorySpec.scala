@@ -24,7 +24,7 @@ class LocalAggregationRepositorySpec extends Spec with BeforeAndAfter with Shoul
   }
 	implicit val dim = Dimension("dim", Attribute("k", Integer), Attribute("c"))
 	implicit val aggregation = new Aggregation("agg", Set("m1","m2")).combine("d1","d2","d3")
-  implicit val executionContext : ExecutionContext = ActorSystem("test").dispatcher
+  val system = ActorSystem("test")
 
 	var aggData : Map[Iterable[String],Iterable[Map[String,Any]]] = _
 	
@@ -35,7 +35,8 @@ class LocalAggregationRepositorySpec extends Spec with BeforeAndAfter with Shoul
     aggData = Map(
       List("d1","d2","d3") -> List(Map("d1"->1,"d2"->2,"d3"->3),Map("d1"->1,"d2"->3,"d3"->3))
     ) 
-    repo = new LocalAggregationRepository(aggregation, aggData)
+    repo = new LocalAggregationRepository(aggregation, system)
+    repo.loadData(aggData)
   }
 
 	describe("get") {

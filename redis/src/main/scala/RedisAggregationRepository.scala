@@ -4,22 +4,20 @@ import org.wonkavision.server.messages._
 import org.wonkavision.core.Dimension
 import org.wonkavision.core.Aggregation
 import org.wonkavision.core.Aggregate
-import org.wonkavision.server.Wonkavision
 import org.wonkavision.redis.serialization._
 import org.wonkavision.server.persistence._
 
+import akka.actor.ActorSystem
 
-class RedisAggregationRepository(
-	val agg : Aggregation,
-	val serializer : Serializer = new MessagePackSerializer())
-	(implicit wonkavision : Wonkavision)
-	
-	extends RedisRepository(wonkavision)
+
+class RedisAggregationRepository(val agg : Aggregation, system : ActorSystem)
+	extends RedisRepository(system)
 	with AggregationRepository
 	with KeyValueAggregationReader
     with KeyValueAggregationWriter {
 	
 	implicit val aggregation = agg
+	val serializer : Serializer = new MessagePackSerializer()
 
 	def hashname(dimNames : Iterable[String]) = 
 		aggregation.fullname + "~" + dimNames.mkString(":")
