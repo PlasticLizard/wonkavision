@@ -51,27 +51,27 @@ class RedisDimensionRepository(
 		}
 	}
 
-	def put(member : DimensionMember) {
+	def put(member : DimensionMember) = {
 		exec { redis => 
 			redis.hset(hashname, member.key.toString, serialize(member))
 		}
 	}
 
-	override def put(members : Iterable[DimensionMember]) {
+	override def put(members : Iterable[DimensionMember]) = {
 		val elements = members.map { member =>
 			(member.key.toString, serialize(member))
 		}
 		exec { redis => redis.hmset(hashname, elements) }
 	}
 
-	def delete(key : Any) {
+	def delete(key : Any) = {
 		val rKey = dimension.key.ensure(key).toString()
 		exec { redis =>
 			redis.hdel(hashname, rKey)
 		}
 	}
 
-	def purge(){
+	def purge() = {
 		exec { redis => redis.del(hashname) }
 	}
 

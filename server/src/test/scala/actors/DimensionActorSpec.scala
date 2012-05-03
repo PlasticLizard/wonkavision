@@ -36,7 +36,6 @@ class DimensionActorSpec(_system:ActorSystem)
 		 	val repo = new LocalDimensionRepository(dim)
 		 })
 		
-
 		override def afterAll() {
 			system.shutdown()
 		}

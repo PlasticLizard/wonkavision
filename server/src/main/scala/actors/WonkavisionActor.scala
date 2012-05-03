@@ -1,12 +1,16 @@
 package org.wonkavision.server.actors
 
 import akka.actor.{Props, Actor, ActorRef}
+import scala.collection.mutable.Set
 
 import org.wonkavision.core.Cube
 import org.wonkavision.server.messages._
+import org.wonkavision.server.CubeSettings
 
 class WonkavisionActor() extends Actor {
 	import context._
+
+	val cubes : Set[String] = Set()
 
 	override def preStart() {
 		Cube.cubes.values.foreach { register( _ ) }
@@ -18,6 +22,9 @@ class WonkavisionActor() extends Actor {
 	}
 
 	def register(cube : Cube) = {
-		actorOf(Props(new CubeActor(cube)), name=cube.name)
+		if (!cubes.contains(cube.name)){
+			cubes += cube.name
+			actorOf(Props(new CubeActor(cube)), name=cube.name)
+		}
 	}
 }

@@ -19,10 +19,10 @@ abstract trait DimensionReader {
 }
 
 abstract trait DimensionWriter {
-	def put(member : DimensionMember)
-	def put(members : Iterable[DimensionMember])
-	def delete(key : Any)
-	def purge()
+	def put(member : DimensionMember) : Future[Any]
+	def put(members : Iterable[DimensionMember]) : Future[Any]
+	def delete(key : Any) : Future[Any]
+	def purge() : Future[Any]
 }
 
 abstract trait KeyValueDimensionReader extends DimensionReader {
@@ -42,9 +42,7 @@ abstract trait KeyValueDimensionReader extends DimensionReader {
 }
 
 abstract trait KeyValueDimensionWriter extends DimensionWriter {
-	def put(members : Iterable[DimensionMember]) {
-		members.foreach(put(_))
-	}
+	
 }
 
 

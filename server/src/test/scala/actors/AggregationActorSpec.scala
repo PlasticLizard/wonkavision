@@ -22,7 +22,7 @@ import org.wonkavision.server.actors._
 import org.wonkavision.server.test.cubes.TestCube
 import org.wonkavision.server.persistence.LocalAggregationRepository
 import org.wonkavision.core.filtering.MemberFilterExpression
-import org.wonkavision.core.Aggregate
+import org.wonkavision.core.Aggregate 
 
 class AggregationActorSpec(_system:ActorSystem)
 	extends TestKit(_system) with ImplicitSender

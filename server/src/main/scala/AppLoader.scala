@@ -8,7 +8,8 @@ import scala.collection.JavaConversions._
 import org.wonkavision.core.Cube
 
 class AppLoader(namespaces : String*) {
-	val reflector = new Reflections(namespaces.toArray)
+	var ns = namespaces.toList
+	val reflector = new Reflections(ns.toArray)
 
 	def cubes : Iterable[Cube] = {
 		val cubeClasses : Set[Class[_ <: Cube]] = reflector.getSubTypesOf(classOf[Cube]).toSet

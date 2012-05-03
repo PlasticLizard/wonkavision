@@ -24,11 +24,11 @@ abstract trait AggregationReader  {
 }
 
 abstract trait AggregationWriter {
-	def put(agg : Aggregate)
-	def put(dimensions : Iterable[String], aggs : Iterable[Aggregate])
-	def delete(dimensions : Iterable[String], key : Iterable[Any])
-	def purge(dimensions : Iterable[String])
-	def purgeAll()
+	def put(agg : Aggregate) : Future[Any]
+	def put(dimensions : Iterable[String], aggs : Iterable[Aggregate]) : Future[Any]
+	def delete(dimensions : Iterable[String], key : Iterable[Any]) : Future[Any]
+	def purge(dimensions : Iterable[String]) : Future[Any]
+	def purgeAll() : Future[Any]
 }
 
 abstract trait KeyValueAggregationReader extends AggregationReader {
@@ -54,9 +54,7 @@ abstract trait KeyValueAggregationReader extends AggregationReader {
 }
 
 abstract trait KeyValueAggregationWriter extends AggregationWriter {
-	def put(dimensions : Iterable[String], aggs : Iterable[Aggregate]) {
-		aggs.foreach(put(_))
-	}
+	
 
 }
 

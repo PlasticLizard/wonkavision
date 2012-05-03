@@ -38,7 +38,7 @@ class RedisAggregationRepositorySpec extends Spec with BeforeAndAfter with Shoul
 
     )
     repo = new RedisAggregationRepository(aggregation)
-    repo.put(List("d1","d2","d3"),aggData)
+    Await.result(repo.put(List("d1","d2","d3"),aggData), 1 second)
   }
 
 	describe("get") {
@@ -74,31 +74,43 @@ class RedisAggregationRepositorySpec extends Spec with BeforeAndAfter with Shoul
   describe("writing"){
     describe("put"){
       it("should put an aggregate into the correct dimset"){
-        repo.purgeAll()
-        repo.put(new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3)))
+        Await.result(repo.purgeAll(), 1 second)
+        Await.result(repo.put(new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3))), 1 second)
         Await.result(repo.get(List("d1","d2","d3"),List(1,2,3)), 1 second).get.key should equal (List(1,2,3))
       }
       it("should append to the dimset"){
-        repo.purgeAll()
-        repo.put(new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3)))
-        repo.put(new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 3, "d3" -> 3)))
-        Await.result(repo.all(List("d1","d2","d3")), 1 second).size should equal (2)
+        val result = for {
+          _ <- repo.purgeAll()
+          _ <- repo.put(new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3)))
+          _ <- repo.put(new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 3, "d3" -> 3)))
+          r <- repo.all(List("d1","d2","d3"))
+        } yield r
+        Await.result(result, 1 second).size should equal (2)        
       }
       it("should put into different dimsets"){
-        repo.purgeAll()
-        repo.put(new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3)))
-        repo.put(new Aggregate(List("d1","d2"), Map("d1" -> 1, "d2" -> 3, "d3" -> 3)))
-        Await.result(repo.all(List("d1","d2","d3")), 1 second).size should equal (1)
-        Await.result(repo.all(List("d1","d2")), 1 second).size should equal(1)
+        val future = for {
+          _ <- repo.purgeAll()
+          _ <- repo.put(new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3)))
+          _ <- repo.put(new Aggregate(List("d1","d2"), Map("d1" -> 1, "d2" -> 3, "d3" -> 3)))
+          a1 <- repo.all(List("d1","d2","d3"))
+          a2 <- repo.all(List("d1","d2"))
+        } yield (a1, a1)
+        val (res1, res2) = Await.result(future, 1 second)
+        res1.size should equal (1)
+        res2.size should equal(1)
+
       }
     }
 
     describe("purge"){
       it("should only clear the specified dimset"){
-        repo.purgeAll()
-        repo.put(new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3)))
-        repo.put(new Aggregate(List("d1","d2"), Map("d1" -> 1, "d2" -> 3, "d3" -> 3)))
-        repo.purge(List("d1","d2","d3"))
+        val future = for {
+          _ <- repo.purgeAll()
+          _ <- repo.put(new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3)))
+          _ <- repo.put(new Aggregate(List("d1","d2"), Map("d1" -> 1, "d2" -> 3, "d3" -> 3)))
+          x <- repo.purge(List("d1","d2","d3"))
+        } yield x
+        Await.result(future, 1 second)
         Await.result(repo.all(List("d1","d2","d3")), 1 second).size should equal (0)
         Await.result(repo.all(List("d1","d2")), 1 second).size should equal(1)
       }
@@ -106,9 +118,12 @@ class RedisAggregationRepositorySpec extends Spec with BeforeAndAfter with Shoul
 
     describe("purgeAll"){
       it("should clear all dimsets"){
-        repo.put(new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3)))
-        repo.put(new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 3, "d3" -> 3)))
-        repo.purgeAll()
+        val future = for {
+          _ <- repo.put(new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3)))
+          _ <- repo.put(new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 3, "d3" -> 3)))
+          x <- repo.purgeAll()
+        } yield x
+        Await.result(future, 1 second)
         Await.result(repo.all(List("d1","d2","d3")), 1 second).size should equal (0)
         Await.result(repo.all(List("d1","d2")), 1 second).size should equal(0)
       }
@@ -116,8 +131,8 @@ class RedisAggregationRepositorySpec extends Spec with BeforeAndAfter with Shoul
 
     describe("delete"){
       it("should remove the specified key from the specified dimset"){
-        repo.put(new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3)))
-        repo.delete(List("d1","d2","d3"),List(1,2,3))
+        Await.result(repo.put(new Aggregate(List("d1","d2","d3"), Map("d1" -> 1, "d2" -> 2, "d3" -> 3))), 1 second)
+        Await.result(repo.delete(List("d1","d2","d3"),List(1,2,3)), 1 second)
         Await.result(repo.get(List("d1","d2","d3"),List(1,2,3)), 1 second) should equal (None)
       }
     }

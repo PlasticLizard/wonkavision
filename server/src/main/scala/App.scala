@@ -36,6 +36,7 @@ object App extends Application {
         AsyncResult { 
           (wonka.dispatcher ? query).mapTo[QueryResult].asPromise.map { result =>
             result match {
+              case nf : ObjectNotFound => NotFound(nf.message)
               case cs : Cellset => {
                 val json = Json.generate(cs.toMap())
                 Ok(json).as("application/json")

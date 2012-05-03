@@ -30,17 +30,25 @@ class LocalDimensionRepository(
 		Promise.successful ( members.values ) 
 	}
 
-	def put(member : DimensionMember) {
+	def put(member : DimensionMember) = {
 		members = members + (member.key -> member)
+		Promise.successful()
 	}
 
-	def delete(rawKey : Any) {
+	def put(members : Iterable[DimensionMember]) = {
+		members.foreach(put(_))
+		Promise.successful()
+	}
+
+	def delete(rawKey : Any) = {
 		val key = dimension.key.ensure(rawKey)
 		members = members - key
+		Promise.successful()
 	}
 
-	def purge() {
+	def purge() = {
 		members = Map()
+		Promise.successful()
 	}
 
 	private var members : Map[Any,DimensionMember] = {

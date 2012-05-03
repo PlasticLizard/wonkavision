@@ -22,13 +22,13 @@ class RedisRepository(val wonkavision : Wonkavision) {
   	}
 
   	protected def exec[T](body : RedisClient => T) : Future[T] = {
-  		Promise.successful(
+  		Future {
 	  		withErrorHandling {
 	  			clients.withClient { client =>
 	  				body(client)
 	  			}
 	  		}
-  		)
+  		}
   	}
 
   	protected def withErrorHandling[T](body: => T): T = {

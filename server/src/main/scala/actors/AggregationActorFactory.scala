@@ -6,7 +6,7 @@ import org.wonkavision.server.messages._
 import org.wonkavision.core.Aggregation
 import org.wonkavision.server.persistence._
 
-trait AggregationActorFactory { self : Actor =>
+trait AggregationActorFactory { self : CubeActor =>
 
 	def aggregationActorFor(agg : Aggregation) = {
 		 val props = Props(

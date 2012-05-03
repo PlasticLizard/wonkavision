@@ -54,32 +54,32 @@ class RedisAggregationRepository(
 		}
 	}
 
-	def put(agg : Aggregate) {
+	def put(agg : Aggregate) = {
 		val aggKey = agg.key.mkString(":")
 		exec { redis =>
 			redis.hset(hashname(agg.dimensions), aggKey, serialize(agg))
 		}
 	}
 
-	override def put(dimensions : Iterable[String], aggs : Iterable[Aggregate]) {
+	override def put(dimensions : Iterable[String], aggs : Iterable[Aggregate]) = {
 		val elements = aggs.map { agg =>
 			(agg.key.mkString(":") -> serialize(agg))
 		}
 		exec { redis => redis.hmset(hashname(dimensions), elements) }
 	}
 	
-	def purge(dimensions : Iterable[String]) {
+	def purge(dimensions : Iterable[String]) = {
 		exec { redis => redis.del(hashname(dimensions)) }
 	}
 	
-	def purgeAll() {
+	def purgeAll() = {
 		val keys = aggregation.aggregations.map { dimSet =>
 			hashname(dimSet)
 		}.toSeq
 		exec { redis => redis.del(keys.head, keys.tail:_*)}
 	}
 	
-	def delete(dimensions : Iterable[String], key : Iterable[Any]) {
+	def delete(dimensions : Iterable[String], key : Iterable[Any]) = {
 		val aggKey = key.mkString(":")
 		exec { redis => redis.del(hashname(dimensions), aggKey) }
 		

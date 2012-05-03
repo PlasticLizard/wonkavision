@@ -5,11 +5,14 @@ import akka.actor.{Props, Actor, ActorRef}
 import org.wonkavision.server.messages._
 import org.wonkavision.core.Cube
 import org.wonkavision.core.Aggregate
+import org.wonkavision.server.CubeSettings
 
 import akka.dispatch.{Await, Future}
 import akka.pattern.{ask, pipe}
 import akka.util.Timeout
 import akka.util.duration._
+
+
 
 
 
@@ -19,8 +22,10 @@ class CubeActor(val cube : Cube) extends Actor
 
 	import context._
 	implicit val timeout = Timeout(5000 milliseconds)
-
+	val settings = CubeSettings.forCube(cube.name)
+	var enabled = settings.enabled
 	override def preStart() {
+		
 		cube.aggregations.values.foreach { agg => 
 			aggregationActorFor(agg)
 		}
@@ -31,6 +36,8 @@ class CubeActor(val cube : Cube) extends Actor
 	}
 
 	def receive = {
+		case _ if !enabled =>
+			sender ! ObjectNotFound("Cube", cube.name)
 		case query : CellsetQuery => 	
 			executeQuery(query) pipeTo sender
 		case query : AggregationQuery => 

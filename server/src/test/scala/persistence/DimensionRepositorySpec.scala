@@ -61,34 +61,5 @@ class DimensionRepositorySpec extends Spec with BeforeAndAfter with ShouldMatche
 	  	}
   	}
 
-  	object KvWriter extends KeyValueDimensionWriter {
-		val data : scala.collection.mutable.Map[Any, DimensionMember] = scala.collection.mutable.Map()
-		def put(member : DimensionMember) {
-			data(member.key) = member
-		}
-		def delete(key : Any) {
-			data.remove(key)
-		}
-		def purge() { data.clear() }
-	}
-
-	describe ("writer"){
-		describe("put") {
-			it("should add each member in the provided map") {
-				KvWriter.put(memberData.values)
-				KvWriter.data should equal (memberData)
-			}
-			it("should append the values to the existing data") {
-				KvWriter.put(memberData.values)
-				KvWriter.put(List(
-					new DimensionMember(Map("k" -> 4, "c" -> "a")),
-					new DimensionMember(Map("k" -> 5, "c" -> "b")),
-					new DimensionMember(Map("k" -> 6, "c" -> "c"))
-				))
-				KvWriter.data.size should equal(6)
-			}			
-		}		
-	}
-
 }
  

@@ -37,7 +37,7 @@ class RedisDimensionRepositorySpec extends Spec with BeforeAndAfter with ShouldM
     ) 
 
     repo = new RedisDimensionRepository(dim)
-    repo.put(memberData)
+    Await.result(repo.put(memberData), 1 second)
   }
 
 	describe("get") {
@@ -69,11 +69,11 @@ class RedisDimensionRepositorySpec extends Spec with BeforeAndAfter with ShouldM
 
   describe("put") {
     it ("should add the member to the repo") {
-      repo.put(new DimensionMember(Map("k" -> 4, "c" -> "d")))
+      Await.result(repo.put(new DimensionMember(Map("k" -> 4, "c" -> "d"))), 1 second)
       Await.result(repo.get(4), 1 second).get.key should equal (4)
     }
     it ("should convert the key to the appropriate type"){
-      repo.put(new DimensionMember(Map("k"->"4", "c"->"d")))
+      Await.result(repo.put(new DimensionMember(Map("k"->"4", "c"->"d"))), 1 second)
       Await.result(repo.get(4), 1 second).get.key should equal (4)
     }
   }
@@ -81,14 +81,14 @@ class RedisDimensionRepositorySpec extends Spec with BeforeAndAfter with ShouldM
   describe("delete"){
     it ("should remove the specified member") {
       Await.result(repo.get(1), 1 second) should not equal(None)
-      repo.delete(1)
+      Await.result(repo.delete(1), 1 second)
       Await.result(repo.get(1), 1 second) should equal (None)
     }
   }
 
   describe("purge"){
     it("should clear all items"){
-      repo.purge()
+      Await.result(repo.purge(), 1 second)
       Await.result(repo.all(), 1 second).size should equal(0)
     }
   }

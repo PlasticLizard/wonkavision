@@ -42,16 +42,15 @@ class Wonkavision(val appName : String) {
 	val system = createActorSystem(appName)
 	def config = system.settings.config
 	def dispatcher = system.actorFor("akka://" + appName + "/user/dispatcher")
-	def appLoader = new AppLoader(config.getStringList("app.packages"):_*)
+	def appLoader = new AppLoader(config.getStringList("app-packages"):_*)
 	private var environments : Iterable[Environment] = _
 
 	initializeApp()
 
 	def initializeApp(){
-		val cubePackages = config.getStringList("app.packages")
     	Cube register appLoader.cubes    	
     	val disp = system.actorOf(Props[WonkavisionActor], name="dispatcher")
-    	if (config.getBoolean("ping.cube.enabled")) {
+    	if (config.getBoolean("cube.ping.enabled")) {
     		PingCube.initialize(disp)   		
     	}
     	environments = createEnvironments()
