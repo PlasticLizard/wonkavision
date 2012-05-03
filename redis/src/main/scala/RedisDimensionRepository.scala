@@ -4,14 +4,16 @@ import org.wonkavision.core.{Dimension, DimensionMember}
 import org.wonkavision.redis.serialization._
 import org.wonkavision.server.persistence._
 
+import com.redis.RedisClientPool
+
 import akka.actor.ActorSystem
 
-class RedisDimensionRepository(dim : Dimension, system : ActorSystem)
-
-	extends RedisRepository(system)
-	with DimensionRepository
+class RedisDimensionRepository(dim : Dimension, system : ActorSystem, redis : Redis)
+	extends DimensionRepository
 	with KeyValueDimensionReader
 	with KeyValueDimensionWriter {
+
+	import redis._
 
 	implicit val dimension = dim
 	val serializer : Serializer = new MessagePackSerializer()

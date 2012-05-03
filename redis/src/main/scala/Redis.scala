@@ -8,7 +8,7 @@ import akka.event.Logging
 import akka.dispatch.{ExecutionContext, Promise, Future}
 import akka.actor.ActorSystem
 
-class RedisRepository(val system : ActorSystem) {
+class Redis(val system : ActorSystem) {
 
 	val settings = new WonkavisionRedisSettings(system.settings.config)
 	val log = Logging(system, "WonkavisionRedisRepository")
@@ -21,7 +21,7 @@ class RedisRepository(val system : ActorSystem) {
     	new RedisClientPool(settings.Hostname, settings.Port)
   	}
 
-  	protected def exec[T](body : RedisClient => T) : T = {
+  	def exec[T](body : RedisClient => T) : T = {
   		withErrorHandling {
   			clients.withClient { client =>
   				body(client)

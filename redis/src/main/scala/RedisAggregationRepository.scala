@@ -7,15 +7,18 @@ import org.wonkavision.core.Aggregate
 import org.wonkavision.redis.serialization._
 import org.wonkavision.server.persistence._
 
+import com.redis.RedisClientPool
+
 import akka.actor.ActorSystem
 
 
-class RedisAggregationRepository(val agg : Aggregation, system : ActorSystem)
-	extends RedisRepository(system)
-	with AggregationRepository
+class RedisAggregationRepository(val agg : Aggregation, system : ActorSystem, redis : Redis)
+	extends AggregationRepository
 	with KeyValueAggregationReader
     with KeyValueAggregationWriter {
 	
+	import redis._
+
 	implicit val aggregation = agg
 	val serializer : Serializer = new MessagePackSerializer()
 

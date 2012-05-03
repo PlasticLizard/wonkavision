@@ -24,6 +24,7 @@ class RedisAggregationRepositorySpec extends Spec with BeforeAndAfter with Shoul
 	implicit val dim = Dimension("dim", Attribute("k", Integer), Attribute("c"))
 	implicit val aggregation = new Aggregation("agg", Set("m1","m2")).combine("d1","d2","d3")
   val system = ActorSystem("wonkavision")
+  val redis = new Redis(system)
 	
   var aggData : List[Aggregate] = _
 	
@@ -36,7 +37,7 @@ class RedisAggregationRepositorySpec extends Spec with BeforeAndAfter with Shoul
       aggregation.createAggregate(List("d1","d2","d3"),Map("d1"->1,"d2"->3,"d3"->3))
 
     )
-    repo = new RedisAggregationRepository(aggregation, system)
+    repo = new RedisAggregationRepository(aggregation, system, redis)
     repo.put(List("d1","d2","d3"),aggData)
   }
 

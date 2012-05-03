@@ -12,23 +12,21 @@ import org.wonkavision.core.AttributeType._
 
 import akka.actor.ActorSystem
 
-class RedisRepositorySpec extends Spec with BeforeAndAfter with ShouldMatchers {
+class RedisSpec extends Spec with BeforeAndAfter with ShouldMatchers {
 	
   val system = ActorSystem("wonkavision")
-  object RedisRepo extends RedisRepository(system) {
-    def execCmd[T] = exec[T]_
-  }
+  val redis = new Redis(system)
  
   describe("exec") {
     it("should execute a redis command and set a key") {
-      RedisRepo.execCmd { redis =>
+      redis.exec { redis =>
         redis.set("hi","ho")
         redis.get("hi") should equal (Some("ho"))
       }
     }
     it ("should save in one exec and read in another") {
-      RedisRepo.execCmd { _.set("hi","ho") }
-      RedisRepo.execCmd { _.get("hi") should equal (Some("ho"))}
+      redis.exec { _.set("hi","ho") }
+      redis.exec { _.get("hi") should equal (Some("ho"))}
     }
   }
 
