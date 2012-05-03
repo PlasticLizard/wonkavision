@@ -9,15 +9,15 @@ import org.wonkavision.server.persistence._
 
 import com.redis.RedisClientPool
 
-import akka.actor.ActorSystem
+import akka.actor.ActorSystem 
 
 
-class RedisAggregationRepository(val agg : Aggregation, system : ActorSystem, redis : Redis)
+class RedisAggregationRepository(val agg : Aggregation, system : ActorSystem)
 	extends AggregationRepository
 	with KeyValueAggregationReader
     with KeyValueAggregationWriter {
 	
-	import redis._
+	private val redis = new Redis(system)
 
 	implicit val aggregation = agg
 	val serializer : Serializer = new MessagePackSerializer()
@@ -28,7 +28,7 @@ class RedisAggregationRepository(val agg : Aggregation, system : ActorSystem, re
 	def get(dimensionNames : Iterable[String], key : Iterable[Any]) = {
 		val aggKey = key.mkString(":")
 		
-		exec { redis =>
+		redis.exec { redis =>
 			import com.redis.serialization.Parse.Implicits.parseByteArray
 			val bytes = redis.hget[Array[Byte]](hashname(dimensionNames), aggKey)
 			deserialize(dimensionNames, bytes)
@@ -36,7 +36,7 @@ class RedisAggregationRepository(val agg : Aggregation, system : ActorSystem, re
 	}	
 
 	def all(dimensionNames : Iterable[String]) = {
-		exec { redis => 
+		redis.exec { redis => 
 			import com.redis.serialization.Parse.Implicits.parseByteArray
 			val aggData = redis.hgetall[String,Array[Byte]](hashname(dimensionNames)).getOrElse(Map())
 			aggData.values.map( bytes => deserialize(dimensionNames, Some(bytes)))
@@ -46,7 +46,7 @@ class RedisAggregationRepository(val agg : Aggregation, system : ActorSystem, re
 
 	def put(agg : Aggregate) = {
 		val aggKey = agg.key.mkString(":")
-		exec { redis =>
+		redis.exec { redis =>
 			redis.hset(hashname(agg.dimensions), aggKey, serialize(agg))
 		}
 	}
@@ -55,23 +55,23 @@ class RedisAggregationRepository(val agg : Aggregation, system : ActorSystem, re
 		val elements = aggs.map { agg =>
 			(agg.key.mkString(":") -> serialize(agg))
 		}
-		exec { redis => redis.hmset(hashname(dimensions), elements) }
+		redis.exec { redis => redis.hmset(hashname(dimensions), elements) }
 	}
 	
 	def purge(dimensions : Iterable[String]) = {
-		exec { redis => redis.del(hashname(dimensions)) }
+		redis.exec { redis => redis.del(hashname(dimensions)) }
 	}
 	
 	def purgeAll() = {
 		val keys = aggregation.aggregations.map { dimSet =>
 			hashname(dimSet)
 		}.toSeq
-		exec { redis => redis.del(keys.head, keys.tail:_*)}
+		redis.exec { redis => redis.del(keys.head, keys.tail:_*)}
 	}
 	
 	def delete(dimensions : Iterable[String], key : Iterable[Any]) = {
 		val aggKey = key.mkString(":")
-		exec { redis => redis.del(hashname(dimensions), aggKey) }
+		redis.exec { redis => redis.del(hashname(dimensions), aggKey) }
 		
 	}
 

@@ -8,13 +8,12 @@ import org.wonkavision.server.actors.DimensionActor
 import org.wonkavision.server.messages.DimensionCommand
 
 import org.wonkavision.redis.RedisDimensionRepository
-import org.wonkavision.redis.Redis
 
-class RedisDimensionActor(val dimension : Dimension) extends RedisRepositoryActor {
+class RedisDimensionActor(val dimension : Dimension) extends Actor {
 	private var workers : ActorRef = _
 	override def preStart() {
 		workers = context.actorOf(
-			Props(new RedisDimensionWorker(dimension, redis))
+			Props(new RedisDimensionWorker(dimension))
 			.withRouter(SmallestMailboxRouter(10))
 			.withDispatcher("redis-worker-dispatcher")
 		)
@@ -25,6 +24,6 @@ class RedisDimensionActor(val dimension : Dimension) extends RedisRepositoryActo
 	}
 }
 
-class RedisDimensionWorker(val dimension : Dimension, redis : Redis) extends DimensionActor {
-	val repo = new RedisDimensionRepository(dimension, context.system, redis)
+class RedisDimensionWorker(val dimension : Dimension) extends DimensionActor {
+	val repo = new RedisDimensionRepository(dimension, context.system)
 }

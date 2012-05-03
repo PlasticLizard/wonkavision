@@ -18,7 +18,6 @@ class RedisDimensionRepositorySpec extends Spec with BeforeAndAfter with ShouldM
 	implicit val cube = new Cube("hi")
 	implicit val dim = Dimension("dim", Attribute("k", Integer), Attribute("c"))
   val system = ActorSystem("wonkavision")
-  val redis = new Redis(system)
 
 	var memberData : List[DimensionMember] = _
   var repo : RedisDimensionRepository = _
@@ -36,7 +35,7 @@ class RedisDimensionRepositorySpec extends Spec with BeforeAndAfter with ShouldM
       dim.createMember(Map("k" -> 3, "c" -> "c"))
     ) 
 
-    repo = new RedisDimensionRepository(dim, system, redis)
+    repo = new RedisDimensionRepository(dim, system)
     repo.put(memberData)
   }
 

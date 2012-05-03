@@ -8,12 +8,12 @@ import com.redis.RedisClientPool
 
 import akka.actor.ActorSystem
 
-class RedisDimensionRepository(dim : Dimension, system : ActorSystem, redis : Redis)
+class RedisDimensionRepository(dim : Dimension, system : ActorSystem)
 	extends DimensionRepository
 	with KeyValueDimensionReader
 	with KeyValueDimensionWriter {
 
-	import redis._
+	val redis = new Redis(system)
 
 	implicit val dimension = dim
 	val serializer : Serializer = new MessagePackSerializer()
@@ -23,7 +23,7 @@ class RedisDimensionRepository(dim : Dimension, system : ActorSystem, redis : Re
 
 	def get(key : Any) = {
 		val rKey = dimension.key.ensure(key).toString()
-		exec { redis =>
+		redis.exec { redis =>
 			import com.redis.serialization.Parse.Implicits.parseByteArray
 			val bytes = redis.hget[Array[Byte]](hashname, rKey)
 			deserialize(bytes)
@@ -32,7 +32,7 @@ class RedisDimensionRepository(dim : Dimension, system : ActorSystem, redis : Re
 
 	def getMany(keys : Iterable[Any]) = {
 		val rKeys = keys.map(_.toString).toSeq
-		exec { redis =>
+		redis.exec { redis =>
 			import com.redis.serialization.Parse.Implicits.parseByteArray
 			val memberData = redis.hmget[String,Array[Byte]](hashname, rKeys:_*).getOrElse(Map())
 			memberData.values.map( bytes => deserialize(Some(bytes)) )
@@ -41,7 +41,7 @@ class RedisDimensionRepository(dim : Dimension, system : ActorSystem, redis : Re
 	}
 
 	def all() = {
-		exec { redis =>
+		redis.exec { redis =>
 			import com.redis.serialization.Parse.Implicits.parseByteArray
 			val memberData = redis.hgetall[String,Array[Byte]](hashname).getOrElse(Map())
 			memberData.values.map( bytes => deserialize(Some(bytes)) )
@@ -50,7 +50,7 @@ class RedisDimensionRepository(dim : Dimension, system : ActorSystem, redis : Re
 	}
 
 	def put(member : DimensionMember) = {
-		exec { redis => 
+		redis.exec { redis => 
 			redis.hset(hashname, member.key.toString, serialize(member))
 		}
 	}
@@ -59,18 +59,18 @@ class RedisDimensionRepository(dim : Dimension, system : ActorSystem, redis : Re
 		val elements = members.map { member =>
 			(member.key.toString, serialize(member))
 		}
-		exec { redis => redis.hmset(hashname, elements) }
+		redis.exec { redis => redis.hmset(hashname, elements) }
 	}
 
 	def delete(key : Any) = {
 		val rKey = dimension.key.ensure(key).toString()
-		exec { redis =>
+		redis.exec { redis =>
 			redis.hdel(hashname, rKey)
 		}
 	}
 
 	def purge() = {
-		exec { redis => redis.del(hashname) }
+		redis.exec { redis => redis.del(hashname) }
 	}
 
 	def serialize(member : DimensionMember) : Array[Byte] = {
