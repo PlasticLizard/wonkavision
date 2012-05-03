@@ -9,7 +9,7 @@ import org.wonkavision.server.persistence.AggregationRepository
 import akka.pattern.pipe
 import akka.dispatch.Future
 
-import scala.collection.JavaConversions._
+
 
 
 abstract trait AggregationActor extends Actor {

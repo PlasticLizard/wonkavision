@@ -1,6 +1,7 @@
 package org.wonkavision.server.actors
 
 import akka.actor.{Props, Actor, ActorRef}
+import akka.routing.SmallestMailboxRouter
 
 import org.wonkavision.server.messages._
 import org.wonkavision.core.Dimension
@@ -16,7 +17,8 @@ trait DimensionActorFactory { self : CubeActor =>
 		 		val dimension = dim
 		 		val repo = createRepository(dim)
 		 	}
-		 )
+		 ).withRouter(SmallestMailboxRouter(settings.aggregationRepoWorkerCount))
+		  .withDispatcher("repo-dispatcher")
 		 context.actorOf(props, "dimension." + dim.name)
 	}
 
