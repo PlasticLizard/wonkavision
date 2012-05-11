@@ -4,7 +4,7 @@ import sbtassembly.Plugin._
 
 object WonkavisionBuild extends Build {
 
-  lazy val buildVersion =  "0.1.2"
+  lazy val buildVersion =  "0.1.3"
   
   lazy val typesafe = "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
   lazy val typesafeSnapshot = "Typesafe Snapshots Repository" at "http://repo.typesafe.com/typesafe/snapshots/"
