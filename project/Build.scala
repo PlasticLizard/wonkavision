@@ -5,7 +5,6 @@ import sbtassembly.Plugin._
 object WonkavisionBuild extends Build {
 
   lazy val buildVersion =  "0.1.2"
-  lazy val playVersion = "2.0"
   
   lazy val typesafe = "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
   lazy val typesafeSnapshot = "Typesafe Snapshots Repository" at "http://repo.typesafe.com/typesafe/snapshots/"
@@ -48,7 +47,7 @@ object WonkavisionBuild extends Build {
     libraryDependencies += "log4j" % "log4j" % "1.2.16",
     libraryDependencies += "ch.qos.logback" % "logback-classic" % "0.9.28",
     libraryDependencies += "org.scalatest" %% "scalatest" % "1.6.1" % "test",
-    libraryDependencies += "com.typesafe" %% "play-mini" % "2.0.1",
+    libraryDependencies += "com.typesafe.akka" %  "akka-actor" % "2.0.1",
     libraryDependencies += "com.typesafe.akka" % "akka-testkit" % "2.0.1" % "test",
     libraryDependencies += "org.reflections" % "reflections" % "0.9.5",
     mainClass in (Compile, run) := Some("play.core.server.NettyServer")

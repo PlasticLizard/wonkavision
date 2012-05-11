@@ -1,7 +1,7 @@
 package org.wonkavision.server
 
 import com.typesafe.play.mini._
-import collection.JavaConversions._
+
 
 import org.wonkavision.server.messages._
 import org.wonkavision.core.Cube
@@ -12,7 +12,7 @@ object ApiHelper {
 	val LIST_DELIMITER = "\\|"
 	val AXIS_NAMES = List("columns","rows","pages","chapters","sections")
 
-	def parseQuery(cubeName : String, aggregationName : String, qs : String) = {
+	def parseQuery(cubeName : String, aggregationName : String, qs : Map[String, Seq[String]]) = {
 
 		val axes = parseAxes(qs)
 		val measureNames = parseList(qs, "measures")
@@ -27,19 +27,17 @@ object ApiHelper {
 		)
 	}
 
-	def parseAxes(queryString : String) = {
+	def parseAxes(queryString : Map[String, Seq[String]]) = {
 		AXIS_NAMES.map{axis => parseList(queryString, axis)}
 			.takeWhile(_ != List())
 	}
 
-	def parseList(queryString : String, qsKey : String) = {
+	def parseList(queryString : Map[String, Seq[String]], qsKey : String) = {
 		param(queryString, qsKey).mkString("|").split(LIST_DELIMITER).toList.filter(_ != "")
 	}
 
-	def param(queryString : String, qsKey : String) = {
-		QueryString(queryString, qsKey)
-			.getOrElse(new java.util.ArrayList[String]())
-			.asInstanceOf[java.util.ArrayList[String]].toList
+	def param(queryString : Map[String, Seq[String]], qsKey : String) = {
+		queryString.getOrElse(qsKey, Seq())
 	}
 
 	def validateQuery(query : CellsetQuery) : Option[ObjectNotFound] = {
