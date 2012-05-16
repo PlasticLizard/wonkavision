@@ -63,7 +63,7 @@ class CubeActor(val cube : Cube) extends Actor
 			aggregates <- (aggActorFor(query.aggregationName) ? AggregateQuery(query.cubeName, query.aggregationName, members))
 				.mapTo[Iterable[Aggregate]]
 
-		} yield Cellset(query, members, aggregates)
+		} yield new Cellset(query, members, aggregates)
 	}
 
 	private def aggActorFor(agg : String) = actorFor("aggregation." + agg)

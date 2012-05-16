@@ -49,8 +49,16 @@ class AggregateSpec extends Spec with BeforeAndAfter with ShouldMatchers {
 			))
 		}
 		it("should only present requested measures") {
-			aggregate.toMap(List("m2")) should equal (Map(
+			aggregate.toMap(List(), List("m2")) should equal (Map(
 				"key" -> List(1,2),
+				"measures" -> List(
+					Map("name" -> "m2", "value" -> Some(200.0))
+				)
+			))
+		}
+		it("should present members in requested key order"){
+			aggregate.toMap(List(1,0), List("m2")) should equal (Map(
+				"key" -> List(2,1),
 				"measures" -> List(
 					Map("name" -> "m2", "value" -> Some(200.0))
 				)

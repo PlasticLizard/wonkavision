@@ -9,19 +9,21 @@ import org.wonkavision.core.DimensionMember
 import org.wonkavision.core.Aggregate
 
 
-case class Cellset(
-	query : CellsetQuery,
-	members : Iterable[DimensionMembers],
-	aggregates : Iterable[Aggregate]
+class Cellset(
+	val query : CellsetQuery,
+	val members : Iterable[DimensionMembers],
+	val aggregates : Iterable[Aggregate]
 	) extends QueryResult {
 
 
 	def toMap() : Map[String,Any] = {
+		val sortedDims = query.dimensions.sorted
+		val keyOrder = query.dimensions.map(sortedDims.indexOf(_))
 		Map(
 			"cube" -> query.cubeName,
 			"aggregation" -> query.aggregationName,
 			"axes" -> axesMap(),
-			"cells" -> aggregates.map(_.toMap(query.measures)),
+			"cells" -> aggregates.map(_.toMap(keyOrder, query.measures)),
 			"measure_names" -> query.measures,
 			"filters" -> query.filters.map(_.toString())
 		)
