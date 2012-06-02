@@ -53,6 +53,7 @@ class RedisDimensionRepository(dim : Dimension, system : ActorSystem)
 		redis.exec { redis => 
 			redis.hset(hashname, member.key.toString, serialize(member))
 		}
+		true
 	}
 
 	def put(members : Iterable[DimensionMember]) = {
@@ -60,6 +61,7 @@ class RedisDimensionRepository(dim : Dimension, system : ActorSystem)
 			(member.key.toString, serialize(member))
 		}
 		redis.exec { redis => redis.hmset(hashname, elements) }
+		true
 	}
 
 	def delete(key : Any) = {
@@ -67,10 +69,12 @@ class RedisDimensionRepository(dim : Dimension, system : ActorSystem)
 		redis.exec { redis =>
 			redis.hdel(hashname, rKey)
 		}
+		true
 	}
 
 	def purge() = {
 		redis.exec { redis => redis.del(hashname) }
+		true
 	}
 
 	def serialize(member : DimensionMember) : Array[Byte] = {

@@ -17,10 +17,10 @@ abstract trait DimensionReader {
 }
 
 abstract trait DimensionWriter {
-	def put(member : DimensionMember) 
-	def put(members : Iterable[DimensionMember]) 
-	def delete(key : Any) 
-	def purge() 
+	def put(member : DimensionMember) : Boolean
+	def put(members : Iterable[DimensionMember]) : Boolean
+	def delete(key : Any) : Boolean
+	def purge() : Boolean
 }
 
 abstract trait KeyValueDimensionReader extends DimensionReader {

@@ -49,6 +49,7 @@ class RedisAggregationRepository(val agg : Aggregation, system : ActorSystem)
 		redis.exec { redis =>
 			redis.hset(hashname(agg.dimensions), aggKey, serialize(agg))
 		}
+		true
 	}
 
 	override def put(dimensions : Iterable[String], aggs : Iterable[Aggregate]) = {
@@ -56,10 +57,12 @@ class RedisAggregationRepository(val agg : Aggregation, system : ActorSystem)
 			(agg.key.mkString(":") -> serialize(agg))
 		}
 		redis.exec { redis => redis.hmset(hashname(dimensions), elements) }
+		true
 	}
 	
 	def purge(dimensions : Iterable[String]) = {
 		redis.exec { redis => redis.del(hashname(dimensions)) }
+		true
 	}
 	
 	def purgeAll() = {
@@ -67,11 +70,13 @@ class RedisAggregationRepository(val agg : Aggregation, system : ActorSystem)
 			hashname(dimSet)
 		}.toSeq
 		redis.exec { redis => redis.del(keys.head, keys.tail:_*)}
+		true
 	}
 	
 	def delete(dimensions : Iterable[String], key : Iterable[Any]) = {
 		val aggKey = key.mkString(":")
 		redis.exec { redis => redis.del(hashname(dimensions), aggKey) }
+		true
 		
 	}
 

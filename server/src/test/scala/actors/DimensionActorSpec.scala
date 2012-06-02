@@ -56,8 +56,8 @@ class DimensionActorSpec(_system:ActorSystem)
 					MemberFilterExpression.parse("dimension::team::key::gte::3")
 				))
 
-				dimActor ! query
-				val cs = expectMsgClass(1 second, classOf[DimensionMembers])
+				val cs = Await.result( dimActor.ask(query)(1 second).mapTo[DimensionMembers], 1 second )
+				//val cs = expectMsgClass(1 second, classOf[DimensionMembers])
 				cs.dimension.name should equal("team")
 				cs.hasFilter should equal(true)
 				cs.members.size should equal(2)

@@ -28,21 +28,25 @@ class LocalDimensionRepository(dim : Dimension, val system : ActorSystem)
 		members.values
 	}
 
-	def put(member : DimensionMember) {
+	def put(member : DimensionMember) = {
 		members = members + (member.key -> member)
+		true
 	}
 
-	def put(members : Iterable[DimensionMember]){
+	def put(members : Iterable[DimensionMember]) = {
 		members.map(put(_))
+		true
 	}
 
-	def delete(rawKey : Any) {
+	def delete(rawKey : Any) = {
 		val key = dimension.key.ensure(rawKey)
 		members = members - key
+		true
 	}
 
-	def purge() {
+	def purge() = {
 		members = Map()
+		true
 	}
 
 

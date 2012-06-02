@@ -16,11 +16,11 @@ abstract trait AggregationActor extends Actor {
 
 	def receive = {
 		case query : AggregateQuery => sender ! executeQuery(query)
-		case add : AddAggregate => repo.put(aggregation.createAggregate(add.dimensions, add.data))
-		case add : AddAggregates => repo.put(add.dimensions, add.data.map(d => aggregation.createAggregate(add.dimensions, d)))
-		case del : DeleteAggregate => repo.delete(del.dimensions, del.key)
-		case purge : PurgeDimensionSet => repo.purge(purge.dimensions)
-		case purge : PurgeAggregation => repo.purgeAll()
+		case add : AddAggregate => sender ! repo.put(aggregation.createAggregate(add.dimensions, add.data))
+		case add : AddAggregates => sender ! repo.put(add.dimensions, add.data.map(d => aggregation.createAggregate(add.dimensions, d)))
+		case del : DeleteAggregate => sender ! repo.delete(del.dimensions, del.key)
+		case purge : PurgeDimensionSet => sender ! repo.purge(purge.dimensions)
+		case purge : PurgeAggregation => sender ! repo.purgeAll()
 	}
 
 	def executeQuery(query : AggregateQuery) : Iterable[Aggregate] = repo.select(query)

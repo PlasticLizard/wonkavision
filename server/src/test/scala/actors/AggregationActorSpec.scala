@@ -62,8 +62,8 @@ class AggregationActorSpec(_system:ActorSystem)
 					DimensionMembers( status, List(status.createMember("status"->"happy")),false)
 				))
 
-				aggActor ! query
-				val results = expectMsgClass(1 second, classOf[Iterable[Aggregate]])
+				val results = Await.result(aggActor.ask(query)(1 second).mapTo[Iterable[Aggregate]], 1 second)
+				//val results = expectMsgClass(1 second, classOf[Iterable[Aggregate]])
 				results.size should equal (1)
 				results.toSeq(0).key should equal (List("happy","3"))
 			}

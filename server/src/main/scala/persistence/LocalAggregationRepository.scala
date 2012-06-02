@@ -28,34 +28,39 @@ class LocalAggregationRepository(agg : Aggregation, val system : ActorSystem)
 			.toList.flatten
 	}
 
-	def put(agg : Aggregate) {
+	def put(agg : Aggregate) = {
 		val aggKey = agg.key.mkString(":")
 		val dimKey = agg.dimensions.mkString(":")
 		val dimSet = aggregationSet(agg.dimensions, true).get
 		val newSet = dimSet + (aggKey -> agg)
 		aggregationSets = aggregationSets + (dimKey -> newSet)
+		true
 	}
 
 	def put(dimensions : Iterable[String], aggs : Iterable[Aggregate]) = {
 		aggs.foreach(put(_))
+		true
 	}
 	
-	def purge(dimensions : Iterable[String]) {
+	def purge(dimensions : Iterable[String]) = {
 		val dimKey = dimensions.mkString(":")
 		aggregationSets = aggregationSets - dimKey
+		true
 	}
 	
-	def purgeAll() {
+	def purgeAll() = {
 		aggregationSets = Map()
+		true
 	}
 	
-	def delete(dimensions : Iterable[String], key : Iterable[Any]) {
+	def delete(dimensions : Iterable[String], key : Iterable[Any]) = {
 		val aggKey = key.mkString(":")
 		val dimKey = dimensions.mkString(":")
 		aggregationSet(dimensions).foreach { dimSet =>
 			val newSet = dimSet - aggKey
 			aggregationSets = aggregationSets + (dimKey -> newSet)
 		}
+		true
 		
 	}
 

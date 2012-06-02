@@ -21,11 +21,11 @@ abstract trait AggregationReader  {
 }
 
 abstract trait AggregationWriter {
-	def put(agg : Aggregate)
-	def put(dimensions : Iterable[String], aggs : Iterable[Aggregate])
-	def delete(dimensions : Iterable[String], key : Iterable[Any])
-	def purge(dimensions : Iterable[String])
-	def purgeAll()
+	def put(agg : Aggregate) : Boolean
+	def put(dimensions : Iterable[String], aggs : Iterable[Aggregate]) : Boolean
+	def delete(dimensions : Iterable[String], key : Iterable[Any]) : Boolean
+	def purge(dimensions : Iterable[String]) : Boolean
+	def purgeAll() : Boolean
 }
 
 abstract trait KeyValueAggregationReader extends AggregationReader {
