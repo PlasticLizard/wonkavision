@@ -4,6 +4,7 @@ import org.wonkavision.core._
 import AttributeType._
 import akka.actor.ActorRef
 import org.wonkavision.server.messages._
+import Conversions._
 
 class PingCube extends Cube("ping") {
 	
