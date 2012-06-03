@@ -9,7 +9,6 @@ import org.wonkavision.core._
 import org.wonkavision.core.measures._
 import org.wonkavision.core.FactAction._
 import org.wonkavision.core.AttributeType._
-import Conversions._
 
 class CubeSpec extends Spec with BeforeAndAfter with ShouldMatchers {
 
