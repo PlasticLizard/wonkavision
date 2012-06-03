@@ -41,13 +41,13 @@ class CubeActor(val cube : Cube) extends Actor
 		case query : CellsetQuery => 	
 			executeQuery(query) pipeTo sender
 		case query : AggregationQuery => 
-			aggActorFor(query.aggregationName) ? query
+			aggActorFor(query.aggregationName) forward query
 		case cmd : AggregationCommand =>
-			aggActorFor(cmd.aggregationName) ! cmd
+			aggActorFor(cmd.aggregationName) forward cmd
 		case query : DimensionQuery =>
-			dimActorFor(query.dimensionName) ? query
+			dimActorFor(query.dimensionName) forward query
 		case cmd : DimensionCommand =>
-			dimActorFor(cmd.dimensionName) ! cmd
+			dimActorFor(cmd.dimensionName) forward cmd
 	}
 
 	def executeQuery(query : CellsetQuery) = {

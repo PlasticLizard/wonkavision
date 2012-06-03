@@ -1,3 +1,3 @@
 sbt publish-local
 rm -r ~/play-2.0.1/repository/local/com.hsihealth
-cp -rf ~/.ivy2/local/com.hsihealth/ ~/play-2.0.1/repository/local/
+cp -rf ~/.ivy2/local/com.hsihealth/ ~/play-2.0.1/repository/local/com.hsihealth/

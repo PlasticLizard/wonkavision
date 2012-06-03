@@ -82,8 +82,12 @@ class CubActorSpec(_system:ActorSystem)
 					filters = List(MemberFilterExpression.parse("dimension::team::key::lt::4"))
 				)
 
-				cubeActor ! query
-				val cellset = expectMsgClass(1 second, classOf[Cellset])
+				val timeout = 1 second
+				val cellset = Await.result( 
+					cubeActor.ask(query)(timeout).mapTo[Cellset], timeout
+				)
+				//cubeActor ! query
+				//val cellset = expectMsgClass(1 second, classOf[Cellset])
 				cellset.members.size should equal(2)
 				cellset.members.find(m=>m.dimension.name == "team").get.members.size should equal(2)
 				cellset.members.find(m=>m.dimension.name == "status").get.members.size should equal(3)
@@ -91,5 +95,4 @@ class CubActorSpec(_system:ActorSystem)
 				cellset.aggregates.forall(ag => ag.key.toSeq(0).toString() == "happy") should equal(true)
 			}
 		}
-
 }
