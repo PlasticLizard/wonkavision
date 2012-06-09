@@ -3,11 +3,12 @@ package org.wonkavision.mongodb.actors
 import akka.actor.{Props, Actor, ActorRef}
 import akka.routing.SmallestMailboxRouter
 
-
 import org.wonkavision.core.Aggregation
 import org.wonkavision.server.actors.AggregationActor
 import org.wonkavision.server.messages.AggregationCommand
 import org.wonkavision.mongodb.MongoAggregationRepository
+
+import org.wonkavision.mongodb.MongoAggregationRepository 
 
 class MongoAggregationActor(val aggregation : Aggregation) extends Actor {
 	private var workers : ActorRef = _

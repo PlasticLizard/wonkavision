@@ -7,7 +7,7 @@ import akka.event.Logging
 import akka.dispatch.{ExecutionContext, Promise, Future}
 import akka.actor.ActorSystem
 
-import com.monbodb.casbah.Imports._
+import com.mongodb.casbah.Imports._
 
 
 class MongoDb(val system : ActorSystem) {
@@ -18,11 +18,11 @@ class MongoDb(val system : ActorSystem) {
 
 	@volatile
 	private var client = connect()
-	lazy private var db = client(settings.DatabaseName)
+	lazy private val db = client(settings.DatabaseName)
 
 	private def connect() = {
     	//new RedisClientPool(settings.Hostname, settings.Port)
-    	new MongoConnection(settings.Hostname, settings.Port)
+    	MongoConnection(settings.Hostname, settings.Port)
   	}
 
   	def collection(collectionName : String) = db(collectionName)

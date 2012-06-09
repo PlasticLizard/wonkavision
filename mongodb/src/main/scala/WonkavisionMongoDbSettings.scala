@@ -2,7 +2,7 @@ package org.wonkavision.mongodb
 
 import com.typesafe.config.Config
 
-class WonkavisionDbSettings(val config : Config) {
+class WonkavisionMongoDbSettings(val config : Config) {
   import config._
 
   val namespace = "wonkavision.mongodb"

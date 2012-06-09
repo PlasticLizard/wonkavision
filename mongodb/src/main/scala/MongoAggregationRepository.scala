@@ -1,3 +1,4 @@
+
 package org.wonkavision.mongodb
 
 import org.wonkavision.server.messages._
@@ -14,15 +15,14 @@ class MongoAggregationRepository(val agg : Aggregation, system : ActorSystem)
 	with AggregationReader
     with AggregationWriter {
 	
+	implicit val aggregation = agg
 	private val mongodb = new MongoDb(system)
 
-	implicit val aggregation = agg
+	def select(query : AggregateQuery) : Iterable[Aggregate] = List()
 
-	def collection = mongodb.collection(aggregation.fullName)
+	def collection = mongodb.collection(aggregation.fullname)
 
 	def get(dimensionNames : Iterable[String], key : Iterable[Any]) : Option[Aggregate] = {
-		val aggKey = key.mkString(":")
-		
 		None
 	}	
 
@@ -40,30 +40,16 @@ class MongoAggregationRepository(val agg : Aggregation, system : ActorSystem)
 	}
 	
 	def purge(dimensions : Iterable[String]) = {
-		redis.exec { redis => redis.del(hashname(dimensions)) }
 		true
 	}
 	
 	def purgeAll() = {
-		val keys = aggregation.aggregations.map { dimSet =>
-			hashname(dimSet)
-		}.toSeq
-		redis.exec { redis => redis.del(keys.head, keys.tail:_*)}
 		true
 	}
 	
 	def delete(dimensions : Iterable[String], key : Iterable[Any]) = {
-		val aggKey = key.mkString(":")
-		redis.exec { redis => redis.del(hashname(dimensions), aggKey) }
 		true
-		
 	}
 
-	def serialize(aggregate : Aggregate) : Array[Byte] = {
-		serializer.write(aggregate)
-	}
-
-	def deserialize(dimensions : Iterable[String], bytes : Option[Array[Byte]]) : Option[Aggregate] = {
-		serializer.readAggregate(dimensions, bytes)
-	}
+	
 }
