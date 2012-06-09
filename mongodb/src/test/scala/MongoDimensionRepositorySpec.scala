@@ -1,4 +1,4 @@
-package org.wonkavision.redis
+package org.wonkavision.mongodb
 
 import org.scalatest.Spec
 import org.scalatest.BeforeAndAfter
@@ -13,14 +13,14 @@ import org.wonkavision.server.Wonkavision
 
 import akka.actor.ActorSystem
 
-class RedisDimensionRepositorySpec extends Spec with BeforeAndAfter with ShouldMatchers {
+class MongoDimensionRepositorySpec extends Spec with BeforeAndAfter with ShouldMatchers {
 	
 	implicit val cube = new Cube("hi")
 	implicit val dim = Dimension("dim", Attribute("k", Integer), Attribute("c"))
   val system = ActorSystem("wonkavision")
 
 	var memberData : List[DimensionMember] = _
-  var repo : RedisDimensionRepository = _
+  var repo : MongoDimensionRepository = _
 
   List(
 		Map("k" -> 1, "c" -> "a"),
@@ -35,7 +35,7 @@ class RedisDimensionRepositorySpec extends Spec with BeforeAndAfter with ShouldM
       dim.createMember(Map("k" -> 3, "c" -> "c"))
     ) 
 
-    repo = new RedisDimensionRepository(dim, system)
+    repo = new MongoDimensionRepository(dim, system)
     repo.put(memberData)
   }
 

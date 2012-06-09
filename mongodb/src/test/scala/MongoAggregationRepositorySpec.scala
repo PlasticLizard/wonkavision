@@ -1,4 +1,4 @@
-package org.wonkavision.redis
+package org.wonkavision.mongodb
 
 import org.scalatest.Spec
 import org.scalatest.BeforeAndAfter
@@ -14,7 +14,7 @@ import org.wonkavision.core.Aggregate
 
 import akka.actor.ActorSystem
 
-class RedisAggregationRepositorySpec extends Spec with BeforeAndAfter with ShouldMatchers {
+class MongoAggregationRepositorySpec extends Spec with BeforeAndAfter with ShouldMatchers {
 	
 	implicit val cube  = new Cube("hi") {      
       dimension ( name = "d1", key = Attribute("k",Integer))
@@ -27,7 +27,7 @@ class RedisAggregationRepositorySpec extends Spec with BeforeAndAfter with Shoul
 	
   var aggData : List[Aggregate] = _
 	
-	var repo : RedisAggregationRepository = _
+	var repo : MongoAggregationRepository = _
 
   before {
 
@@ -36,7 +36,7 @@ class RedisAggregationRepositorySpec extends Spec with BeforeAndAfter with Shoul
       aggregation.createAggregate(List("d1","d2","d3"),Map("d1"->1,"d2"->3,"d3"->3))
 
     )
-    repo = new RedisAggregationRepository(aggregation, system)
+    repo = new MongoAggregationRepository(aggregation, system)
     repo.put(List("d1","d2","d3"),aggData)
   }
 
