@@ -21,12 +21,11 @@ class MongoDimensionRepositorySpec extends Spec with BeforeAndAfter with ShouldM
 
 	var memberData : List[DimensionMember] = _
   var repo : MongoDimensionRepository = _
-
-  List(
-		Map("k" -> 1, "c" -> "a"),
-		Map("k" -> 2, "c" -> "b"),
-		Map("k" -> 3, "c" -> "c")
-	)	
+ 
+  val filters = List(
+    MemberFilterExpression.parse("dimension::dim::key::in::[1,2]"),
+    MemberFilterExpression.parse("dimension::dim::caption::gte::b")
+  )	
 
 	before {
     memberData = List(
@@ -37,6 +36,24 @@ class MongoDimensionRepositorySpec extends Spec with BeforeAndAfter with ShouldM
 
     repo = new MongoDimensionRepository(dim, system)
     repo.put(memberData)
+  }
+
+  describe("select") {
+    it("should return members with no filter specified") {
+      val found = repo.select(new DimensionMemberQuery("hi", "dim", List()))
+      found.size should equal(3)
+    }
+    it("should return the selected subset of members") {
+      val found = repo.select(new DimensionMemberQuery("hi", "dim", filters))
+      found.size should equal (1)
+      found.head.key should equal (2)
+    }  
+    it("should select members without a key filter") {
+      val found = repo.select(new DimensionMemberQuery("hi", "dim",filters.tail))
+      found.size should equal (2)
+      found.head.key should equal(2)
+      found.last.key should equal(3)
+    }  
   }
 
 	describe("get") {

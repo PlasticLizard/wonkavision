@@ -40,6 +40,19 @@ class MongoAggregationRepositorySpec extends Spec with BeforeAndAfter with Shoul
     repo.put(List("d1","d2","d3"),aggData)
   }
 
+  describe("select") {
+        it("should return the selected subset of aggregates") {
+          val result = repo.select(createQuery(true))
+          result.size should equal (1)
+          result.head.key should equal (aggData.head.key)   
+        } 
+        it ("should return all records when not filtered") {
+          val result = repo.select(createQuery(false))
+          result.size should equal(2)
+        }
+        
+    }
+
 	describe("get") {
   	it ("should return a matching aggregate") {
   		val dims = List("d1","d2","d3")
@@ -62,8 +75,8 @@ class MongoAggregationRepositorySpec extends Spec with BeforeAndAfter with Shoul
 		it ("should get all aggregates for a dim set") {
 			val all = repo.all(List("d1","d2","d3")).toSeq
 			all.size should equal (2)
-			all(1).key should equal (List(1,2,3))
 			all(0).key should equal (List(1,3,3))
+			all(1).key should equal (List(1,2,3))
 		}
 		it ("should return Nil if no dim set matches") {
 			repo.all(List("d1","d2")) should equal (Nil)
@@ -120,6 +133,40 @@ class MongoAggregationRepositorySpec extends Spec with BeforeAndAfter with Shoul
         repo.get(List("d1","d2","d3"),List(1,2,3)) should equal (None)
       }
     }
+  }
+
+  def createQuery(filtered : Boolean) = {
+    val d1 = cube.dimensions("d1")
+    val d2 = cube.dimensions("d2")
+    val d3 = cube.dimensions("d3")
+
+    AggregateQuery(
+      cubeName = "hi",
+      aggregationName = "agg",
+      dimensions = List(
+        DimensionMembers(
+          dimension = d1,
+          members = List(new DimensionMember(Map("k" -> 1))(d1)),
+          hasFilter = false
+        ),
+        DimensionMembers(
+          dimension = d2,
+          members = List(
+            new DimensionMember(Map("k"->2))(d2),
+            new DimensionMember(Map("k"->4))(d2)
+          ),
+          hasFilter = filtered
+
+        ),
+        DimensionMembers(
+          dimension = d3,
+          members = List(
+            new DimensionMember(Map("k"->3))(d3)
+          ),
+          hasFilter = false
+        )
+      )
+    )
   }
 }
  

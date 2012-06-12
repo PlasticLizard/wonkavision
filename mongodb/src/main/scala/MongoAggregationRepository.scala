@@ -22,8 +22,20 @@ class MongoAggregationRepository(val agg : Aggregation, system : ActorSystem)
 	private val mongodb = new MongoDb(system)
 
 	def collection = mongodb.collection(aggregation.fullname)
+	ensureIndexes()
 
-	def select(query : AggregateQuery) : Iterable[Aggregate] = List()
+	def select(query : AggregateQuery) : Iterable[Aggregate] = {
+		val dimNames = query.dimensionNames.toSeq.sorted
+		if (query.hasFilter) {
+				val q = createQuery(dimNames)
+				for (dim <- query.dimensions if dim.hasFilter) {
+					q ++= (dim.dimension.name $in dim.members.map{_.key.asInstanceOf[AnyRef]})
+				}
+				collection.find(q).map( fromMongo(dimNames, _)).toList			
+			} else {
+				all(dimNames)
+			}
+	}
 
 	def get(dimensionNames : Iterable[String], key : Iterable[Any]) : Option[Aggregate] = {
 		val query = createQuery(dimensionNames, key)
@@ -64,6 +76,11 @@ class MongoAggregationRepository(val agg : Aggregation, system : ActorSystem)
 		collection.remove(query)
 		true
 	}
+
+	private def ensureIndexes() {
+		collection.ensureIndex(MongoDBObject("_dimensions" -> 1 ))
+	}
+
 
 	private def createQuery(dimensions : Iterable[String]) : MongoDBObject = {
 		MongoDBObject("_dimensions" -> dimensions)
