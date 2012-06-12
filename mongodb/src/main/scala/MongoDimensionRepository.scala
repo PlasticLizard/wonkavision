@@ -21,7 +21,6 @@ class MongoDimensionRepository(dim : Dimension, system : ActorSystem)
 	
 	private val mongodb = new MongoDb(system)
 	def collection = mongodb.collection(dimension.fullname)
-	ensureIndexes()
 
 	def select(query : DimensionMemberQuery) : Iterable[DimensionMember] = {
 		if (query.hasFilter) {
@@ -57,7 +56,7 @@ class MongoDimensionRepository(dim : Dimension, system : ActorSystem)
 	}
 
 	def put(members : Iterable[DimensionMember]) = {
-		members.foreach { member : DimensionMember => put(member) }
+		collection.insert( members.map(toMongo(_)).toList )
 		true
 	}
 
@@ -70,11 +69,7 @@ class MongoDimensionRepository(dim : Dimension, system : ActorSystem)
 	def purge() = {
 		collection.remove(createQuery())
 		true
-	}
-
-	private def ensureIndexes() {
-		collection.ensureIndex(MongoDBObject("_key" -> 1))
-	}
+	}	
 
 	private def createQuery() = {
 		MongoDBObject()

@@ -34,9 +34,9 @@ class MongoAggregationRepositorySpec extends Spec with BeforeAndAfter with Shoul
     aggData = List(
       aggregation.createAggregate(List("d1","d2","d3"),Map("d1"->1,"d2"->2,"d3"->3)),
       aggregation.createAggregate(List("d1","d2","d3"),Map("d1"->1,"d2"->3,"d3"->3))
-
     )
     repo = new MongoAggregationRepository(aggregation, system)
+    repo.purgeAll()
     repo.put(List("d1","d2","d3"),aggData)
   }
 

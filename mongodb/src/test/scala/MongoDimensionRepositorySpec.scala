@@ -35,6 +35,7 @@ class MongoDimensionRepositorySpec extends Spec with BeforeAndAfter with ShouldM
     ) 
 
     repo = new MongoDimensionRepository(dim, system)
+    repo.purge()
     repo.put(memberData)
   }
 

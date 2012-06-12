@@ -22,7 +22,6 @@ class MongoAggregationRepository(val agg : Aggregation, system : ActorSystem)
 	private val mongodb = new MongoDb(system)
 
 	def collection = mongodb.collection(aggregation.fullname)
-	ensureIndexes()
 
 	def select(query : AggregateQuery) : Iterable[Aggregate] = {
 		val dimNames = query.dimensionNames.toSeq.sorted
@@ -56,7 +55,7 @@ class MongoAggregationRepository(val agg : Aggregation, system : ActorSystem)
 	}
 
 	def put(dimensions : Iterable[String], aggs : Iterable[Aggregate]) = {
-		aggs.foreach { agg : Aggregate => put(agg) }
+		collection.insert(aggs.map(toMongo(_)).toList)
 		true
 	}
 	
@@ -75,12 +74,7 @@ class MongoAggregationRepository(val agg : Aggregation, system : ActorSystem)
 		val query = createQuery(dimensions, key)
 		collection.remove(query)
 		true
-	}
-
-	private def ensureIndexes() {
-		collection.ensureIndex(MongoDBObject("_dimensions" -> 1 ))
-	}
-
+	}	
 
 	private def createQuery(dimensions : Iterable[String]) : MongoDBObject = {
 		MongoDBObject("_dimensions" -> dimensions)

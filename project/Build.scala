@@ -16,7 +16,7 @@ object WonkavisionBuild extends Build {
     resolvers += typesafe,
     resolvers += typesafeSnapshot,
     resolvers += maven    
-  ).aggregate(wvcore, wvserver, redis, mongo)
+  ).aggregate(wvcore, wvserver, mongo)
 
   lazy val wvcore = Project(id = "wonkavision-core", base = file("core"), settings = Project.defaultSettings).settings(
     version := buildVersion,
@@ -53,22 +53,22 @@ object WonkavisionBuild extends Build {
     mainClass in (Compile, run) := Some("play.core.server.NettyServer")
   )
 
-   lazy val redis = Project(id = "wonkavision-redis",
-                              base = file("redis"), settings = Project.defaultSettings)
-  .dependsOn(wvserver)
-  .settings(
-    version := buildVersion,
-    organization := "com.hsihealth",
-    resolvers += typesafe,
-    resolvers += typesafeSnapshot,
-    resolvers += maven,    
-    scalacOptions ++= Seq("-unchecked", "-deprecation"),
-    libraryDependencies += "log4j" % "log4j" % "1.2.16",
-    libraryDependencies += "ch.qos.logback" % "logback-classic" % "0.9.28",
-    libraryDependencies += "org.scalatest" %% "scalatest" % "1.6.1" % "test",
-    libraryDependencies += "net.debasishg" %% "redisclient" % "2.5",
-    libraryDependencies += "org.msgpack" % "msgpack" % "0.6.5"
-  )
+  //  lazy val redis = Project(id = "wonkavision-redis",
+  //                             base = file("redis"), settings = Project.defaultSettings)
+  // .dependsOn(wvserver)
+  // .settings(
+  //   version := buildVersion,
+  //   organization := "com.hsihealth",
+  //   resolvers += typesafe,
+  //   resolvers += typesafeSnapshot,
+  //   resolvers += maven,    
+  //   scalacOptions ++= Seq("-unchecked", "-deprecation"),
+  //   libraryDependencies += "log4j" % "log4j" % "1.2.16",
+  //   libraryDependencies += "ch.qos.logback" % "logback-classic" % "0.9.28",
+  //   libraryDependencies += "org.scalatest" %% "scalatest" % "1.6.1" % "test",
+  //   libraryDependencies += "net.debasishg" %% "redisclient" % "2.5",
+  //   libraryDependencies += "org.msgpack" % "msgpack" % "0.6.5"
+  // )
 
   lazy val mongo = Project(id = "wonkavision-mongodb",
                               base = file("mongodb"), settings = Project.defaultSettings)
