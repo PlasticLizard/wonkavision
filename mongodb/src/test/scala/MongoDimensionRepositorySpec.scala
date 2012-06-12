@@ -41,7 +41,7 @@ class MongoDimensionRepositorySpec extends Spec with BeforeAndAfter with ShouldM
 
 	describe("get") {
   	it("should return the selected member") {
-  		repo.get("1").get.key should equal (1)    		
+  		repo.get(1).get.key should equal (1)    		
   	}  
   	it ("should return the selected") {
   		repo.get(1).get.key should equal (1)

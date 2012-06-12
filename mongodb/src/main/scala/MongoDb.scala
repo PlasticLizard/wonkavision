@@ -21,28 +21,9 @@ class MongoDb(val system : ActorSystem) {
 	lazy private val db = client(settings.DatabaseName)
 
 	private def connect() = {
-    	//new RedisClientPool(settings.Hostname, settings.Port)
     	MongoConnection(settings.Hostname, settings.Port)
   	}
 
   	def collection(collectionName : String) = db(collectionName)
-  	
-
-  // 	protected def withErrorHandling[T](body: => T): T = {
-	 //    try {
-	 //      body
-	 //    } catch {
-	 //     	case e: RedisConnectionException => {
-	 //       		clients = connect()
-	 //        	body
-	 //      	}
-	 //      	case e: Exception => {
-		// 		val error = new WonkavisionRedisException("Could not connect to Redis server, due to: " + e.getMessage)
-  //       		log.error(error, error.getMessage)
-  //       		throw error
-	 // 		}
-	 // 	}
- 	// }
  }
 
- //class WonkavisionRedisException(message : String) extends WonkavisionException(message)

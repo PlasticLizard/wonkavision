@@ -26,12 +26,13 @@ class MongoAggregationRepository(val agg : Aggregation, system : ActorSystem)
 	def select(query : AggregateQuery) : Iterable[Aggregate] = List()
 
 	def get(dimensionNames : Iterable[String], key : Iterable[Any]) : Option[Aggregate] = {
-		None
+		val query = createQuery(dimensionNames, key)
+		collection.findOne(query).map{ fromMongo(dimensionNames, _) }
 	}	
 
 	def all(dimensionNames : Iterable[String]) : Iterable[Aggregate] = {
 		val query = createQuery(dimensionNames)
-		collection.find(query).map( fromMongo(_) ).toList
+		collection.find(query).map( fromMongo(dimensionNames, _) ).toList
 	}
 
 	def put(agg : Aggregate) = {
@@ -59,36 +60,42 @@ class MongoAggregationRepository(val agg : Aggregation, system : ActorSystem)
 	}
 	
 	def delete(dimensions : Iterable[String], key : Iterable[Any]) = {
-		val query = createQuery(dimensions.toSeq, key.toSeq)
+		val query = createQuery(dimensions, key)
 		collection.remove(query)
 		true
 	}
 
 	private def createQuery(dimensions : Iterable[String]) : MongoDBObject = {
-		MongoDBObject("dimensions" -> dimensions)
+		MongoDBObject("_dimensions" -> dimensions)
 	}
 
 	private def createQuery(agg : Aggregate) : MongoDBObject = {
 		createQuery(agg.dimensions, agg.key)
 	}
 
-	private def createQuery(dimensions : Seq[String], key : Seq[Any]) : MongoDBObject = {
+	private def createQuery(dimensions : Iterable[String], key : Iterable[Any]) : MongoDBObject = {
+		val dims = dimensions.toSeq
+		val keys = key.toSeq
 		var builder = MongoDBObject.newBuilder
-		for (i <- dimensions.indices) {
-				builder += (dimensions(i) -> key(i))
+		for (i <- dims.indices) {
+				builder += (dims(i) -> keys(i))
 			}
-		builder += "dimensions" -> dimensions
+		builder += "_dimensions" -> dims
 		builder.result
 	}
 
 	private def toMongo(agg : Aggregate) = {
-		val aggObj = agg.toMap().asDBObject
-		aggObj += "dimensions" -> agg.dimensions
-		aggObj
+		val obj = createQuery(agg)
+		agg.measures.filter(e => !e._2.isEmpty)
+			.foreach{ element =>
+				obj += (element._1 -> element._2.get.asInstanceOf[AnyRef])
+			}
+		obj
 	}
 
-	private def fromMongo(data : MongoDBObject) : Aggregate = {
-		null
+	private def fromMongo(dimensions : Iterable[String], data : MongoDBObject) : Aggregate = {
+		val aggdata = data - "_dimensions"
+		new Aggregate(dimensions, Map(aggdata.iterator.toSeq:_*))
 	}
 
 	
