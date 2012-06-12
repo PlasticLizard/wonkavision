@@ -55,6 +55,12 @@ class MongoDimensionRepositorySpec extends Spec with BeforeAndAfter with ShouldM
       found.head.key should equal(2)
       found.last.key should equal(3)
     }  
+    it("should select members with a single filter") {
+      val f = List(MemberFilterExpression.parse("dimension::dim::key::eq::1"))
+      val found = repo.select(new DimensionMemberQuery("hi", "dim", f))
+      found.size should equal (1)
+      found.head.key should equal(1)
+    }
   }
 
 	describe("get") {

@@ -92,17 +92,14 @@ class MongoDimensionRepository(dim : Dimension, system : ActorSystem)
 		val fobj = MongoDBObject()
 		val attr = dimension.getAttribute(filter.attributeName)
 		val values = filter.values.map(attr.ensure(_))
-		val value = if (filter.operator == FilterOperator.In || filter.operator == FilterOperator.Nin)
-			values
-		else
+		val value = if (filter.operator == FilterOperator.Eq) {
 			values.head
-
-		fobj += (
-			attr.name -> MongoDBObject(
-				"$" + filter.operator.toString().toLowerCase() -> value
-					
-			)
-		)
+		}  else if (filter.operator == FilterOperator.In || filter.operator == FilterOperator.Nin)
+			MongoDBObject("$" + filter.operator.toString().toLowerCase() -> values)
+		else
+			MongoDBObject("$" + filter.operator.toString().toLowerCase() -> values.head)
+		
+		fobj += (attr.name -> value.asInstanceOf[AnyRef])
 		fobj
 	}
 
