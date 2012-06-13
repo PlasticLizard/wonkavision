@@ -26,11 +26,6 @@ class MongoDimensionRepository(dim : Dimension, system : ActorSystem)
 		if (query.hasFilter) {
 			val q = createQuery()
 			appendFilters(q, query.filters.toSeq)
-			//q ++= mergeFilters(query.filters)
-			// for (f <- query.filters) {
-			// 	q ++= toMongo(f)
-			// }
-			println(q)
 			collection.find(q).map{fromMongo(_)}.toList
 		} else {
 			all()
@@ -70,7 +65,7 @@ class MongoDimensionRepository(dim : Dimension, system : ActorSystem)
 	}
 
 	def purge() = {
-		collection.remove(createQuery())
+		collection.drop()
 		true
 	}	
 

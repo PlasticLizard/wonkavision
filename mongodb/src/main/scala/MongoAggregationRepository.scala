@@ -66,7 +66,7 @@ class MongoAggregationRepository(val agg : Aggregation, system : ActorSystem)
 	}
 	
 	def purgeAll() = {
-		collection.remove(MongoDBObject())
+		collection.drop()
 		true
 	}
 	

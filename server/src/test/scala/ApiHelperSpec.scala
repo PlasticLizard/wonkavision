@@ -41,7 +41,6 @@ class ApiHelperSpec extends Spec with BeforeAndAfter with ShouldMatchers {
 
   describe("parseAxes") {
     it("extract dimension names from the specified axes") {
-      println(qs)
       val axes = ApiHelper.parseAxes(qs)
       axes should equal (List(
         List("hi","ho","hum"),
