@@ -1,6 +1,6 @@
 package org.wonkavision.mongodb
 
-import org.wonkavision.core.{Dimension, DimensionMember}
+import org.wonkavision.core.{Dimension, DimensionMember, Attribute}
 import org.wonkavision.server.persistence._
 
 import akka.actor.ActorSystem
@@ -25,9 +25,12 @@ class MongoDimensionRepository(dim : Dimension, system : ActorSystem)
 	def select(query : DimensionMemberQuery) : Iterable[DimensionMember] = {
 		if (query.hasFilter) {
 			val q = createQuery()
-			for (f <- query.filters) {
-				q ++= toMongo(f)
-			}
+			appendFilters(q, query.filters.toSeq)
+			//q ++= mergeFilters(query.filters)
+			// for (f <- query.filters) {
+			// 	q ++= toMongo(f)
+			// }
+			println(q)
 			collection.find(q).map{fromMongo(_)}.toList
 		} else {
 			all()
@@ -88,23 +91,42 @@ class MongoDimensionRepository(dim : Dimension, system : ActorSystem)
 		dbobj
 	}
 
-	private def toMongo(filter : MemberFilterExpression) : MongoDBObject = {
-		val fobj = MongoDBObject()
-		val attr = dimension.getAttribute(filter.attributeName)
-		val values = filter.values.map(attr.ensure(_))
-		val value = if (filter.operator == FilterOperator.Eq) {
-			values.head
-		}  else if (filter.operator == FilterOperator.In || filter.operator == FilterOperator.Nin)
-			MongoDBObject("$" + filter.operator.toString().toLowerCase() -> values)
-		else
-			MongoDBObject("$" + filter.operator.toString().toLowerCase() -> values.head)
-		
-		fobj += (attr.name -> value.asInstanceOf[AnyRef])
-		fobj
-	}
-
 	private def fromMongo(dbobj : MongoDBObject)(implicit dim : Dimension) : DimensionMember = {
 		val data = dbobj - "_key"
 		new DimensionMember(Map(data.iterator.toSeq:_*))(dim)
 	}
+
+	private def appendFilters(query : MongoDBObject, filters : Seq[MemberFilterExpression]) = {
+		val grouped = filters.groupBy(f => f.attributeName)
+		for (attrEl <- grouped) {
+			val (attrName, attrFilters) = attrEl
+			val attr = dimension.getAttribute(attrName)
+			if (attrFilters.length == 1 && attrFilters.head.operator == FilterOperator.Eq) 
+				query += (attr.name -> attr.ensure(attrFilters.head.values.head).asInstanceOf[AnyRef])
+			else if (attrFilters.length == 1)
+				query += (attr.name -> filterValue(attr, attrFilters.head))
+			else
+				query += (attr.name -> filterValues(attr, attrFilters))
+		}
+	}
+
+	private def filterValues(attr : Attribute, filters : Seq[MemberFilterExpression]) : MongoDBObject = {
+		val vals = MongoDBObject.newBuilder
+		filters.foreach { f =>
+			if (f.operator == FilterOperator.Eq)
+				throw new Exception("The operator $eq cannot be used in conjuction with any other operator for the same dimension attribute")
+			vals ++= filterValue(attr, f)
+		}
+		vals.result
+	}
+
+	private def filterValue(attr : Attribute, filter : MemberFilterExpression) : MongoDBObject = {
+		val values = filter.values.map(attr.ensure(_))
+		if (filter.operator == FilterOperator.In || filter.operator == FilterOperator.Nin)
+			MongoDBObject("$" + filter.operator.toString().toLowerCase() -> values)
+		else
+			MongoDBObject("$" + filter.operator.toString().toLowerCase() -> values.head.asInstanceOf[AnyRef])
+		
+	}
+
 }

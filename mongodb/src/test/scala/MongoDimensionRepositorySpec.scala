@@ -61,6 +61,12 @@ class MongoDimensionRepositorySpec extends Spec with BeforeAndAfter with ShouldM
       found.size should equal (1)
       found.head.key should equal(1)
     }
+    it("should combine filters for the same key"){
+      val f = List(MemberFilterExpression.parse("dimension::dim::caption::gte::b"),
+                   MemberFilterExpression.parse("dimension::dim::caption::lte::c"))
+      val found = repo.select(new DimensionMemberQuery("hi","dim",f))
+      found.size should equal(2)
+    }
   }
 
 	describe("get") {

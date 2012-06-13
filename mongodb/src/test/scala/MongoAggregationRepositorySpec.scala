@@ -75,8 +75,8 @@ class MongoAggregationRepositorySpec extends Spec with BeforeAndAfter with Shoul
 		it ("should get all aggregates for a dim set") {
 			val all = repo.all(List("d1","d2","d3")).toSeq
 			all.size should equal (2)
-			all(0).key should equal (List(1,3,3))
-			all(1).key should equal (List(1,2,3))
+			all(1).key should equal (List(1,3,3))
+			all(0).key should equal (List(1,2,3))
 		}
 		it ("should return Nil if no dim set matches") {
 			repo.all(List("d1","d2")) should equal (Nil)
