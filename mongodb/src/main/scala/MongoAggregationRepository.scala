@@ -77,7 +77,7 @@ class MongoAggregationRepository(val agg : Aggregation, system : ActorSystem)
 	}	
 
 	private def createQuery(dimensions : Iterable[String]) : MongoDBObject = {
-		MongoDBObject("_dimensions" -> dimensions)
+		MongoDBObject("_dimensions" -> dimensions.mkString("~"))
 	}
 
 	private def createQuery(agg : Aggregate) : MongoDBObject = {
@@ -91,7 +91,7 @@ class MongoAggregationRepository(val agg : Aggregation, system : ActorSystem)
 		for (i <- dims.indices) {
 				builder += (dims(i) -> keys(i))
 			}
-		builder += "_dimensions" -> dims
+		builder += "_dimensions" -> dims.mkString("~")
 		builder.result
 	}
 
