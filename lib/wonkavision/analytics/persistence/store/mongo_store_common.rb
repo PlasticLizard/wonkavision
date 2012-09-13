@@ -9,7 +9,7 @@ module Wonkavision
 	        def facts_collection_name
 	          "wv.#{owner.name.gsub("::",".").underscore}.facts"
 	        end
-	        
+
 	        def facts_collection
 	          database.collection(facts_collection_name)
 	        end
@@ -54,8 +54,8 @@ module Wonkavision
 	        def ensure_indexes
 						if owner <=> Wonkavision::Analytics::Aggregation
 							create_index([[:dimension_keys,1]])
-							create_index([[:dimension_names,1]])	
-						end	        	
+							create_index([[:dimension_names,1]])
+						end
 	        end
 
 	        def purge!(criteria={})
@@ -63,7 +63,7 @@ module Wonkavision
 	        end
 
 	        protected
-	        
+
 	        def find(criteria, options={})
 	          collection.find(criteria,options).to_a
 	        end
@@ -145,13 +145,13 @@ module Wonkavision
 	        	doc[measure_op] = data[:measures] if data[:measures]
 	        	(doc["$set"] ||= {})[:dimensions] = data[:dimensions] if data[:dimensions]
 	          (doc["$set"] ||= {})[:snapshot] = data[:snapshot] if data[:snapshot]
-	          
+
 	          update( aggregation_key(data), doc, :upsert => true, :safe => safe)
 	        end
 
 	        def remove_mongo_id(*documents)
 	          unless owner.respond_to?(:record_id) && owner.record_id.to_s == "_id"
-	            documents.each { |doc| doc.delete("_id")}
+	            documents.compact.each { |doc| doc.delete("_id") }
 	          end
 	          documents.length > 1 ? documents : documents.pop
 	        end
